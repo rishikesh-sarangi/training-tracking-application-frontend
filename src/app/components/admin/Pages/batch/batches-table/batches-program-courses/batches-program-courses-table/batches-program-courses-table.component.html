@@ -1,7 +1,7 @@
 <div class="batch-program-courses-table-component">
   <div class="table-responsive">
     <table mat-table [dataSource]="dataSource" matSort>
-      <form [formGroup]="editBatchProgramCourses">
+      <form [formGroup]="editBatchProgramCoursesReactiveForm">
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Actions</th>
           <td mat-cell *matCellDef="let row; let i = index">
@@ -43,8 +43,12 @@
               </div>
             </ng-container>
             <ng-template #editMode>
-              <mat-form-field appearance="outline" class="dense-form-field-5">
-                <input matInput formControlName="code" />
+              <mat-form-field
+                appearance="outline"
+                class="dense-form-field-5"
+                style="width: 100px"
+              >
+                <input matInput formControlName="code" [readonly]="true" />
                 <mat-error>Field must not be empty</mat-error>
               </mat-form-field>
             </ng-template>
@@ -61,11 +65,15 @@
             </ng-container>
             <ng-template #editMode>
               <mat-form-field appearance="outline" class="dense-form-field-5">
-                <input
-                  matInput
+                <mat-select
                   formControlName="courseName"
-                  placeholder="Enter Course Name"
-                />
+                  placeholder="Select Course"
+                  (selectionChange)="onCourseChange($event)"
+                >
+                  <mat-option *ngFor="let course of courses" [value]="course">
+                    {{ course.courseName }}
+                  </mat-option>
+                </mat-select>
                 <mat-error>Field must not be empty</mat-error>
               </mat-form-field>
             </ng-template>
@@ -83,12 +91,22 @@
               </div>
             </ng-container>
             <ng-template #editMode>
-              <mat-form-field appearance="outline" class="dense-form-field-5">
-                <input
-                  matInput
+              <mat-form-field
+                appearance="outline"
+                class="dense-form-field-5"
+                style="width: 100%"
+              >
+                <mat-select
                   formControlName="teacherName"
-                  placeholder="Enter Teacher Name"
-                />
+                  placeholder="Select Teacher Name"
+                >
+                  <mat-option
+                    *ngFor="let teacher of teachers"
+                    [value]="teacher"
+                  >
+                    {{ teacher.teacherName }}
+                  </mat-option>
+                </mat-select>
                 <mat-error>Field must not be empty</mat-error>
               </mat-form-field>
             </ng-template>

@@ -11,6 +11,9 @@
       <span *ngIf="targetBatchCode_programs && targetBatchProgramName"
         >Batch Program</span
       >
+      <span *ngIf="targetTeacherNameBatch && targetCourseNameBatch">
+        Course - Teacher
+      </span>
       ?
     </div>
     <mat-icon [mat-dialog-close]="false"
@@ -56,6 +59,13 @@
     <div class="dialogue-content">
       Are you sure you want to delete batch {{ targetBatchCode }}/
       {{ targetBatchName }}?
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="targetTeacherNameBatch && targetCourseNameBatch">
+    <div class="dialogue-content">
+      Are you sure you want to delete course {{ targetCourseNameBatch }}/
+      {{ targetTeacherNameBatch }}?
     </div>
   </ng-container>
 

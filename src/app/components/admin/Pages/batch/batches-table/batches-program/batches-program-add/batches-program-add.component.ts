@@ -18,6 +18,7 @@ import {
 } from 'src/app/components/admin/shared/models/batch-layer2.model';
 import { ProgramsTable } from 'src/app/components/admin/shared/models/ProgramsTable';
 import { EnrollmentService } from 'src/app/components/shared/Services/enrollment.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-batches-program-add',
@@ -42,7 +43,8 @@ export class BatchesProgramAddComponent implements OnInit {
     private programService: ProgramsTableService,
     private studentService: StudentTableService,
     private batchProgramsService: BatchProgramsService,
-    private enrollmentService: EnrollmentService
+    private enrollmentService: EnrollmentService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -106,14 +108,15 @@ export class BatchesProgramAddComponent implements OnInit {
       };
 
       // console.log(payload);
-
       this.enrollmentService.enrollStudents(payload).subscribe(
         (data) => {
           // console.log(data);
           this.closeForm();
         },
         (err) => {
-          console.log(err);
+          this.snackBar.open(err, 'Close', {
+            duration: 3000,
+          });
         }
       );
     }

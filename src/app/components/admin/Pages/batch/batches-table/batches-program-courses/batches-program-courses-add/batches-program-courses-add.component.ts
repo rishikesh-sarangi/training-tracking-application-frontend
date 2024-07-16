@@ -19,6 +19,7 @@ import {
   CoursesDTO,
   TeacherDTO,
 } from 'src/app/components/admin/shared/models/CoursesDTO';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-batches-program-courses-add',
   standalone: true,
@@ -41,7 +42,8 @@ export class BatchesProgramCoursesAddComponent implements OnInit {
     private programService: ProgramsTableService,
     private teacherService: TeachersTableService,
     private courseService: CourseTableDataService,
-    private batchService: BatchServiceService
+    private batchService: BatchServiceService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -67,6 +69,17 @@ export class BatchesProgramCoursesAddComponent implements OnInit {
     });
   }
 
+  onCourseChange(event: any) {
+    // console.log(event.value);
+    const index = this.courses.indexOf(event.value);
+    const code = this.courses[index].courseCode;
+    // console.log(code);
+    this.addBatchProgramCoursesReactiveForm.get('code')?.setValue(code);
+
+    this.teachers = event.value.teachers;
+    // console.log(this.teachers);
+  }
+
   onSubmit() {
     if (this.addBatchProgramCoursesReactiveForm.valid) {
       // console.log(this.addBatchProgramCoursesReactiveForm.value);
@@ -86,21 +99,15 @@ export class BatchesProgramCoursesAddComponent implements OnInit {
           this.closeForm();
         },
         error: (error) => {
+          // console.log('THIS IS THE ERROR BELOW');
+          // console.log(error);
+          this.snackBar.open('Course Already Exists!', 'Close', {
+            duration: 3000,
+          });
           console.log(error);
         },
       });
     }
-  }
-
-  onCourseChange(event: any) {
-    // console.log(event.value);
-    const index = this.courses.indexOf(event.value);
-    const code = this.courses[index].courseCode;
-    // console.log(code);
-    this.addBatchProgramCoursesReactiveForm.get('code')?.setValue(code);
-
-    this.teachers = event.value.teachers;
-    console.log(this.teachers);
   }
 
   @Output() isAddClicked: EventEmitter<boolean> = new EventEmitter<boolean>();

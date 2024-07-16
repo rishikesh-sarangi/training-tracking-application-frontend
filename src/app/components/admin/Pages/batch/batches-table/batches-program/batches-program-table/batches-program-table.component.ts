@@ -109,14 +109,6 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
 
   studentsByProgram: { [programId: number]: any[] } = {};
 
-  getStudentsForRow(row: any): any[] {
-    if (!this.studentsByProgram[row.programId]) {
-      this.getStudentsByBatchAndProgram(row.programId);
-      return []; // Return an empty array while data is being fetched
-    }
-    return this.studentsByProgram[row.programId];
-  }
-
   getPrograms() {
     this.programService.getPrograms().subscribe({
       next: (res: any) => {
@@ -132,6 +124,14 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
         console.log(err);
       },
     });
+  }
+
+  getStudentsForRow(row: any): any[] {
+    if (!this.studentsByProgram[row.programId]) {
+      this.getStudentsByBatchAndProgram(row.programId);
+      return []; // Return an empty array while data is being fetched
+    }
+    return this.studentsByProgram[row.programId];
   }
 
   getStudentsByBatchAndProgram(programId: number) {
@@ -185,34 +185,42 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
   }
 
   saveBatchProgram(row: any) {
-    // console.log(row.programId);
+    if (this.editBatchProgramReactiveForm.valid) {
+      const payload = {
+        batchId: this.batchId,
+        programId:
+          this.editBatchProgramReactiveForm.value.programName.programId,
+        oldProgramId: row.programId,
+        students: this.editBatchProgramReactiveForm.value.students,
+      };
 
-    const studentIds: number[] =
-      this.editBatchProgramReactiveForm.value.students.map(
-        (student: any) => student.studentId
-      );
+      this.enrollmentService.updateEnrollment(payload).subscribe({
+        next: (data) => {
+          // Update the local data
+          const updatedRow = this.dataSource.find(
+            (item: any) => item.programId === payload.programId
+          );
+          if (updatedRow) {
+            updatedRow.programName =
+              this.editBatchProgramReactiveForm.value.programName.programName;
+            updatedRow.programCode =
+              this.editBatchProgramReactiveForm.value.code;
 
-    const payload = {
-      batchId: this.batchId,
-      currentProgramId: row.programId,
-      newProgramId:
-        this.editBatchProgramReactiveForm.value.programName.programId,
-      newStudentIds: studentIds,
-    };
+            // Update the studentsByProgram for this program
+            this.studentsByProgram[payload.programId] = payload.students;
+          }
 
-    // console.log(payload);
+          // Trigger change detection
+          this.dataSource = [...this.dataSource];
 
-    this.enrollmentService.updateEnrollment(payload).subscribe({
-      next: (data) => {
-        console.log(data);
-        this.getBatchPrograms();
-        this.getStudentsForRow(row);
-        this.cancelEditing();
-      },
-      error: (error) => {
-        console.log(error);
-      },
-    });
+          this.getBatchPrograms();
+          this.cancelEditing();
+        },
+        error: (error) => {
+          console.log(error);
+        },
+      });
+    }
   }
 
   cancelEditing() {
@@ -223,7 +231,7 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
   getBatchPrograms() {
     this.batchService.getBatchPrograms(this.batchId).subscribe({
       next: (data) => {
-        console.log(data);
+        // console.log(data);
         this.dataSource = data;
       },
       error: (error) => {

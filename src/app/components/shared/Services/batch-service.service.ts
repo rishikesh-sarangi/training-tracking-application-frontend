@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { BatchLayer1Data } from '../../admin/shared/models/BatchLayer1Data';
 import { CoursesDTO } from '../../admin/shared/models/CoursesDTO';
 import { BatchProgramCourse } from '../../admin/shared/models/BatchProgramCourse';
+import { BatchProgramTeacherCoursesDelete } from '../../admin/shared/models/BatchProgramTeacherCoursesDelete';
 
 @Injectable({
   providedIn: 'root',
@@ -52,6 +53,15 @@ export class BatchServiceService {
     return this._http.post(
       'http://localhost:5050/batch-course-teacher/update',
       batchProgramCourse
+    );
+  }
+
+  deleteBatchProgramCourses(
+    data: BatchProgramTeacherCoursesDelete
+  ): Observable<boolean> {
+    return this._http.post<boolean>(
+      'http://localhost:5050/batch-course-teacher',
+      data
     );
   }
 
