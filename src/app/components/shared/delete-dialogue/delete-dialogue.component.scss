@@ -1,0 +1,23 @@
+$cozentus: #2c3b52;
+.title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.action-btns {
+  button {
+    padding: 0px 40px;
+  }
+
+  :first-child {
+    background-color: $cozentus;
+  }
+}
+
+.dialogue-content {
+  color: grey;
+  font-size: 16px;
+  padding: 20px 0;
+}

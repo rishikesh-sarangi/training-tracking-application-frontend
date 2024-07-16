@@ -1,0 +1,41 @@
+@import "../../courses/courses.component.scss";
+
+.action-buttons {
+  display: flex;
+  gap: 5px;
+
+  mat-icon {
+    cursor: pointer;
+  }
+}
+
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.code {
+  text-decoration: underline;
+  color: #2d74ff;
+  cursor: pointer;
+}
+
+.topics-container {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topic-names {
+  display: inline;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.extra-topics {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #2d74ff;
+}

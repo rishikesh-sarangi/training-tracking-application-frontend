@@ -1,0 +1,135 @@
+<div class="batches-program-courses-add-component">
+  <!-- add batch form -->
+  <ng-container>
+    <div class="add-course-form">
+      <form
+        (ngSubmit)="onSubmit()"
+        [formGroup]="addBatchProgramCoursesReactiveForm"
+      >
+        <div class="table-responsive">
+          <table mat-table [dataSource]="[{}]">
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>
+                <span class="mat-subtitle-1" style="font-weight: 500"
+                  >Actions</span
+                >
+              </th>
+              <td mat-cell *matCellDef="let element">
+                <div class="action-buttons">
+                  <mat-icon>
+                    <span class="material-symbols-outlined">
+                      expand_circle_down
+                    </span>
+                  </mat-icon>
+
+                  <mat-icon
+                    [ngClass]="{
+                      'disabled-icon': !addBatchProgramCoursesReactiveForm
+                    }"
+                    (click)="onSubmit()"
+                    ><span class="material-symbols-outlined">
+                      done
+                    </span></mat-icon
+                  >
+
+                  <mat-icon (click)="closeForm()"
+                    ><span
+                      class="material-symbols-outlined"
+                      style="margin-right: 10px !important"
+                    >
+                      close
+                    </span></mat-icon
+                  >
+
+                  <mat-icon style="transform: rotate(90deg)"
+                    ><span class="material-symbols-outlined">
+                      horizontal_rule
+                    </span></mat-icon
+                  >
+
+                  <mat-icon class="disabled-icon"
+                    ><span class="material-symbols-outlined">
+                      add
+                    </span></mat-icon
+                  >
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="code">
+              <th mat-header-cell *matHeaderCellDef>
+                <span class="mat-subtitle-1" style="font-weight: 500"
+                  >Code</span
+                >
+              </th>
+              <td mat-cell *matCellDef="let element">
+                <mat-form-field
+                  appearance="outline"
+                  class="dense-form-field-5"
+                  style="width: 100px"
+                >
+                  <input matInput formControlName="code" [readonly]="true" />
+                  <mat-error>Field must not be empty</mat-error>
+                </mat-form-field>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="courseName">
+              <th mat-header-cell *matHeaderCellDef>
+                <span class="mat-subtitle-1" style="font-weight: 500"
+                  >Course Name</span
+                >
+              </th>
+              <td mat-cell *matCellDef="let element">
+                <mat-form-field appearance="outline" class="dense-form-field-5">
+                  <mat-select
+                    formControlName="course"
+                    placeholder="Select Course"
+                    (selectionChange)="onCourseChange($event)"
+                  >
+                    <mat-option *ngFor="let course of courses" [value]="course">
+                      {{ course.courseName }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error>Field must not be empty</mat-error>
+                </mat-form-field>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="teacherName">
+              <th mat-header-cell *matHeaderCellDef>
+                <span class="mat-subtitle-1" style="font-weight: 500"
+                  >Teacher Name</span
+                >
+              </th>
+              <td mat-cell *matCellDef="let element">
+                <mat-form-field
+                  appearance="outline"
+                  class="dense-form-field-5"
+                  style="width: 100%"
+                >
+                  <mat-select
+                    formControlName="teacher"
+                    placeholder="Select Teacher Name"
+                  >
+                    <mat-option
+                      *ngFor="let teacher of teachers"
+                      [value]="teacher"
+                    >
+                      {{ teacher.teacherName }}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error>Field must not be empty</mat-error>
+                </mat-form-field>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        </div>
+      </form>
+    </div>
+  </ng-container>
+</div>

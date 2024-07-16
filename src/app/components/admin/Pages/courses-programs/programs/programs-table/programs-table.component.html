@@ -1,0 +1,279 @@
+<div style="margin-top: 40px" class="courses-table-component">
+  <div class="table-responsive">
+    <table mat-table [dataSource]="dataSource" matSort>
+      <form [formGroup]="editProgramsReactiveForm">
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Actions</th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <div
+              class="action-buttons"
+              *ngIf="i != editingRowID; else editMode"
+            >
+              <mat-icon (click)="editPrograms(i, row)">
+                <span class="material-icons-outlined"> edit </span>
+              </mat-icon>
+              <!--(click)="openDeleteDialog(row.id)"  -->
+              <mat-icon
+                (click)="
+                  deletePrograms(
+                    row.programId,
+                    row.programCode,
+                    row.programName
+                  )
+                "
+                ><span class="material-icons-outlined"> delete </span></mat-icon
+              >
+            </div>
+            <ng-template #editMode>
+              <div class="action-buttons-edit">
+                <mat-icon
+                  ><span
+                    class="material-icons-outlined"
+                    (click)="savePrograms(row)"
+                  >
+                    done
+                  </span></mat-icon
+                >
+                <mat-icon (click)="cancelEditing()">
+                  <span class="material-icons-outlined"> close </span>
+                </mat-icon>
+              </div></ng-template
+            >
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="programCode">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
+
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              <!-- (click)="navigateToTopics(row)" -->
+              <div class="code">
+                {{ row.programCode }}
+              </div>
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field
+                style="width: 150px !important"
+                class="dense-form-field-5"
+                appearance="outline"
+              >
+                <input
+                  matInput
+                  formControlName="programCode"
+                  placeholder="Enter Code"
+                />
+              </mat-form-field>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="programName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Program Name
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              {{ row.programName }}
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field appearance="outline" class="dense-form-field-5">
+                <input
+                  matInput
+                  formControlName="programName"
+                  placeholder="Enter Program Name"
+                />
+              </mat-form-field>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="theoryTime">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Theory Time</th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              {{ row.theoryTime }}hr
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field
+                class="dense-form-field-5"
+                style="width: 100px !important"
+                appearance="outline"
+              >
+                <input
+                  matInput
+                  name="theoryTime"
+                  formControlName="theoryTime"
+                  placeholder="0 hr"
+                /> </mat-form-field
+            ></ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="practiceTime">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Practice Time
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode"
+              >{{ row.practiceTime }}hr
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field
+                class="dense-form-field-5"
+                style="width: 100px !important"
+                appearance="outline"
+              >
+                <input
+                  matInput
+                  name="practiceTime"
+                  formControlName="practiceTime"
+                  placeholder="0 hr"
+                />
+              </mat-form-field>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Description</th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              <span
+                [matTooltip]="row.description"
+                style="color: rgb(70, 140, 201)"
+                >{{ row.description | slice : 0 : 25
+                }}{{ row.description.length > 25 ? "..." : "" }}</span
+              >
+            </ng-container>
+            <ng-template #editMode>
+              <p
+                (click)="isDescOpen = !isDescOpen"
+                type="button"
+                cdkOverlayOrigin
+                #trigger="cdkOverlayOrigin"
+                class="input-text"
+              >
+                <span
+                  [matTooltip]="row.description"
+                  style="color: rgb(70, 140, 201)"
+                  >{{ row.description | slice : 0 : 25
+                  }}{{ row.description.length > 25 ? "..." : "" }}</span
+                >
+              </p>
+              <ng-template
+                cdkConnectedOverlay
+                [cdkConnectedOverlayOrigin]="trigger"
+                [cdkConnectedOverlayOpen]="isDescOpen"
+                (overlayOutsideClick)="isDescOpen = !isDescOpen"
+                [cdkConnectedOverlayPositions]="[
+                  {
+                    originX: 'start',
+                    originY: 'bottom',
+                    overlayX: 'end',
+                    overlayY: 'top',
+                    offsetX: 120
+                  }
+                ]"
+              >
+                <div class="overlay">
+                  <div class="overlay-first-row">
+                    <p>Description</p>
+                    <mat-icon
+                      (click)="isDescOpen = !isDescOpen"
+                      style="cursor: pointer"
+                      ><span class="material-symbols-outlined">
+                        close
+                      </span></mat-icon
+                    >
+                  </div>
+                  <div class="overlay-second-row">
+                    <mat-form-field style="width: 100%">
+                      <textarea
+                        matInput
+                        formControlName="description"
+                        (input)="onInputChange($event)"
+                      ></textarea>
+                      <mat-error
+                        >Field can't be empty or have more than 40
+                        characters</mat-error
+                      >
+                    </mat-form-field>
+                  </div>
+                  <div class="overlay-third-row">
+                    <p>{{ lettersTypedDesc }}/40</p>
+                    <div class="save-close">
+                      <button
+                        mat-raised-button
+                        color="primary"
+                        (click)="isDescOpen = !isDescOpen"
+                      >
+                        Save</button
+                      ><button
+                        (click)="isDescOpen = !isDescOpen"
+                        mat-stroked-button
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="courses">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Courses</th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i !== editingRowID; else editMode">
+              <span
+                *ngFor="let course of row.courses.slice(0, 2); let last = last"
+              >
+                {{ course.courseName }}{{ last ? "" : ", " }}
+              </span>
+              <ng-container *ngIf="row.courses.length > 2">
+                <span
+                  [matTooltip]="getRemainingCoursesWithNumbers(row.courses)"
+                  matTooltipClass="tooltip-custom"
+                  style="
+                    text-decoration: underline;
+                    color: rgb(70, 140, 201);
+                    cursor: pointer;
+                  "
+                >
+                  +{{ row.courses.length - 2 }}
+                </span>
+              </ng-container>
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field
+                appearance="outline"
+                class="dense-form-field-5"
+                style="margin-top: 10px"
+              >
+                <mat-select
+                  formControlName="courses"
+                  multiple
+                  placeholder="Select Course"
+                >
+                  <mat-option *ngFor="let course of courses" [value]="course">
+                    {{ course.courseName }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Field must not be empty</mat-error>
+              </mat-form-field></ng-template
+            >
+          </td>
+        </ng-container>
+      </form>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <mat-paginator
+      [pageSizeOptions]="[10, 25, 100]"
+      aria-label="Select page of users"
+    ></mat-paginator>
+  </div>
+</div>

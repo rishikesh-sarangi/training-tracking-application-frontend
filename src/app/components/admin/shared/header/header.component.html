@@ -1,0 +1,130 @@
+<mat-toolbar color="primary" class="header">
+  <!-- header top -->
+  <mat-toolbar-row>
+    <div class="navbar-left">
+      <img
+        src="../../../../assets/images/cozentuslogo.png"
+        alt="cozentuslogo"
+        class="company-logo"
+      />
+    </div>
+    <div class="navbar-right">
+      <button mat-button [matMenuTriggerFor]="menu">
+        <mat-icon
+          ><span
+            class="material-icons-outlined material-icons-outlined-customzied"
+          >
+            face
+          </span></mat-icon
+        >
+        <span class="mat-h2 white-text user-name">Ritesh Sahoo</span>
+        <mat-icon iconPositionEnd><span> expand_more </span></mat-icon>
+      </button>
+    </div>
+  </mat-toolbar-row>
+
+  <!-- navbar -->
+  <mat-toolbar-row style="margin-top: 5px">
+    <button mat-button [matMenuTriggerFor]="menu2" class="navbar-buttons">
+      <mat-icon
+        ><span
+          class="material-icons-outlined material-icons-outlined-customzied"
+        >
+          insert_drive_file
+        </span>
+      </mat-icon>
+
+      <span class="white-text">{{ selectedTab }}</span>
+      <mat-icon iconPositionEnd>keyboard_arrow_down</mat-icon>
+    </button>
+    <button
+      mat-button
+      class="navbar-buttons"
+      routerLink="batch"
+      routerLinkActive="activeColor"
+    >
+      <mat-icon
+        ><span
+          class="material-icons-outlined material-icons-outlined-customzied"
+        >
+          people_alt
+        </span></mat-icon
+      >
+      <span class="white-text">Batch</span>
+    </button>
+    <button
+      mat-button
+      class="navbar-buttons"
+      routerLink="teachers"
+      routerLinkActive="activeColor"
+    >
+      <mat-icon
+        ><span
+          class="material-icons-outlined material-icons-outlined-customzied"
+        >
+          person
+        </span></mat-icon
+      >
+      <span class="white-text">Teachers</span>
+    </button>
+    <button
+      mat-button
+      class="navbar-buttons"
+      routerLink="students"
+      routerLinkActive="activeColor"
+    >
+      <mat-icon
+        ><span
+          class="material-icons-outlined material-icons-outlined-customzied"
+        >
+          person_3
+        </span></mat-icon
+      ><span class="white-text">Students</span>
+    </button>
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<!-- child components -->
+<router-outlet></router-outlet>
+
+<!-- menus -->
+<!-- logout -->
+<mat-menu #menu="matMenu" class="user-menu dense-3">
+  <span class="xs-user-name">Ritesh Sahoo</span>
+  <button mat-menu-item (click)="logOut()" class="logout-btn">
+    <mat-icon>
+      <span class="material-icons-outlined white-text">
+        power_settings_new
+      </span>
+    </mat-icon>
+    <span class="white-text">Sign Out</span>
+  </button>
+</mat-menu>
+
+<!-- courses-programs  -->
+<mat-menu #menu2="matMenu" class="mat-menu-2">
+  <button
+    mat-menu-item
+    routerLink="courses"
+    class="course-menu-btn dense-3"
+    (click)="toggleCoursePrograms(true)"
+  >
+    <mat-icon>
+      <span class="material-icons-outlined white-text">
+        insert_drive_file
+      </span>
+    </mat-icon>
+    <span class="white-text"> Courses</span>
+  </button>
+  <button
+    mat-menu-item
+    class="course-menu-btn dense-3"
+    routerLink="programs"
+    (click)="toggleCoursePrograms(false)"
+  >
+    <mat-icon
+      ><span class="material-icons-sharp white-text"> list_alt </span>
+    </mat-icon>
+    <span class="white-text">Programs</span>
+  </button>
+</mat-menu>

@@ -1,0 +1,294 @@
+<div class="batches-program-component">
+  <div class="table-responsive">
+    <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows>
+      <form [formGroup]="sharedReactiveForm">
+        <!-- actions -->
+        <ng-container matColumnDef="actions">
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            mat-sort-header
+            style="width: 22%"
+          >
+            Actions
+          </th>
+          <td mat-cell *matCellDef="let row; let i = dataIndex">
+            <div class="action-buttons">
+              <span
+                *ngIf="i != editingRowID; else editMode"
+                class="action-buttons"
+              >
+                <mat-icon (click)="editSharedData(i, row)">
+                  <span class="material-icons-outlined"> edit </span>
+                </mat-icon>
+                <mat-icon (click)="deleteSharedData(row)"
+                  ><span class="material-icons-outlined">
+                    delete
+                  </span></mat-icon
+                > </span
+              ><span style="font-size: 25px">|</span>
+              <span
+                (click)="toggleTable(row)"
+                class="mark-students"
+                [ngClass]="{ 'disabled-text': isMarkStudentsClicked }"
+                >Mark Students</span
+              >
+              <ng-template #editMode>
+                <span class="action-buttons">
+                  <mat-icon
+                    ><span
+                      class="material-icons-outlined"
+                      (click)="saveSharedData(row)"
+                    >
+                      done
+                    </span></mat-icon
+                  >
+                  <mat-icon (click)="cancelEditing()">
+                    <span class="material-icons-outlined"> close </span>
+                  </mat-icon>
+                </span></ng-template
+              >
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- exam name and assignment name -->
+        <ng-container
+          [matColumnDef]="isAssignments ? 'assignmentName' : 'examName'"
+        >
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ isAssignments ? "Assignment Name" : "Exam Name" }}
+          </th>
+          <td mat-cell *matCellDef="let row; let i = dataIndex">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              <div>
+                {{ row[isAssignments ? "assignmentName" : "examName"] }}
+              </div>
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field appearance="outline" class="dense-form-field-5">
+                <input
+                  matInput
+                  [formControlName]="
+                    isAssignments ? 'assignmentName' : 'examName'
+                  "
+                />
+                <mat-error>Field must not be empty</mat-error>
+              </mat-form-field>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <!-- total marks -->
+        <ng-container matColumnDef="totalMarks">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Total Marks</th>
+          <td mat-cell *matCellDef="let row; let i = dataIndex">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              <div>
+                {{ row.totalMarks }}
+              </div>
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field appearance="outline" class="dense-form-field-5">
+                <input matInput formControlName="totalMarks" />
+                <mat-error>Field must not be empty</mat-error>
+              </mat-form-field>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <!-- Exam Date / Assignment Date -->
+        <ng-container
+          [matColumnDef]="isAssignments ? 'assignmentDate' : 'examDate'"
+        >
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+          <td mat-cell *matCellDef="let row; let i = dataIndex">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              <div>
+                {{
+                  row[isAssignments ? "assignmentDate" : "examDate"]
+                    | date : "dd MMM yyyy"
+                }}
+              </div>
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field
+                appearance="outline"
+                class="dense-datepicker-5"
+                ngStyle.gt-sm="min-width: 200px"
+                ngStyle.gt-md="min-width: 300px"
+              >
+                <input
+                  matInput
+                  [matDatepicker]="picker"
+                  [formControlName]="
+                    isAssignments ? 'assignmentDate' : 'examDate'
+                  "
+                  placeholder="Select Date"
+                />
+                <mat-datepicker-toggle
+                  matIconSuffix
+                  [for]="picker"
+                ></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <!-- exam time / assignment time -->
+        <ng-container
+          [matColumnDef]="isAssignments ? 'assignmentTime' : 'examTime'"
+        >
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ isAssignments ? "Assignment Time" : "Exam Time" }}
+          </th>
+          <td mat-cell *matCellDef="let row; let i = dataIndex">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              <div>
+                {{ row[isAssignments ? "assignmentTime" : "examTime"] }}
+              </div>
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field appearance="outline" class="dense-form-field-5">
+                <input
+                  matInput
+                  type="time"
+                  [formControlName]="
+                    isAssignments ? 'assignmentTime' : 'examTime'
+                  "
+                />
+                <mat-error>Field must not be empty</mat-error>
+              </mat-form-field>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <!-- files -->
+        <ng-container matColumnDef="uploadFile">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Files
+            <mat-icon></mat-icon>
+          </th>
+          <td mat-cell *matCellDef="let row; let i = dataIndex">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              <div>
+                <!-- {{ row.uploadFile }} -->
+                filename.pdf
+              </div>
+            </ng-container>
+            <ng-template #editMode>
+              <div class="upload-form-fields">
+                <input
+                  type="file"
+                  (change)="onFileSelected($event)"
+                  style="display: none"
+                  #fileInput
+                  matFileInput
+                  formControlName="uploadFile"
+                />
+
+                <mat-icon (click)="fileInput.click()"
+                  ><span class="material-icons-outlined">
+                    file_upload
+                  </span></mat-icon
+                >
+              </div>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <!-- expansion Table -->
+        <ng-container matColumnDef="markStudentsTable">
+          <td
+            mat-cell
+            *matCellDef="let row2"
+            [attr.colspan]="displayedColumns.length"
+          >
+            <div
+              [@detailExpand]="
+                row2 === expandedRowTable ? 'expanded' : 'collapsed'
+              "
+              class="example-element-detail"
+            >
+              <ng-container *ngIf="row2 === expandedRowTable">
+                <!-- logic for students -->
+                <div
+                  class="students-panel"
+                  fxLayout="row"
+                  fxLayoutAlign="space-between start"
+                  style="padding: 10px"
+                >
+                  <div class="header-1" fxLayout="column">
+                    <div
+                      class="heading-students"
+                      fxLayout="row"
+                      fxLayoutGap="50px"
+                    >
+                      <div
+                        fxLayout="row"
+                        fxLayoutGap="90px"
+                        style="padding-bottom: 10px"
+                      >
+                        <div style="font-weight: 500; font-size: 15px">
+                          Students
+                        </div>
+                        <div style="font-weight: 500; font-size: 15px">
+                          Marks
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      class="heading-marks"
+                      fxLayout="column"
+                      fxLayoutGap="20px"
+                    >
+                      <div
+                        *ngFor="let student of students"
+                        fxLayout="row"
+                        fxLayoutGap="20px"
+                      >
+                        <div style="min-width: 130px">{{ student }}</div>
+                        <div>
+                          <input type="text" style="width: 50px" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="header-2">
+                    <button
+                      mat-button
+                      color="primary"
+                      (click)="toggleTable(null)"
+                    >
+                      Close
+                    </button>
+                    <button mat-raised-button>Save</button>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </td>
+        </ng-container>
+      </form>
+      <tr
+        mat-header-row
+        *matHeaderRowDef="displayedColumns"
+        style="background-color: #f0f6ff"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        style="background-color: #f0f6ff"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row2; columns: ['markStudentsTable']"
+        class="example-detail-row"
+        style="background-color: #f0f6ff"
+      ></tr>
+    </table>
+  </div>
+</div>

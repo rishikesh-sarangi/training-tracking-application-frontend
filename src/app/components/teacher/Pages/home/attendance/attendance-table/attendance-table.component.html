@@ -1,0 +1,133 @@
+<form
+  (ngSubmit)="onSubmit()"
+  [formGroup]="attendanceReactiveForm"
+  *ngIf="enabledTable"
+>
+  <div class="table-responsive">
+    <table mat-table [dataSource]="[{}]">
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>
+          <span class="mat-subtitle-1" style="font-weight: 500">Actions</span>
+        </th>
+        <td mat-cell *matCellDef="let element">
+          <button
+            type="submit"
+            mat-icon-button
+            [disabled]="!attendanceReactiveForm.valid"
+            style="margin-bottom: 20px"
+          >
+            <mat-icon
+              ><span class="material-symbols-outlined"> done </span></mat-icon
+            >
+          </button>
+          <button mat-icon-button (click)="closeForm()">
+            <mat-icon
+              ><span
+                class="material-symbols-outlined"
+                style="margin-right: 10px !important"
+              >
+                close
+              </span></mat-icon
+            >
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- topic col -->
+      <ng-container matColumnDef="topicName">
+        <th mat-header-cell *matHeaderCellDef>
+          <span class="mat-subtitle-1" style="font-weight: 500"
+            >Topic Name</span
+          >
+        </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-form-field appearance="outline" class="dense-form-field-5">
+            <mat-select formControlName="topicName">
+              <mat-option *ngFor="let topic of topics" [value]="topic">
+                {{ topic }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </td>
+      </ng-container>
+
+      <!-- % completed  -->
+      <ng-container matColumnDef="topicPercentageCompleted">
+        <th mat-header-cell *matHeaderCellDef>
+          <span class="mat-subtitle-1" style="font-weight: 500"
+            >Topic Percentage Completed</span
+          >
+        </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-form-field appearance="outline" class="dense-form-field-5">
+            <input
+              matInput
+              formControlName="topicPercentageCompleted"
+              placeholder="Enter % completed"
+            />
+            <mat-error>Field must not be empty</mat-error>
+          </mat-form-field>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </div>
+</form>
+
+<!-- main table -->
+<table mat-table [dataSource]="dataSource">
+  <!--- Note that these columns can be defined in any order.
+        The actual rendered columns are set as a property on the row definition" -->
+
+  <!-- Position Column -->
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef>Actions</th>
+    <td mat-cell *matCellDef="let row">Test</td>
+  </ng-container>
+
+  <!-- Name Column -->
+  <ng-container matColumnDef="topicName">
+    <th mat-header-cell *matHeaderCellDef>Topic Name</th>
+    <td mat-cell *matCellDef="let row">{{ row.topicName }}</td>
+  </ng-container>
+
+  <!-- Weight Column -->
+  <ng-container matColumnDef="topicPercentageCompleted">
+    <th mat-header-cell *matHeaderCellDef>% Completed</th>
+    <td mat-cell *matCellDef="let row">{{ row.topicPercentageCompleted }}</td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>
+
+<!-- Attendace of students -->
+<div class="attendance" fxLayout="row" fxLayoutGap="20px">
+  <div class="left-side">
+    <div>
+      <div>All Students</div>
+    </div>
+    <div *ngFor="let student of students">
+      <div>{{ student }}</div>
+    </div>
+  </div>
+
+  <div class="right-side">
+    <div>
+      <mat-checkbox
+        [(ngModel)]="allChecked"
+        (change)="toggleAll()"
+      ></mat-checkbox>
+    </div>
+
+    <div *ngFor="let option of options">
+      <mat-checkbox
+        [(ngModel)]="option.checked"
+        (change)="updateAllChecked()"
+      ></mat-checkbox>
+    </div>
+  </div>
+</div>

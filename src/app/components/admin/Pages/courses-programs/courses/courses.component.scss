@@ -1,0 +1,157 @@
+.courses-component {
+  background-color: #f1f5ff;
+  //   background-color: red;
+  height: 100vh;
+  width: 100%;
+}
+
+.courses-header {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 20px;
+  padding-top: 10px;
+}
+
+.courses-section {
+  background-color: #fff;
+  margin: 0 20px;
+  padding: 20px;
+}
+
+.search-addCourse {
+  display: flex;
+  justify-content: space-between;
+}
+
+.search-field {
+  height: 25px;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-radius: 3px;
+  padding: 5px 10px;
+  //   media query for min width 768px
+  @media (min-width: 768px) {
+    width: 250px;
+  }
+}
+
+.search-addCourse button {
+  padding: 0 30px;
+}
+
+.add-course-form {
+  // margin-top: 40px;
+}
+
+.material-icons-outlined-customzied {
+  font-size: 18px;
+}
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive > .table {
+  margin-bottom: 0;
+}
+table {
+  background-color: #f1f5ff;
+  border-collapse: unset;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.input-fields {
+  border: none;
+  outline: none;
+  padding: 10px !important;
+  border-radius: 5px;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+}
+.enter-code {
+  width: 100px;
+}
+.course-name {
+  width: 125px;
+}
+
+.theory-time,
+.practice-time {
+  width: 90px;
+}
+
+.custom-spacing {
+  padding-right: 54px;
+}
+
+.cols > td {
+  padding-bottom: 20px;
+  font-weight: 500;
+}
+
+.overlay {
+  background-color: white;
+  margin-top: 20px;
+  padding: 10px 20px;
+
+  width: 500px;
+
+  @media (max-width: 500px) {
+    width: 300px;
+  }
+
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+}
+
+.overlay-first-row {
+  display: flex;
+  justify-content: space-between;
+}
+.overlay-second-row {
+  textarea {
+    width: 100%;
+    height: 10em;
+  }
+}
+.overlay-third-row {
+  margin-top: 20px;
+
+  .save-close {
+    display: flex;
+    gap: 5px;
+    :first-child {
+      background-color: #2c75ff;
+    }
+
+    button {
+      padding: 3px 35px;
+    }
+  }
+  display: flex;
+  justify-content: space-between;
+}
+
+.overlay::before {
+  content: "";
+  display: block;
+  position: absolute;
+  right: 4rem;
+  top: 6px;
+  border-bottom: 15px solid rgb(255, 255, 255);
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+}
+
+.input-text {
+  text-decoration: underline;
+  color: #6a91c7;
+  cursor: pointer;
+}
+
+.first {
+  color: red;
+}

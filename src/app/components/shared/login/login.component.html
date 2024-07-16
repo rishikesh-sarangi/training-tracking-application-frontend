@@ -1,0 +1,56 @@
+<div class="main-bg">
+  <div class="container">
+    <div class="login-box">
+      <img
+        src="../../../assets/images/cozentuslogo.png"
+        alt="cozentus-logo"
+        class="cozentus-logo"
+      />
+      <form class="login-form" [formGroup]="loginForm">
+        <mat-form-field appearance="outline" class="dense-3">
+          <mat-label><span>Email</span></mat-label>
+          <input matInput class="input-text-color" formControlName="email" />
+          <mat-error>email cannot be empty</mat-error>
+          <button mat-icon-button matSuffix>
+            <mat-icon
+              ><span class="material-symbols-outlined"> person </span>
+            </mat-icon>
+          </button>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="dense-3">
+          <mat-label><span>Enter your password</span></mat-label>
+          <input
+            matInput
+            [type]="hide ? 'password' : 'text'"
+            class="input-text-color"
+            formControlName="password"
+          />
+          <mat-error>password must be atleast 3 characters</mat-error>
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="hide = !hide"
+            [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="hide"
+          >
+            <mat-icon>
+              <span class="material-symbols-outlined">
+                {{ hide ? "visibility_off" : "visibility-outlined" }}
+              </span>
+            </mat-icon>
+          </button>
+        </mat-form-field>
+        <div class="box-btn">
+          <mat-checkbox color="primary"
+            ><span style="color: white" class="mat-body"
+              >Keep me signed in !</span
+            ></mat-checkbox
+          >
+          <button mat-button class="login-btn" (click)="onSubmit()">
+            <span class="login-text">Login</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

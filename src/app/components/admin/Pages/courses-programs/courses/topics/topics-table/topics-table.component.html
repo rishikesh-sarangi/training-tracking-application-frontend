@@ -1,0 +1,191 @@
+<div style="margin-top: 40px" class="courses-table-component">
+  <div class="table-responsive">
+    <table mat-table [dataSource]="dataSource" matSort matSortActive="order">
+      <form [formGroup]="editTopicsReactiveForm">
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Actions</th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <div
+              class="action-buttons"
+              *ngIf="i != editingRowID; else editMode"
+            >
+              <mat-icon (click)="editTopics(i, row)"
+                ><span class="material-icons-outlined"> edit </span></mat-icon
+              >
+              <!--(click)="openDeleteDialog(row.id)"  -->
+              <mat-icon (click)="deleteTopics(row)"
+                ><span class="material-icons-outlined"> delete </span></mat-icon
+              >
+            </div>
+            <ng-template #editMode>
+              <div class="action-buttons">
+                <mat-icon
+                  ><span
+                    class="material-icons-outlined"
+                    (click)="saveTopics(row)"
+                  >
+                    done
+                  </span></mat-icon
+                >
+                <mat-icon (click)="cancelEditing()">
+                  <span class="material-icons-outlined"> close </span>
+                </mat-icon>
+              </div></ng-template
+            >
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="order">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Order</th>
+
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              <!-- (click)="navigateToTopics(row)" -->
+              <div class="code" matTooltip="Click to view or add topic">
+                {{ row.order }}
+              </div>
+            </ng-container>
+            <ng-template #editMode>
+              <input
+                type="text"
+                formControlName="order"
+                placeholder="Enter Code"
+                class="input-fields enter-code"
+              />
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="topicName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Topic Name</th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              {{ row.topicName }}
+            </ng-container>
+            <ng-template #editMode>
+              <input
+                type="text"
+                formControlName="topicName"
+                placeholder="Enter Topic Name"
+                class="input-fields course-name"
+              />
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="theoryTime">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Theory Time</th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              {{ row.theoryTime }}hr
+            </ng-container>
+            <ng-template #editMode>
+              <input
+                type="text"
+                formControlName="theoryTime"
+                placeholder="0 hr"
+                class="input-fields theory-time"
+            /></ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="practiceTime">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Practice Time
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode"
+              >{{ row.practiceTime }}hr
+            </ng-container>
+            <ng-template #editMode>
+              <input
+                type="text"
+                formControlName="practiceTime"
+                placeholder="0 hr"
+                class="input-fields theory-time"
+              />
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="summary">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Summary</th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode"
+              >{{ row.summary }}
+            </ng-container>
+            <ng-template #editMode>
+              <input
+                type="text"
+                formControlName="summary"
+                placeholder="Add Summary"
+                class="input-fields theory-time"
+              />
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="content">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Content</th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode"
+              >{{ row.content }}
+            </ng-container>
+            <ng-template #editMode>
+              <input
+                type="text"
+                formControlName="content"
+                placeholder="Add Content"
+                class="input-fields theory-time"
+              />
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <!-- files-upload -->
+        <ng-container matColumnDef="files">
+          <th mat-header-cell *matHeaderCellDef>
+            <span class="mat-subtitle-1" style="font-weight: 500">Files</span>
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <div fxLayout="row" fxLayoutAlign=" center">
+              <mat-icon
+                ><span
+                  class="material-symbols-outlined"
+                  (click)="onFilesUploadClick(row.topicId)"
+                >
+                  upload
+                </span>
+              </mat-icon>
+              <mat-icon
+                style="transform: rotate(90deg)"
+                *ngIf="row.files.length > 0"
+                ><span class="material-symbols-outlined">
+                  horizontal_rule
+                </span></mat-icon
+              >
+              <span
+                *ngIf="row.files.length > 0"
+                [matTooltip]="getFileNames(row.files)"
+                matTooltipClass="tooltip-custom"
+                style="
+                  text-decoration: underline;
+                  color: rgb(70, 140, 201);
+                  cursor: pointer;
+                "
+                >+{{ row.files.length }} files</span
+              >
+            </div>
+          </td>
+        </ng-container>
+      </form>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <mat-paginator
+      [pageSizeOptions]="[10, 25, 100]"
+      aria-label="Select page of users"
+    ></mat-paginator>
+  </div>
+</div>

@@ -1,0 +1,42 @@
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.mark-students {
+  color: cornflowerblue;
+  cursor: pointer;
+}
+
+.disabled-text {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.example-element-detail {
+  width: 100%;
+  overflow: hidden;
+}
+
+tr.example-detail-row {
+  height: 0;
+}
+
+tr.example-element-row:not(.example-expanded-row):hover {
+  background: whitesmoke;
+}
+
+tr.example-element-row:not(.example-expanded-row):active {
+  background: #efefef;
+}
+
+.example-element-row td {
+  border-bottom-width: 0;
+}
+
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}

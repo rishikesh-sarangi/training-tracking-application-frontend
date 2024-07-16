@@ -1,0 +1,61 @@
+<div class="batches-and-programs-component">
+  <div class="mat-h2">Please select the options below to get results</div>
+  <form
+    fxLayout="row"
+    fxLayoutGap="50px"
+    fxLayout.lt-sm="column"
+    [formGroup]="batchProgramReactiveForm"
+  >
+    <!-- batch code batch name -->
+    <mat-form-field
+      appearance="outline"
+      class="dense-form-field-5"
+      ngStyle.gt-sm="min-width: 200px"
+      ngStyle.gt-md="min-width: 300px"
+    >
+      <mat-select
+        placeholder="Batch Code: Batch Name"
+        formControlName="batch"
+        (selectionChange)="onBatchChange($event)"
+      >
+        <mat-option *ngFor="let batch of batches" [value]="batch.batchCode">
+          Batch {{ batch.batchCode }}: {{ batch.batchName }}
+        </mat-option>
+      </mat-select>
+      <mat-error>Field must not be empty</mat-error>
+    </mat-form-field>
+
+    <!-- batch start date -->
+    <mat-form-field
+      appearance="outline"
+      class="dense-form-field-5"
+      ngStyle.gt-sm="min-width: 200px"
+      ngStyle.gt-md="min-width: 300px"
+    >
+      <input
+        matInput
+        formControlName="batchStartDate"
+        placeholder="Batch Start Date"
+        [readonly]="true"
+      />
+    </mat-form-field>
+
+    <!-- programcode program name -->
+    <mat-form-field
+      appearance="outline"
+      class="dense-form-field-5"
+      ngStyle.gt-sm="min-width: 200px"
+      ngStyle.gt-md="min-width: 300px"
+    >
+      <mat-select
+        placeholder="Program Code: Program Name"
+        formControlName="program"
+      >
+        <mat-option *ngFor="let program of programs" [value]="program.code">
+          {{ program.code }}: {{ program.programName }}
+        </mat-option>
+      </mat-select>
+      <mat-error>Field must not be empty</mat-error>
+    </mat-form-field>
+  </form>
+</div>

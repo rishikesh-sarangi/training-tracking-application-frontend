@@ -1,0 +1,277 @@
+<div class="courses-component">
+  <!-- header -->
+  <div class="courses-header">
+    <p class="mat-h2">Programs</p>
+    <button mat-icon-button>
+      <mat-icon
+        ><span class="material-symbols-outlined"> refresh </span></mat-icon
+      >
+    </button>
+  </div>
+
+  <!-- main section -->
+  <div class="courses-section">
+    <div class="search-addCourse">
+      <input type="text" placeholder="Search" class="search-field" />
+      <button
+        mat-stroked-button
+        [disabled]="isAddProgramsClicked"
+        (click)="isAddProgramsClicked = !isAddProgramsClicked"
+      >
+        Add Program
+      </button>
+    </div>
+
+    <!-- add course form -->
+    <ng-container *ngIf="isAddProgramsClicked">
+      <div class="add-course-form">
+        <form (ngSubmit)="onSubmit()" [formGroup]="addProgramsReactiveForm">
+          <div class="table-responsive">
+            <table mat-table [dataSource]="[{}]" class="mat-elevation-z8">
+              <!-- Actions Column -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>
+                  <span class="mat-subtitle-1" style="font-weight: 500"
+                    >Actions</span
+                  >
+                </th>
+                <td mat-cell *matCellDef="let element">
+                  <button
+                    type="submit"
+                    mat-icon-button
+                    [disabled]="!addProgramsReactiveForm.valid"
+                    style="margin-bottom: 20px"
+                  >
+                    <mat-icon
+                      ><span class="material-symbols-outlined">
+                        done
+                      </span></mat-icon
+                    >
+                  </button>
+                  <button mat-icon-button (click)="closeForm()">
+                    <mat-icon
+                      ><span
+                        class="material-symbols-outlined"
+                        style="margin-right: 10px !important"
+                      >
+                        close
+                      </span></mat-icon
+                    >
+                  </button>
+                </td>
+              </ng-container>
+
+              <!-- Code Column -->
+              <ng-container matColumnDef="programCode">
+                <th mat-header-cell *matHeaderCellDef>
+                  <span class="mat-subtitle-1" style="font-weight: 500"
+                    >Code</span
+                  >
+                </th>
+                <td mat-cell *matCellDef="let element">
+                  <mat-form-field
+                    style="width: 150px !important"
+                    class="dense-form-field-5"
+                    appearance="outline"
+                  >
+                    <input
+                      matInput
+                      formControlName="programCode"
+                      placeholder="Enter Code"
+                    />
+                  </mat-form-field>
+                </td>
+              </ng-container>
+
+              <!-- Program Name Column -->
+              <ng-container matColumnDef="programName">
+                <th mat-header-cell *matHeaderCellDef>
+                  <span class="mat-subtitle-1" style="font-weight: 500"
+                    >Program Name</span
+                  >
+                </th>
+                <td mat-cell *matCellDef="let element">
+                  <mat-form-field
+                    appearance="outline"
+                    class="dense-form-field-5"
+                  >
+                    <input
+                      matInput
+                      name="course"
+                      formControlName="programName"
+                      placeholder="Enter Program Name"
+                    />
+                  </mat-form-field>
+                </td>
+              </ng-container>
+
+              <!-- Theory Time Column -->
+              <ng-container matColumnDef="theoryTime">
+                <th mat-header-cell *matHeaderCellDef>
+                  <span class="mat-subtitle-1" style="font-weight: 500"
+                    >Theory Time</span
+                  >
+                </th>
+                <td mat-cell *matCellDef="let element">
+                  <mat-form-field
+                    class="dense-form-field-5"
+                    style="width: 100px !important"
+                    appearance="outline"
+                  >
+                    <input
+                      matInput
+                      name="theoryTime"
+                      formControlName="theoryTime"
+                      placeholder="0 hr"
+                    />
+                  </mat-form-field>
+                </td>
+              </ng-container>
+
+              <!-- Practice Time Column -->
+              <ng-container matColumnDef="practiceTime">
+                <th mat-header-cell *matHeaderCellDef>
+                  <span class="mat-subtitle-1" style="font-weight: 500"
+                    >Practice Time</span
+                  >
+                </th>
+                <td mat-cell *matCellDef="let element">
+                  <mat-form-field
+                    class="dense-form-field-5"
+                    style="width: 100px !important"
+                    appearance="outline"
+                  >
+                    <input
+                      matInput
+                      name="practiceTime"
+                      formControlName="practiceTime"
+                      placeholder="0 hr"
+                    />
+                  </mat-form-field>
+                </td>
+              </ng-container>
+
+              <!-- Description Column -->
+              <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef>
+                  <span class="mat-subtitle-1" style="font-weight: 500"
+                    >Description</span
+                  >
+                </th>
+                <td mat-cell *matCellDef="let element">
+                  <p
+                    (click)="isDescOpen = !isDescOpen"
+                    type="button"
+                    cdkOverlayOrigin
+                    #trigger="cdkOverlayOrigin"
+                    class="input-text mat-h3"
+                  >
+                    Add Description
+                  </p>
+                  <ng-template
+                    cdkConnectedOverlay
+                    [cdkConnectedOverlayOrigin]="trigger"
+                    [cdkConnectedOverlayOpen]="isDescOpen"
+                    (overlayOutsideClick)="isDescOpen = !isDescOpen"
+                    [cdkConnectedOverlayPositions]="[
+                      {
+                        originX: 'start',
+                        originY: 'bottom',
+                        overlayX: 'end',
+                        overlayY: 'top',
+                        offsetX: 120
+                      }
+                    ]"
+                  >
+                    <div class="overlay">
+                      <div class="overlay-first-row">
+                        <p>Description</p>
+                        <mat-icon
+                          (click)="isDescOpen = !isDescOpen"
+                          style="cursor: pointer"
+                          ><span class="material-symbols-outlined">
+                            close
+                          </span></mat-icon
+                        >
+                      </div>
+                      <div class="overlay-second-row">
+                        <mat-form-field
+                          class="dense-form-field-5"
+                          style="width: 100%"
+                        >
+                          <textarea
+                            matInput
+                            formControlName="description"
+                            (input)="onInputChange($event)"
+                          ></textarea>
+                          <mat-error
+                            >Field can't be empty or have more than 40
+                            characters</mat-error
+                          >
+                        </mat-form-field>
+                      </div>
+                      <div class="overlay-third-row">
+                        <p>{{ lettersTypedDesc }}/40</p>
+                        <div class="save-close">
+                          <button
+                            mat-raised-button
+                            color="primary"
+                            (click)="isDescOpen = !isDescOpen"
+                          >
+                            Save</button
+                          ><button
+                            (click)="isDescOpen = !isDescOpen"
+                            mat-stroked-button
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </ng-template>
+                </td>
+              </ng-container>
+
+              <!-- Courses Column -->
+              <ng-container matColumnDef="course">
+                <th mat-header-cell *matHeaderCellDef>
+                  <span class="mat-subtitle-1" style="font-weight: 500"
+                    >Courses</span
+                  >
+                </th>
+                <td mat-cell *matCellDef="let element">
+                  <mat-form-field
+                    appearance="outline"
+                    class="dense-form-field-5"
+                  >
+                    <mat-select
+                      formControlName="courses"
+                      multiple
+                      placeholder="Select Course"
+                    >
+                      <mat-option
+                        *ngFor="let course of courses"
+                        [value]="course"
+                      >
+                        {{ course.courseName }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-error>Field must not be empty</mat-error>
+                  </mat-form-field>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          </div>
+        </form>
+      </div>
+    </ng-container>
+
+    <!-- actual table with data -->
+    <ng-container *ngIf="!isAddProgramsClicked">
+      <app-programs-table></app-programs-table>
+    </ng-container>
+  </div>
+</div>

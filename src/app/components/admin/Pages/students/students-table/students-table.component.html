@@ -1,0 +1,112 @@
+<div style="margin-top: 40px" class="courses-table-component">
+  <div class="table-responsive">
+    <table mat-table [dataSource]="dataSource" matSort>
+      <form [formGroup]="editStudentReactiveForm">
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Actions</th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <div
+              class="action-buttons"
+              *ngIf="i != editingRowID; else editMode"
+            >
+              <mat-icon (click)="editStudent(i, row)">
+                <span class="material-icons-outlined"> edit </span>
+              </mat-icon>
+              <!--(click)="openDeleteDialog(row.id)"  -->
+              <mat-icon (click)="deleteStudent(row.studentId, row.studentName)"
+                ><span class="material-icons-outlined"> delete </span></mat-icon
+              >
+            </div>
+            <ng-template #editMode>
+              <div class="action-buttons-edit">
+                <mat-icon
+                  ><span
+                    class="material-icons-outlined"
+                    (click)="saveStudents(row)"
+                  >
+                    done
+                  </span></mat-icon
+                >
+                <mat-icon (click)="cancelEditing()">
+                  <span class="material-icons-outlined"> close </span>
+                </mat-icon>
+              </div></ng-template
+            >
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="studentCode">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Students Code
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              <div>
+                {{ row.studentCode }}
+              </div>
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field appearance="outline" class="dense-form-field-5">
+                <input
+                  matInput
+                  formControlName="studentCode"
+                  placeholder="Enter Student Code"
+                />
+                <mat-error>Field must not be empty</mat-error>
+              </mat-form-field>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="studentName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Students Name
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              <div>
+                {{ row.studentName }}
+              </div>
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field appearance="outline" class="dense-form-field-5">
+                <input
+                  matInput
+                  formControlName="studentName"
+                  placeholder="Enter Student Name"
+                />
+                <mat-error>Field must not be empty</mat-error>
+              </mat-form-field>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="studentEmail">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Email ID</th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              {{ row.studentEmail }}
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field appearance="outline" class="dense-form-field-5">
+                <input
+                  matInput
+                  formControlName="studentEmail"
+                  placeholder="Enter Email ID"
+                />
+                <mat-error>Must be a valid email</mat-error>
+              </mat-form-field>
+            </ng-template>
+          </td>
+        </ng-container>
+      </form>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <mat-paginator
+      [pageSizeOptions]="[10, 25, 100]"
+      aria-label="Select page of users"
+    ></mat-paginator>
+  </div>
+</div>

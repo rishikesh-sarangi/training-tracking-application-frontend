@@ -1,0 +1,72 @@
+<div fxLayout="row" fxLayoutAlign="space-between center" style="padding: 20px">
+  <span style="font-size: 20px">Upload Files</span
+  ><span [mat-dialog-close]="false"><mat-icon>close</mat-icon></span>
+</div>
+<div
+  class="file-drop-area"
+  (dragover)="$event.preventDefault()"
+  (drop)="onFileDropped($event)"
+>
+  <div
+    fxLayout="row"
+    fxLayoutAlign="center end"
+    fxLayoutGap="10px"
+    style="font-size: 15px"
+  >
+    <p>Drag & Drop your File</p>
+    <p>Or</p>
+    <input
+      type="file"
+      #fileDropRef
+      id="fileDropRef"
+      multiple
+      (change)="fileBrowseHandler($event)"
+      style="display: none"
+    />
+    <p
+      (click)="fileDropRef.click()"
+      style="text-decoration: underline; cursor: pointer; color: cornflowerblue"
+    >
+      Upload
+    </p>
+  </div>
+</div>
+
+<p style="text-align: center">
+  (Supported format: pdf, xls, ppt, mp3, mp4) (Max Size 2mb)
+</p>
+
+<div
+  fxLayout="row"
+  fxLayoutAlign="end center"
+  fxLayoutGap="10px"
+  class="action-buttons"
+>
+  <div
+    class="file-info"
+    *ngIf="files.length > 0"
+    fxLayout="row"
+    fxLayoutAlign="start center"
+    fxLayoutGap="10px"
+  >
+    <div>
+      <span
+        [matTooltip]="getFileNames()"
+        matTooltipClass="tooltip-custom"
+        style="color: cornflowerblue; text-decoration: underline"
+      >
+        {{ files.length }}</span
+      >
+      files uploaded
+    </div>
+  </div>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="uploadFiles()"
+    [mat-dialog-close]="true"
+  >
+    Upload
+  </button>
+  <button mat-raised-button [mat-dialog-close]="false">Cancel</button>
+</div>

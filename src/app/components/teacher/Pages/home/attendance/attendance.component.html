@@ -1,0 +1,118 @@
+<div class="attendance-component">
+  <div class="mat-h2">Please select the options below to get results</div>
+  <form
+    fxLayout="column"
+    fxLayoutGap="50px"
+    [formGroup]="batchProgramReactiveForm"
+  >
+    <div fxLayout="row" fxLayoutGap="50px" fxLayout.lt-sm="column">
+      <!-- batch code batch name -->
+      <mat-form-field
+        appearance="outline"
+        class="dense-form-field-5"
+        ngStyle.gt-sm="min-width: 200px"
+        ngStyle.gt-md="min-width: 300px"
+      >
+        <mat-select
+          placeholder="Batch Code: Batch Name"
+          formControlName="batch"
+          (selectionChange)="onBatchChange($event)"
+        >
+          <mat-option *ngFor="let batch of batches" [value]="batch.batchCode">
+            Batch {{ batch.batchCode }}: {{ batch.batchName }}
+          </mat-option>
+        </mat-select>
+        <mat-error>Field must not be empty</mat-error>
+      </mat-form-field>
+
+      <!-- batch start date -->
+      <mat-form-field
+        appearance="outline"
+        class="dense-form-field-5"
+        ngStyle.gt-sm="min-width: 200px"
+        ngStyle.gt-md="min-width: 300px"
+      >
+        <input
+          matInput
+          formControlName="batchStartDate"
+          placeholder="Batch Start Date"
+          [readonly]="true"
+        />
+      </mat-form-field>
+
+      <!-- program code program name -->
+      <mat-form-field
+        appearance="outline"
+        class="dense-form-field-5"
+        ngStyle.gt-sm="min-width: 200px"
+        ngStyle.gt-md="min-width: 300px"
+      >
+        <mat-select
+          placeholder="Program Code: Program Name"
+          formControlName="program"
+          (selectionChange)="onProgramChange()"
+        >
+          <mat-option *ngFor="let program of programs" [value]="program.code">
+            {{ program.code }}: {{ program.programName }}
+          </mat-option>
+        </mat-select>
+        <mat-error>Field must not be empty</mat-error>
+      </mat-form-field>
+
+      <!-- course code course name -->
+      <mat-form-field
+        appearance="outline"
+        class="dense-form-field-5"
+        ngStyle.gt-sm="min-width: 200px"
+        ngStyle.gt-md="min-width: 300px"
+      >
+        <mat-select
+          placeholder="Course Code: Course Name"
+          formControlName="course"
+          (selectionChange)="onCourseChange()"
+        >
+          <mat-option *ngFor="let course of courses" [value]="course">
+            {{ course }}
+          </mat-option>
+        </mat-select>
+        <mat-error>Field must not be empty</mat-error>
+      </mat-form-field>
+    </div>
+    <!-- second row -->
+    <div fxLayout="row" fxLayoutAlign="space-between center">
+      <mat-form-field
+        appearance="outline"
+        class="dense-datepicker-5"
+        ngStyle.gt-sm="min-width: 200px"
+        ngStyle.gt-md="min-width: 300px"
+      >
+        <input
+          matInput
+          [matDatepicker]="picker"
+          formControlName="date"
+          placeholder="Select Date"
+          (dateChange)="onDateChange()"
+        />
+        <mat-datepicker-toggle
+          matIconSuffix
+          [for]="picker"
+        ></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+      <button
+        mat-stroked-button
+        [disabled]="!enableAddTopic"
+        (click)="sendPayloadToChild()"
+      >
+        Add Topic
+      </button>
+    </div>
+  </form>
+
+  <div class="child-component">
+    <app-attendance-table
+      [enabledTable]="enableTable"
+      [parentFormData]="attendancePayload"
+    ></app-attendance-table>
+  </div>
+</div>

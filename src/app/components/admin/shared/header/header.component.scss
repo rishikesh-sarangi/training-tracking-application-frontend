@@ -1,0 +1,102 @@
+$cozentus: #2c3b52;
+
+.header {
+  height: 100px;
+}
+
+.company-logo {
+  // create a media quuery for min width 768px
+  @media (min-width: 768px) {
+    height: 25px;
+  }
+  height: 18px;
+}
+
+.navbar-left,
+.navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-left {
+  justify-content: flex-start;
+}
+
+.navbar-right {
+  justify-content: flex-end;
+  flex-grow: 1;
+}
+
+.user-name {
+  @media (max-width: 376px) {
+    display: none;
+  }
+}
+
+.xs-user-name {
+  @media (max-width: 376px) {
+    display: block;
+  }
+  display: none;
+
+  background-color: white;
+  padding: 8px 0;
+  text-align: center;
+}
+
+mat-toolbar {
+  background-color: $cozentus;
+  color: white;
+}
+
+mat-toolbar-row .navbar-buttons {
+  margin-right: 30px;
+
+  @media (max-width: 375px) {
+    margin: auto;
+  }
+}
+
+.navbar-buttons:hover {
+  background-color: #3e5172;
+}
+
+.active {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.white-text {
+  color: white;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+.logout-btn {
+  @media (min-width: 768px) {
+    margin-right: 100px;
+  }
+}
+
+.material-icons-outlined-customzied {
+  font-size: inherit;
+}
+
+.navbar-buttons mat-icon {
+  // media query for max-width of 375px
+  @media (max-width: 570px) {
+    display: none;
+  }
+}
+
+.course-menu-btn {
+  @media (min-width: 768px) {
+    margin-right: 100px;
+  }
+  &:hover {
+    background-color: #3e5172 !important;
+  }
+}
+
+.activeColor {
+  background-color: #3e5172 !important;
+}

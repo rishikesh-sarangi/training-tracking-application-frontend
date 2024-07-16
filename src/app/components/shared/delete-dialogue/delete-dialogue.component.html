@@ -1,0 +1,90 @@
+<div class="delete-dialogue-component" style="padding: 20px">
+  <div class="title">
+    <div style="font-size: 20px; font-weight: 500">
+      Delete
+      <span *ngIf="targetCode && targetCourse">Course</span>
+      <span *ngIf="targetTopicName">Topic</span>
+      <span *ngIf="targetProgramCode && targetProgramName">Program</span>
+      <span *ngIf="targetTeacherName">Teacher</span>
+      <span *ngIf="targetStudentName">Student</span>
+      <span *ngIf="targetBatchCode && targetBatchName">Batch</span>
+      <span *ngIf="targetBatchCode_programs && targetBatchProgramName"
+        >Batch Program</span
+      >
+      ?
+    </div>
+    <mat-icon [mat-dialog-close]="false"
+      ><span class="material-icon" style="cursor: pointer"
+        >close</span
+      ></mat-icon
+    >
+  </div>
+
+  <mat-divider></mat-divider>
+  <ng-container *ngIf="targetCourse && targetCode">
+    <div mat-dialog-content class="dialogue-content">
+      Are you sure you want to delete course {{ targetCode }}/
+      {{ targetCourse }}?
+    </div></ng-container
+  >
+
+  <ng-container *ngIf="targetTopicName">
+    <div mat-dialog-content class="dialogue-content">
+      Are you sure you want to delete topic {{ targetTopicName }}?
+    </div></ng-container
+  >
+
+  <ng-container *ngIf="targetProgramCode && targetProgramName">
+    <div class="dialogue-content">
+      Are you sure you want to delete program {{ targetProgramCode }}/
+      {{ targetProgramName }}?
+    </div></ng-container
+  >
+
+  <ng-container *ngIf="targetTeacherName">
+    <div class="dialogue-content">
+      Are you sure you want to delete teacher {{ targetTeacherName }}?
+    </div></ng-container
+  >
+
+  <ng-container *ngIf="targetStudentName">
+    <div class="dialogue-content">
+      Are you sure you want to delete student {{ targetStudentName }}?
+    </div></ng-container
+  >
+  <ng-container *ngIf="targetBatchCode && targetBatchName">
+    <div class="dialogue-content">
+      Are you sure you want to delete batch {{ targetBatchCode }}/
+      {{ targetBatchName }}?
+    </div>
+  </ng-container>
+
+  <ng-container
+    *ngIf="
+      targetBatchCode_programs &&
+      targetBatchProgramName &&
+      targetBatchProgramCode
+    "
+  >
+    <div class="dialogue-content">
+      Are you sure you want to delete Program
+      {{ targetBatchProgramName }}/{{ targetBatchProgramCode }} belonging to
+      Batch
+      {{ targetBatchCode_programs }}
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="targetExamName || targetAssignmentName">
+    <div class="dialogue-content">
+      Are you sure you want to delete this
+      {{ targetExamName || targetAssignmentName }}?
+    </div>
+  </ng-container>
+
+  <mat-dialog-actions class="action-btns" align="end">
+    <button mat-raised-button color="primary" [mat-dialog-close]="true">
+      Yes
+    </button>
+    <button mat-stroked-button [mat-dialog-close]="false">No</button>
+  </mat-dialog-actions>
+</div>

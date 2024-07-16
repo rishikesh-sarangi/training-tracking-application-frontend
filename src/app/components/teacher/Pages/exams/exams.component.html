@@ -1,0 +1,131 @@
+<div class="component">
+  <!-- header -->
+  <div class="header">
+    <p class="mat-h2" *ngIf="!isAssignments">Exams</p>
+    <p class="mat-h2" *ngIf="isAssignments">Assignments</p>
+  </div>
+
+  <!-- main-content -->
+  <mat-card class="card">
+    <div class="card-header">
+      <div class="exams-component">
+        <div class="mat-h2">Please select the options below to get results</div>
+        <form [formGroup]="examReactiveForm">
+          <!-- first row -->
+          <div fxLayout="row" fxLayoutGap="50px" fxLayout.lt-sm="column">
+            <!-- batch code batch name -->
+            <mat-form-field
+              appearance="outline"
+              class="dense-form-field-5"
+              ngStyle.gt-sm="min-width: 200px"
+              ngStyle.gt-md="min-width: 300px"
+            >
+              <mat-select
+                placeholder="Batch Code: Batch Name"
+                formControlName="batch"
+                (selectionChange)="onBatchChange($event)"
+              >
+                <mat-option
+                  *ngFor="let batch of batches"
+                  [value]="batch.batchCode"
+                >
+                  Batch {{ batch.batchCode }}: {{ batch.batchName }}
+                </mat-option>
+              </mat-select>
+              <mat-error>Field must not be empty</mat-error>
+            </mat-form-field>
+
+            <!-- batch start date -->
+            <mat-form-field
+              appearance="outline"
+              class="dense-form-field-5"
+              ngStyle.gt-sm="min-width: 200px"
+              ngStyle.gt-md="min-width: 300px"
+            >
+              <input
+                matInput
+                formControlName="batchStartDate"
+                placeholder="Batch Start Date"
+                [readonly]="true"
+                [value]="
+                  examReactiveForm.get('batchStartDate')?.value
+                    | date : 'dd MMM yyyy'
+                "
+              />
+            </mat-form-field>
+
+            <!-- programcode program name -->
+            <mat-form-field
+              appearance="outline"
+              class="dense-form-field-5"
+              ngStyle.gt-sm="min-width: 200px"
+              ngStyle.gt-md="min-width: 300px"
+            >
+              <mat-select
+                placeholder="Program Code: Program Name"
+                formControlName="program"
+                (selectionChange)="onProgramChange()"
+              >
+                <mat-option
+                  *ngFor="let program of programs"
+                  [value]="program.code"
+                >
+                  {{ program.code }}: {{ program.programName }}
+                </mat-option>
+              </mat-select>
+              <mat-error>Field must not be empty</mat-error>
+            </mat-form-field>
+
+            <!-- course code course name -->
+            <mat-form-field
+              appearance="outline"
+              class="dense-form-field-5"
+              ngStyle.gt-sm="min-width: 200px"
+              ngStyle.gt-md="min-width: 300px"
+            >
+              <mat-select
+                placeholder="Course Code: Course Name"
+                formControlName="course"
+                (selectionChange)="createExam = !createExam"
+              >
+                <mat-option
+                  *ngFor="let course of courses"
+                  [value]="course.course"
+                >
+                  Course {{ course.code }}: {{ course.course }}
+                </mat-option>
+              </mat-select>
+              <mat-error>Field must not be empty</mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- second row -->
+          <div fxLayout="row" fxLayoutAlign="end center">
+            <button
+              mat-stroked-button
+              [disabled]="!createExam"
+              (click)="openForm()"
+            >
+              <span *ngIf="!isAssignments">Create Exam</span>
+              <span *ngIf="isAssignments">Create Assignment</span>
+            </button>
+          </div>
+        </form>
+        <div class="child-component">
+          <ng-container *ngIf="openExamForm">
+            <app-exams-add
+              [openExamForm]="openExamForm"
+              [parentPayload]="parentPayload"
+              [isAssignments]="isAssignments"
+              (closeExamForm)="closeForm()"
+            ></app-exams-add
+          ></ng-container>
+
+          <ng-container *ngIf="!openExamForm">
+            <app-exams-table [isAssignments]="isAssignments"></app-exams-table
+          ></ng-container>
+        </div>
+      </div>
+    </div>
+  </mat-card>
+</div>

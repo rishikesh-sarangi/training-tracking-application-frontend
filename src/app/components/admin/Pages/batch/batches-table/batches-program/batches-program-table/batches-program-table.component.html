@@ -1,0 +1,238 @@
+<div class="batches-program-component">
+  <div class="table-responsive">
+    <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows>
+      <form [formGroup]="editBatchProgramReactiveForm">
+        <ng-container matColumnDef="actions">
+          <th
+            mat-header-cell
+            *matHeaderCellDef
+            mat-sort-header
+            style="width: 22%"
+          >
+            Actions
+          </th>
+          <td mat-cell *matCellDef="let row; let i = dataIndex">
+            <div class="action-buttons">
+              <mat-icon
+                (click)="toggleTable(row)"
+                [ngClass]="{ 'disabled-icon': isAddClicked }"
+                ><span class="material-symbols-outlined">
+                  expand_circle_down
+                </span></mat-icon
+              >
+              <span
+                *ngIf="i != editingRowID; else editMode"
+                class="action-buttons"
+              >
+                <mat-icon (click)="editBatchProgram(i, row)">
+                  <span class="material-icons-outlined"> edit </span>
+                </mat-icon>
+                <mat-icon (click)="deleteBatchProgram(row)"
+                  ><span class="material-icons-outlined">
+                    delete
+                  </span></mat-icon
+                >
+              </span>
+              <ng-template #editMode>
+                <span class="action-buttons">
+                  <mat-icon
+                    ><span
+                      class="material-icons-outlined"
+                      (click)="saveBatchProgram(row)"
+                    >
+                      done
+                    </span></mat-icon
+                  >
+                  <mat-icon (click)="cancelEditing()">
+                    <span class="material-icons-outlined"> close </span>
+                  </mat-icon>
+                </span></ng-template
+              >
+              <mat-icon style="transform: rotate(90deg)"
+                ><span class="material-symbols-outlined">
+                  horizontal_rule
+                </span></mat-icon
+              >
+              <mat-icon style="cursor: pointer"
+                ><span
+                  class="material-symbols-outlined"
+                  matTooltip="Click to add Course"
+                  (click)="toggleAdd(row, i)"
+                  [ngClass]="{ 'disabled-icon': isTableClicked }"
+                >
+                  add
+                </span></mat-icon
+              >
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="code">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
+          <td mat-cell *matCellDef="let row; let i = dataIndex">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              <div>
+                {{ row.programCode }}
+              </div>
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field appearance="outline" class="dense-form-field-5">
+                <input matInput formControlName="code" [readonly]="true" />
+                <mat-error>Field must not be empty</mat-error>
+              </mat-form-field>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="programName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Program Name
+          </th>
+          <td mat-cell *matCellDef="let row; let i = dataIndex">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              {{ row.programName }}
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field
+                appearance="outline"
+                class="dense-form-field-5"
+                style="width: 180px"
+              >
+                <mat-select
+                  formControlName="programName"
+                  placeholder="Select Program"
+                  (selectionChange)="onProgramChange($event)"
+                >
+                  <mat-option
+                    *ngFor="let program of programs"
+                    [value]="program"
+                  >
+                    {{ program.programName }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Field must not be empty</mat-error>
+              </mat-form-field>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="students">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Students</th>
+          <td mat-cell *matCellDef="let row; let i = dataIndex">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              <span
+                *ngFor="
+                  let student of getStudentsForRow(row).slice(0, 2);
+                  let last = last
+                "
+              >
+                {{ student.studentName }}{{ last ? "" : ", " }}
+              </span>
+              <ng-container *ngIf="getStudentsForRow(row).length > 2">
+                <span
+                  [matTooltip]="
+                    getRemainingStudentsWithNumbers(getStudentsForRow(row))
+                  "
+                  matTooltipClass="tooltip-custom"
+                  style="
+                    text-decoration: underline;
+                    color: rgb(70, 140, 201);
+                    cursor: pointer;
+                  "
+                >
+                  +{{ getStudentsForRow(row).length - 2 }} more
+                </span>
+              </ng-container>
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field appearance="outline" class="dense-form-field-5">
+                <mat-select
+                  formControlName="students"
+                  multiple
+                  placeholder="Select Course"
+                >
+                  <mat-option
+                    *ngFor="let student of students"
+                    [value]="student"
+                  >
+                    {{ student.studentName }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Field must not be empty</mat-error>
+              </mat-form-field>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <!-- expansion Table -->
+        <ng-container matColumnDef="expandedDetailTable">
+          <td
+            mat-cell
+            *matCellDef="let row2"
+            [attr.colspan]="displayedColumns.length"
+          >
+            <div
+              [@detailExpand]="
+                row2 === expandedRowTable ? 'expanded' : 'collapsed'
+              "
+              class="example-element-detail"
+            >
+              <ng-container *ngIf="row2 === expandedRowTable">
+                <app-batches-program-courses-table
+                  [programId]="programIdForChild"
+                  [batchId]="batchId"
+                ></app-batches-program-courses-table>
+              </ng-container>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- exapnsion add -->
+        <ng-container matColumnDef="expandedDetailAdd">
+          <td
+            mat-cell
+            *matCellDef="let row3"
+            [attr.colspan]="displayedColumns.length"
+          >
+            <div
+              [@detailExpand]="
+                row3 === expandedRowAdd ? 'expanded' : 'collapsed'
+              "
+              class="example-element-detail"
+            >
+              <ng-container *ngIf="row3 === expandedRowAdd">
+                <app-batches-program-courses-add
+                  [programId]="programIdForChild"
+                  [batchId]="batchId"
+                  (isAddClicked)="recieveIsAddClicked($event)"
+                ></app-batches-program-courses-add>
+              </ng-container>
+            </div>
+          </td>
+        </ng-container>
+      </form>
+      <tr
+        mat-header-row
+        *matHeaderRowDef="displayedColumns"
+        style="background-color: #f0f6ff"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        style="background-color: #f0f6ff"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row2; columns: ['expandedDetailTable']"
+        class="example-detail-row"
+        style="background-color: #f0f6ff"
+      ></tr>
+      <tr
+        mat-row
+        *matRowDef="let row3; columns: ['expandedDetailAdd']"
+        class="example-detail-row"
+        style="background-color: #f0f6ff"
+      ></tr>
+    </table>
+  </div>
+</div>

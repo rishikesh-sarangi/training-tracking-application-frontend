@@ -1,0 +1,131 @@
+<div style="margin-top: 40px" class="courses-table-component">
+  <div class="table-responsive">
+    <table mat-table [dataSource]="dataSource" matSort>
+      <form [formGroup]="editTeachersReactiveForm">
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Actions</th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <div
+              class="action-buttons"
+              *ngIf="i != editingRowID; else editMode"
+            >
+              <mat-icon (click)="editTeacher(i, row)">
+                <span class="material-icons-outlined"> edit </span>
+              </mat-icon>
+              <mat-icon (click)="deleteTeacher(row.teacherId, row.teacherName)"
+                ><span class="material-icons-outlined"> delete </span></mat-icon
+              >
+            </div>
+            <ng-template #editMode>
+              <div class="action-buttons-edit">
+                <mat-icon
+                  ><span
+                    class="material-icons-outlined"
+                    (click)="saveTeacher(row)"
+                  >
+                    done
+                  </span></mat-icon
+                >
+                <mat-icon (click)="cancelEditing()">
+                  <span class="material-icons-outlined"> close </span>
+                </mat-icon>
+              </div></ng-template
+            >
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="teacherName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Teachers Name
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              <div>
+                {{ row.teacherName }}
+              </div>
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field appearance="outline" class="dense-form-field-5">
+                <input
+                  matInput
+                  formControlName="teacherName"
+                  placeholder="Enter Teacher Name"
+                />
+                <mat-error>Field must not be empty</mat-error>
+              </mat-form-field>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="courses">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Course Assigned
+          </th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              <span *ngIf="row.courses.length == 0">No Courses Assigned</span>
+              <span
+                *ngFor="let course of row.courses.slice(0, 2); let last = last"
+              >
+                {{ course.courseName }}{{ last ? "" : ", " }}
+              </span>
+              <ng-container *ngIf="row.courses.length > 2">
+                <span
+                  [matTooltip]="getRemainingCoursesWithNumbers(row.courses)"
+                  matTooltipClass="tooltip-custom"
+                  style="
+                    text-decoration: underline;
+                    color: rgb(70, 140, 201);
+                    cursor: pointer;
+                  "
+                >
+                  +{{ row.courses.length - 2 }} more
+                </span>
+              </ng-container>
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field appearance="outline" class="dense-form-field-5">
+                <mat-select
+                  formControlName="courses"
+                  multiple
+                  placeholder="Select Course"
+                >
+                  <mat-option *ngFor="let course of courses" [value]="course">
+                    {{ course.courseName }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Field must not be empty</mat-error>
+              </mat-form-field>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="teacherEmail">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Email ID</th>
+          <td mat-cell *matCellDef="let row; let i = index">
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              {{ row.teacherEmail }}
+            </ng-container>
+            <ng-template #editMode>
+              <mat-form-field appearance="outline" class="dense-form-field-5">
+                <input
+                  matInput
+                  formControlName="teacherEmail"
+                  placeholder="Enter Email ID"
+                />
+                <mat-error>Must be a valid email</mat-error>
+              </mat-form-field>
+            </ng-template>
+          </td>
+        </ng-container>
+      </form>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <mat-paginator
+      [pageSizeOptions]="[10, 25, 100]"
+      aria-label="Select page of users"
+    ></mat-paginator>
+  </div>
+</div>

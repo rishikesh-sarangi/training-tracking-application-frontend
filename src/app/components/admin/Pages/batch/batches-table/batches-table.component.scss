@@ -1,0 +1,48 @@
+@import "../../courses-programs/courses/courses.component.scss";
+table {
+  width: 100%;
+}
+
+tr.example-detail-row {
+  height: 0;
+}
+
+tr.example-element-row:not(.example-expanded-row):hover {
+  background: whitesmoke;
+}
+
+tr.example-element-row:not(.example-expanded-row):active {
+  background: #efefef;
+}
+
+.example-element-row td {
+  border-bottom-width: 0;
+}
+
+.example-element-detail {
+  width: 100%;
+  overflow: hidden;
+}
+
+.inner-table {
+  width: 100%;
+}
+
+.inner-table mat-form-field {
+  margin-top: 15px;
+  width: 100%;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.batches-table-component {
+  margin: 0px 50px;
+}
+
+.disabled-icon {
+  opacity: 0.5;
+  pointer-events: none;
+}

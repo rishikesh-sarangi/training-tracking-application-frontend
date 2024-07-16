@@ -1,0 +1,176 @@
+<div class="add-course-form" *ngIf="openExamForm">
+  <form (ngSubmit)="onSubmit()" [formGroup]="sharedReactiveForm">
+    <div class="table-responsive">
+      <table mat-table [dataSource]="[{}]">
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>
+            <span class="mat-subtitle-1" style="font-weight: 500">Actions</span>
+          </th>
+          <td mat-cell *matCellDef="let element">
+            <div class="action-buttons">
+              <mat-icon (click)="onSubmit()"
+                ><span
+                  class="material-symbols-outlined"
+                  [ngClass]="{ 'disabled-icon': !sharedReactiveForm.valid }"
+                >
+                  <!-- dont forget to add isAddClicked = true when form is valid -->
+                  done
+                </span></mat-icon
+              >
+              <span (click)="closeForm()">
+                <mat-icon
+                  ><span
+                    class="material-symbols-outlined"
+                    style="margin-right: 10px !important"
+                  >
+                    close
+                  </span></mat-icon
+                >
+              </span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Exam Name/ Assignment Name  Column -->
+        <ng-container
+          [matColumnDef]="isAssignments ? 'assignmentName' : 'examName'"
+        >
+          <th mat-header-cell *matHeaderCellDef>
+            <span class="mat-subtitle-1" style="font-weight: 500">{{
+              isAssignments ? "Assignment Name" : "Exam Name"
+            }}</span>
+          </th>
+          <td mat-cell *matCellDef="let element">
+            <mat-form-field appearance="outline" class="dense-form-field-5">
+              <input
+                matInput
+                [formControlName]="
+                  isAssignments ? 'assignmentName' : 'examName'
+                "
+                [placeholder]="
+                  isAssignments
+                    ? 'Enter Assignment - Name'
+                    : 'Enter Exam - Name'
+                "
+              />
+              <mat-error>Field must not be empty</mat-error>
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- total marks col -->
+        <ng-container matColumnDef="totalMarks">
+          <th mat-header-cell *matHeaderCellDef>
+            <span class="mat-subtitle-1" style="font-weight: 500"
+              >Total Marks</span
+            >
+          </th>
+          <td mat-cell *matCellDef="let element">
+            <mat-form-field
+              appearance="outline"
+              class="dense-form-field-5"
+              style="width: 125px"
+            >
+              <input
+                matInput
+                formControlName="totalMarks"
+                placeholder="Enter Marks"
+              />
+              <mat-error>Invalid Marks</mat-error>
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- exam date / assignment date -->
+        <ng-container
+          [matColumnDef]="isAssignments ? 'assignmentDate' : 'examDate'"
+        >
+          <th mat-header-cell *matHeaderCellDef>
+            <span class="mat-subtitle-1" style="font-weight: 500">Date</span>
+          </th>
+          <td mat-cell *matCellDef="let element">
+            <mat-form-field
+              appearance="outline"
+              class="dense-datepicker-5"
+              ngStyle.gt-sm="min-width: 200px"
+              ngStyle.gt-md="min-width: 300px"
+            >
+              <input
+                matInput
+                [matDatepicker]="picker"
+                [formControlName]="
+                  isAssignments ? 'assignmentDate' : 'examDate'
+                "
+                placeholder="Select Date"
+              />
+              <mat-datepicker-toggle
+                matIconSuffix
+                [for]="picker"
+              ></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- exam time/ assignment time col -->
+        <ng-container
+          [matColumnDef]="isAssignments ? 'assignmentTime' : 'examTime'"
+        >
+          <th mat-header-cell *matHeaderCellDef>
+            <span class="mat-subtitle-1" style="font-weight: 500">Time</span>
+          </th>
+          <td mat-cell *matCellDef="let element">
+            <mat-form-field appearance="outline" class="dense-form-field-5">
+              <input
+                matInput
+                type="time"
+                [formControlName]="
+                  isAssignments ? 'assignmentTime' : 'examTime'
+                "
+                placeholder="Enter Time"
+              />
+              <mat-error>Field must not be empty</mat-error>
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <!-- Files col -->
+        <ng-container matColumnDef="uploadFile">
+          <th mat-header-cell *matHeaderCellDef>
+            <span class="mat-subtitle-1" style="font-weight: 500"
+              >Files
+              <mat-icon
+                ><span
+                  style="font-size: 15px"
+                  class="material-icons-outlined"
+                  matTooltip="Optional to upload files"
+                  >info</span
+                ></mat-icon
+              >
+            </span>
+          </th>
+          <td mat-cell *matCellDef="let element">
+            <input
+              type="file"
+              (change)="onFileSelected($event)"
+              style="display: none"
+              #fileInput
+              matFileInput
+              formControlName="uploadFile"
+            />
+
+            <mat-icon (click)="fileInput.click()"
+              ><span class="material-icons-outlined">
+                file_upload
+              </span></mat-icon
+            >
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+  </form>
+</div>

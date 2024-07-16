@@ -1,0 +1,85 @@
+.login-form {
+  div {
+    &.mat-mdc-form-field-has-icon-suffix,
+    &.mat-mdc-text-field-wrapper {
+      background-color: rgb(0, 0, 0) !important;
+    }
+  }
+}
+
+// .mdc-checkbox__background {
+//    border: 2px white solid !important;
+// }
+
+// .mdc-checkbox__native-control:enabled:focus:indeterminate
+//   ~ .mdc-checkbox__background {
+//    background-color: #fff !important;
+// }
+
+.input:-internal-autofill-selected {
+  background-color: black !important;
+}
+
+// sign out button
+.mat-mdc-menu-content,
+.mat-mdc-menu-content .mat-mdc-menu-item .mat-mdc-menu-item-text {
+  padding: 0 !important;
+}
+
+$cozentus: #2c3b52;
+.mat-mdc-menu-content {
+  background-color: $cozentus;
+}
+.mat-mdc-menu-panel {
+  background-color: inherit !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  transition: background-color 0s 600000s, color 0s 600000s !important;
+}
+
+.mat-mdc-table {
+  padding: 0 !important;
+  margin-top: 20px;
+}
+
+.mat-mdc-table tbody,
+.mat-mdc-table tfoot,
+.mat-mdc-table thead,
+.mat-mdc-cell,
+.mat-mdc-footer-cell,
+.mat-mdc-header-row,
+.mat-mdc-row,
+.mat-mdc-footer-row,
+.mat-mdc-table .mat-mdc-header-cell {
+  border: none !important;
+}
+
+.mat-mdc-tooltip {
+  &.tooltip-custom {
+    white-space: pre-wrap;
+    text-wrap: nowrap;
+  }
+}
+
+.mdc-tooltip__surface {
+  letter-spacing: normal !important;
+  text-align: left !important;
+}
+
+.mat-mdc-text-field-wrapper {
+  background-color: #fff !important;
+  border: 1px solid rgba(128, 128, 128, 0.2) !important;
+  border-radius: 5px !important;
+}
+
+// mat-tab labels
+.mat-mdc-tab-labels {
+  margin-right: 50% !important;
+}
+
+// timepicker
+// input.mat-mdc-input-element::-webkit-calendar-picker-indicator {
+//   display: block;
+// }

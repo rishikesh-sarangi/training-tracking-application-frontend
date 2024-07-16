@@ -1,0 +1,41 @@
+/* You can add global styles to this file, and also import other style files */
+@use "@angular/material" as mat;
+@import "../src/app/Styles/am-styles.scss";
+@import "../src/app/Styles/material-icons.scss";
+$cozentus: #2c3b52;
+html,
+body {
+  height: 100%;
+  overflow: scroll;
+  overflow-x: hidden;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.dense-1 {
+  @include mat.all-component-densities(-1);
+}
+
+.dense-2 {
+  @include mat.all-component-densities(-2);
+}
+
+.dense-3 {
+  @include mat.all-component-densities(-3);
+}
+
+.dense-form-field-5 {
+  @include mat.form-field-density(-5);
+}
+
+.dense-datepicker-5 {
+  @include mat.form-field-density(-5);
+  @include mat.icon-button-density(-5);
+  @include mat.datepicker-density(-5);
+}
+::-webkit-scrollbar {
+  width: 0; /* Remove scrollbar space */
+  background: transparent; /* Optional: just make scrollbar invisible */
+}
