@@ -196,19 +196,21 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
 
       this.enrollmentService.updateEnrollment(payload).subscribe({
         next: (data) => {
-          // Update the local data
-          const updatedRow = this.dataSource.find(
-            (item: any) => item.programId === payload.programId
-          );
-          if (updatedRow) {
-            updatedRow.programName =
-              this.editBatchProgramReactiveForm.value.programName.programName;
-            updatedRow.programCode =
-              this.editBatchProgramReactiveForm.value.code;
+          // // Update the local data
+          // const updatedRow = this.dataSource.find(
+          //   (item: any) => item.programId === payload.programId
+          // );
+          // if (updatedRow) {
+          //   updatedRow.programName =
+          //     this.editBatchProgramReactiveForm.value.programName.programName;
+          //   updatedRow.programCode =
+          //     this.editBatchProgramReactiveForm.value.code;
 
-            // Update the studentsByProgram for this program
-            this.studentsByProgram[payload.programId] = payload.students;
-          }
+          //   // Update the studentsByProgram for this program
+          //   this.studentsByProgram[payload.programId] = payload.students;
+          // }
+
+          this.studentsByProgram[payload.programId] = payload.students;
 
           // Trigger change detection
           this.dataSource = [...this.dataSource];

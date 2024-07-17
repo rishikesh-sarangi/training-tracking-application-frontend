@@ -44,7 +44,7 @@ export class BatchServiceService {
     programId: number
   ): Observable<CoursesDTO[]> {
     return this._http.get<CoursesDTO[]>(
-      this.Index + `/${batchId}/programs/${programId}/courses-teachers`
+      this.Index + `/${batchId}/program/${programId}/courses-teachers`
     );
   }
 

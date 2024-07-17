@@ -157,7 +157,8 @@ export class TeachersTableComponent implements OnInit, OnChanges {
       const customPayload = {
         teacherName: this.editTeachersReactiveForm.value.teacherName,
         courses: this.editTeachersReactiveForm.value.courses,
-        teacherEmail: null,
+        oldEmail: row.teacherEmail,
+        newEmail: null,
       };
 
       this.teachersService
@@ -175,8 +176,16 @@ export class TeachersTableComponent implements OnInit, OnChanges {
       const sendingSnackBar = this.snackBar.open('Sending...', '', {
         duration: undefined, // The snackbar will not auto-dismiss
       });
+
+      const customPayload = {
+        teacherName: this.editTeachersReactiveForm.value.teacherName,
+        courses: this.editTeachersReactiveForm.value.courses,
+        oldEmail: row.teacherEmail,
+        newEmail: this.editTeachersReactiveForm.value.teacherEmail,
+      };
+
       this.teachersService
-        .editTeachers(row.teacherId, this.editTeachersReactiveForm.value)
+        .editTeachers(row.teacherId, customPayload)
         .subscribe({
           next: (data) => {
             sendingSnackBar.dismiss();

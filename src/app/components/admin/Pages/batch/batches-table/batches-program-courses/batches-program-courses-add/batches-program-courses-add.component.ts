@@ -39,9 +39,6 @@ export class BatchesProgramCoursesAddComponent implements OnInit {
   courseCode: string[] = [];
 
   constructor(
-    private programService: ProgramsTableService,
-    private teacherService: TeachersTableService,
-    private courseService: CourseTableDataService,
     private batchService: BatchServiceService,
     private snackBar: MatSnackBar
   ) {}

@@ -28,4 +28,8 @@ export class TeachersTableService {
   deleteTeachers(teacherId: number): Observable<Boolean> {
     return this._http.delete<Boolean>(`${this.Index}/${teacherId}`);
   }
+
+  getTeacherIdByTeacherEmail(email: string): Observable<number> {
+    return this._http.get<number>(`${this.Index}/${email}`);
+  }
 }

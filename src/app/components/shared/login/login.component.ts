@@ -21,6 +21,7 @@ import {
 import { Router } from '@angular/router';
 import { LoginService } from '../Services/login.service';
 import { Credentials } from '../models/Credentials';
+import { TeachersTableService } from '../Services/teachers-table.service';
 
 @Component({
   selector: 'app-login',
@@ -44,7 +45,8 @@ export class LoginComponent implements OnInit {
   constructor(
     private router: Router,
     private snackBar: MatSnackBar,
-    private loginService: LoginService
+    private loginService: LoginService,
+    private teacherService: TeachersTableService
   ) {}
   hide = true;
 
@@ -72,36 +74,42 @@ export class LoginComponent implements OnInit {
   protected onSubmit() {
     this.loginService.login(this.loginForm.value).subscribe({
       next: (data: Credentials) => {
-        if (data.userRole === 'admin') {
-          // console.log(data.role);
+        if (data.userRole.toUpperCase() == 'ADMIN') {
           localStorage.setItem('loggedInSaveAdmin', 'true');
+          localStorage.setItem('username', data.username);
           this.router.navigate(['admin/home/', 'courses']);
           return;
         }
-        localStorage.setItem('loggedInSaveTeacher', 'true');
-        this.router.navigate(['teacher', 'home']);
+
+        // For teacher role
+        this.teacherService
+          .getTeacherIdByTeacherEmail(this.loginForm.value.email)
+          .subscribe({
+            next: (teacherId) => {
+              localStorage.setItem('loggedInSaveTeacher', 'true');
+
+              const teacherDetails = {
+                username: data.username,
+                teacherId: teacherId,
+              };
+
+              localStorage.setItem(
+                'teacherDetails',
+                JSON.stringify(teacherDetails)
+              );
+
+              this.router.navigate(['teacher', 'home']);
+            },
+            error: (err) => {
+              console.log('Error fetching teacher ID:', err);
+              // Handle the error appropriately
+            },
+          });
       },
       error: (err) => {
-        console.log(err);
+        console.log('Login error:', err);
+        // Handle login error
       },
     });
-
-    // if (
-    //   this.loginForm.value.username == 'admin' &&
-    //   this.loginForm.value.password == 'admin' &&
-    //   this.loginForm.value.rememberMe == true
-    // ) {
-    //   localStorage.setItem('loggedInSave', 'true');
-    //   this.router.navigate(['admin/home/', 'courses']);
-    // } else if (
-    //   this.loginForm.value.username == 'admin' &&
-    //   this.loginForm.value.password == 'admin'
-    // ) {
-    //   localStorage.setItem('loggedInTemp', 'true');
-    //   this.router.navigate(['admin/home/', 'courses']);
-    // } else {
-    //   this.openSnackBar();
-    // }
-    // console.log(this.loginForm);
   }
 }

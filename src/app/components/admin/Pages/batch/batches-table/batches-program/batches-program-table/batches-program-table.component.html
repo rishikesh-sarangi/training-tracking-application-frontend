@@ -76,7 +76,11 @@
               </div>
             </ng-container>
             <ng-template #editMode>
-              <mat-form-field appearance="outline" class="dense-form-field-5">
+              <mat-form-field
+                appearance="outline"
+                class="dense-form-field-5"
+                style="width: 100px"
+              >
                 <input matInput formControlName="code" [readonly]="true" />
                 <mat-error>Field must not be empty</mat-error>
               </mat-form-field>

@@ -28,6 +28,8 @@ export class HeaderComponent {
   // course-programs toggle
   selectedTab: string = 'Courses';
 
+  username: string | null = localStorage.getItem('username');
+
   protected logOut() {
     localStorage.clear();
     this.router.navigate(['']);
