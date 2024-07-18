@@ -69,4 +69,7 @@ export class DeleteDialogueComponent {
   // delete course and teacher in batch
   targetTeacherNameBatch: string = this.data.targetTeacherNameBatch;
   targetCourseNameBatch: string = this.data.targetCourseNameBatch;
+
+  // deletion of topics in attendance
+  targetTopicNameInAttendance: string = this.data.targetTopicNameInAttendance;
 }

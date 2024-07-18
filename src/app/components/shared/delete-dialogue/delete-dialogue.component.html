@@ -14,6 +14,7 @@
       <span *ngIf="targetTeacherNameBatch && targetCourseNameBatch">
         Course - Teacher
       </span>
+      <span *ngIf="targetTopicNameInAttendance">Topic</span>
       ?
     </div>
     <mat-icon [mat-dialog-close]="false"
@@ -88,6 +89,12 @@
     <div class="dialogue-content">
       Are you sure you want to delete this
       {{ targetExamName || targetAssignmentName }}?
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="targetTopicNameInAttendance">
+    <div class="dialogue-content">
+      Are you sure you want to delete topic {{ targetTopicNameInAttendance }}?
     </div>
   </ng-container>
 

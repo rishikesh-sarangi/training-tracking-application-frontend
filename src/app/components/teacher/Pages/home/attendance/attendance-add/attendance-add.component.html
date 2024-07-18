@@ -1,0 +1,88 @@
+<form (ngSubmit)="onSubmit()" [formGroup]="attendanceReactiveForm">
+  <div class="table-responsive">
+    <table mat-table [dataSource]="[{}]">
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>
+          <span class="mat-subtitle-1" style="font-weight: 500">Actions</span>
+        </th>
+        <td mat-cell *matCellDef="let element">
+          <button
+            type="submit"
+            mat-icon-button
+            [disabled]="!attendanceReactiveForm.valid"
+            style="margin-bottom: 20px"
+          >
+            <mat-icon
+              ><span class="material-symbols-outlined">done</span></mat-icon
+            >
+          </button>
+          <button mat-icon-button (click)="closeForm()">
+            <mat-icon
+              ><span
+                class="material-symbols-outlined"
+                style="margin-right: 10px !important"
+                >close</span
+              ></mat-icon
+            >
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- Topic Column -->
+      <ng-container matColumnDef="topicName">
+        <th mat-header-cell *matHeaderCellDef>
+          <span class="mat-subtitle-1" style="font-weight: 500"
+            >Topic Name</span
+          >
+        </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-form-field appearance="outline" class="dense-form-field-5">
+            <mat-select formControlName="topic">
+              <mat-option *ngFor="let topic of topics" [value]="topic">
+                {{ topic.topicName }}
+              </mat-option>
+            </mat-select>
+            <mat-error>Topic name is required</mat-error>
+          </mat-form-field>
+        </td>
+      </ng-container>
+
+      <!-- Percentage Completed Column -->
+      <ng-container matColumnDef="topicPercentageCompleted">
+        <th mat-header-cell *matHeaderCellDef>
+          <span class="mat-subtitle-1" style="font-weight: 500"
+            >Topic Percentage Completed</span
+          >
+        </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-form-field appearance="outline" class="dense-form-field-5">
+            <input
+              matInput
+              formControlName="topicPercentageCompleted"
+              placeholder="Enter % completed"
+              type="number"
+              min="0"
+              max="100"
+            />
+            <mat-error>Percentage is required</mat-error>
+            <mat-error
+              *ngIf="
+                attendanceReactiveForm
+                  .get('topicPercentageCompleted')
+                  ?.hasError('min') ||
+                attendanceReactiveForm
+                  .get('topicPercentageCompleted')
+                  ?.hasError('max')
+              "
+              >Percentage must be between 0 and 100</mat-error
+            >
+          </mat-form-field>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </div>
+</form>

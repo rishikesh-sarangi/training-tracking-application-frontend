@@ -83,15 +83,23 @@ export class ExamsComponent implements OnInit, OnChanges {
   getBatches() {
     this.batchService.getBatchDetailsByTeacherId(this.teacherId).subscribe({
       next: (data) => {
-        // console.log(data);
+        // to keep unique entries only
+        const uniqueBatchIds = new Set();
+
         for (const obj of data) {
-          const batchPayload = {
-            batchId: obj.batchId,
-            batchCode: obj.batchCode,
-            batchName: obj.batchName,
-            batchStartDate: obj.batchStartDate,
-          };
-          this.batches.push(batchPayload);
+          // check if the batchId is already in the set
+          if (!uniqueBatchIds.has(obj.batchId)) {
+            uniqueBatchIds.add(obj.batchId);
+
+            // creation of the batch payload
+            const batchPayload = {
+              batchId: obj.batchId,
+              batchCode: obj.batchCode,
+              batchName: obj.batchName,
+              batchStartDate: obj.batchStartDate,
+            };
+            this.batches.push(batchPayload);
+          }
         }
       },
       error: (error) => {
@@ -99,23 +107,29 @@ export class ExamsComponent implements OnInit, OnChanges {
       },
     });
   }
-
   getBatchPrograms(batchId: number) {
     this.batchService.getBatchDetailsByTeacherId(this.teacherId).subscribe({
       next: (data) => {
-        // this.programs = data;
         this.selectedBatchId = batchId;
+        // set to track unique programIDs
+        const uniqueProgramIds = new Set();
+
         for (const obj of data) {
           if (obj.batchId === batchId) {
-            const programPayload = {
-              programId: obj.programId,
-              programName: obj.programName,
-              programCode: obj.programCode,
-            };
-            this.programs.push(programPayload);
+            // check if the programId is already in the set
+            if (!uniqueProgramIds.has(obj.programId)) {
+              uniqueProgramIds.add(obj.programId);
+
+              // creation of the program payload
+              const programPayload = {
+                programId: obj.programId,
+                programName: obj.programName,
+                programCode: obj.programCode,
+              };
+              this.programs.push(programPayload);
+            }
           }
         }
-        // console.log(this.programs);
       },
       error: (error) => {
         console.log(error);

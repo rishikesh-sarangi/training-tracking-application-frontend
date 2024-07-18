@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { BatchServiceService } from 'src/app/components/shared/Services/batch-service.service';
-import { BatchProgramsService } from 'src/app/components/shared/Services/batch-programs.service';
+
 import { AttendanceTableComponent } from './attendance-table/attendance-table.component';
 import {
   FormBuilder,
@@ -12,6 +12,7 @@ import {
   Validators,
   NgForm,
 } from '@angular/forms';
+import { AttendanceAddComponent } from './attendance-add/attendance-add.component';
 @Component({
   selector: 'app-attendance',
   standalone: true,
@@ -20,6 +21,7 @@ import {
     MaterialModule,
     ReactiveFormsModule,
     AttendanceTableComponent,
+    AttendanceAddComponent,
   ],
   templateUrl: './attendance.component.html',
   styleUrls: ['./attendance.component.scss'],
@@ -34,14 +36,15 @@ export class AttendanceComponent {
   teacherId: number = -1;
   teacherName: string = '';
 
+  showTableBasedOnFilter: boolean = false;
+
+  filterPayload: any = {};
+
   batchProgramReactiveForm!: FormGroup;
 
   // allows the opening of the table below
-  enableTable: boolean = false;
-  constructor(
-    private batchService: BatchServiceService,
-    private batchProgramService: BatchProgramsService
-  ) {}
+  openAttendanceForm: boolean = false;
+  constructor(private batchService: BatchServiceService) {}
 
   ngOnInit(): void {
     this.getTeacherDetails();
@@ -67,18 +70,47 @@ export class AttendanceComponent {
     });
   }
 
+  openTableBasedOnFilter() {
+    if (this.showTableBasedOnFilter) {
+      this.showTableBasedOnFilter = false;
+    } else {
+      this.showTableBasedOnFilter = true;
+
+      this.filterPayload = {
+        teacherId: this.teacherId,
+        batchId: this.selectedBatchId,
+        programId: this.batchProgramReactiveForm.value.program,
+        courseId: this.batchProgramReactiveForm.value.course,
+      };
+    }
+
+    if (this.enableAddTopic) {
+      this.enableAddTopic = false;
+    } else {
+      this.enableAddTopic = true;
+    }
+  }
+
   getBatches() {
     this.batchService.getBatchDetailsByTeacherId(this.teacherId).subscribe({
       next: (data) => {
-        // console.log(data);
+        // to keep unique entries only
+        const uniqueBatchIds = new Set();
+
         for (const obj of data) {
-          const batchPayload = {
-            batchId: obj.batchId,
-            batchCode: obj.batchCode,
-            batchName: obj.batchName,
-            batchStartDate: obj.batchStartDate,
-          };
-          this.batches.push(batchPayload);
+          // check if the batchId is already in the set
+          if (!uniqueBatchIds.has(obj.batchId)) {
+            uniqueBatchIds.add(obj.batchId);
+
+            // creation of the batch payload
+            const batchPayload = {
+              batchId: obj.batchId,
+              batchCode: obj.batchCode,
+              batchName: obj.batchName,
+              batchStartDate: obj.batchStartDate,
+            };
+            this.batches.push(batchPayload);
+          }
         }
       },
       error: (error) => {
@@ -86,20 +118,27 @@ export class AttendanceComponent {
       },
     });
   }
-
   getBatchPrograms(batchId: number) {
     this.batchService.getBatchDetailsByTeacherId(this.teacherId).subscribe({
       next: (data) => {
-        // this.programs = data;
         this.selectedBatchId = batchId;
+        // set to track unique programIDs
+        const uniqueProgramIds = new Set();
+
         for (const obj of data) {
           if (obj.batchId === batchId) {
-            const programPayload = {
-              programId: obj.programId,
-              programName: obj.programName,
-              programCode: obj.programCode,
-            };
-            this.programs.push(programPayload);
+            // check if the programId is already in the set
+            if (!uniqueProgramIds.has(obj.programId)) {
+              uniqueProgramIds.add(obj.programId);
+
+              // creation of the program payload
+              const programPayload = {
+                programId: obj.programId,
+                programName: obj.programName,
+                programCode: obj.programCode,
+              };
+              this.programs.push(programPayload);
+            }
           }
         }
       },
@@ -171,11 +210,8 @@ export class AttendanceComponent {
   }
   enableAddTopic: boolean = false;
   parentPayload: any = {};
-  onDateChange() {
-    this.enableAddTopic = true;
-  }
 
-  sendPayloadToChild() {
+  openForm() {
     if (this.batchProgramReactiveForm.valid) {
       this.parentPayload = {
         teacherId: this.teacherId,
@@ -184,7 +220,8 @@ export class AttendanceComponent {
         courseId: this.batchProgramReactiveForm.value.course,
         attendanceDate: this.batchProgramReactiveForm.value.date,
       };
-      this.enableTable = true;
+      this.openAttendanceForm = !this.openAttendanceForm;
+      this.batchProgramReactiveForm.disable();
     }
     // console.log(this.parentPayload);
     // console.log(this.enableTable);
@@ -205,5 +242,13 @@ export class AttendanceComponent {
     } else {
       console.log('No teacher details found in localStorage');
     }
+  }
+
+  closeForm() {
+    this.enableAddTopic = false;
+    this.openAttendanceForm = false;
+    this.batchProgramReactiveForm.reset();
+    this.batchProgramReactiveForm.enable();
+    this.batchProgramReactiveForm?.get('batchStartDate')?.disable();
   }
 }
