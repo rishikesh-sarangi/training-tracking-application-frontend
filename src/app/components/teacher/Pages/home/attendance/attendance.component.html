@@ -114,7 +114,7 @@
 
   <div class="child-component">
     <app-attendance-table
-      [enabledTable]="enableTable"
+      *ngIf="enableTable"
       [parentPayload]="parentPayload"
     ></app-attendance-table>
   </div>

@@ -184,7 +184,7 @@ export class AttendanceComponent {
         courseId: this.batchProgramReactiveForm.value.course,
         attendanceDate: this.batchProgramReactiveForm.value.date,
       };
-      this.enableTable = !this.enableTable;
+      this.enableTable = true;
     }
     // console.log(this.parentPayload);
     // console.log(this.enableTable);

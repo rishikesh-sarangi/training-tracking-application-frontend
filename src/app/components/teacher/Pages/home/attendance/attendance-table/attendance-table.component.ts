@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { NgFor } from '@angular/common';
@@ -35,7 +35,9 @@ export class AttendanceTableComponent implements OnInit {
   dataSource!: MatTableDataSource<any>;
   // parent payload
   @Input() parentPayload!: any;
-  @Input() enabledTable!: boolean;
+  // @Input() enabledTable!: boolean;
+  isLoading: boolean = false;
+  errorMessage: string = '';
 
   students: any[] = [];
   topics: any[] = [];
@@ -47,29 +49,53 @@ export class AttendanceTableComponent implements OnInit {
     private topicService: TopicsTableDataService
   ) {}
   ngOnInit(): void {
-    console.log(this.parentPayload);
-    // this.getTopics();
+    // console.log(this.parentPayload);
+    this.getTopics();
 
     // this.getAttendance();
     this.attendanceReactiveForm = new FormGroup({
-      topicName: new FormControl(null, Validators.required),
+      topic: new FormControl(null, Validators.required),
       topicPercentageCompleted: new FormControl(null, Validators.required),
     });
   }
 
   onSubmit() {
     if (this.attendanceReactiveForm.valid) {
-      // const totalPayload = {
-      //   ...this.parentFormData,
-      //   ...this.attendanceReactiveForm.value,
-      // };
-      // this.attendanceService.addAttendance(totalPayload).subscribe({
-      //   next: () => {
-      //     this.parentFormData = null;
-      //     this.enabledTable = false;
-      //   },
-      // });
+      const totalPayload = {
+        teacher: { teacherId: this.parentPayload.teacherId },
+        program: { programId: this.parentPayload.programId },
+        course: { courseId: this.parentPayload.courseId },
+        batch: { batchId: this.parentPayload.batchId },
+        evaluationDate: this.parentPayload.evaluationDate,
+        topicName: this.attendanceReactiveForm.value.topic.topicName,
+        topicPercentageCompleted:
+          this.attendanceReactiveForm.value.topicPercentageCompleted,
+        attendanceDate: this.parentPayload.attendanceDate,
+        topic: { topicId: this.attendanceReactiveForm.value.topic.topicId },
+      };
+
+      // console.log(totalPayload);
+
+      this.attendanceService.addAttendance(totalPayload).subscribe({
+        next: () => {
+          this.attendanceReactiveForm.reset();
+          this.parentPayload = null;
+        },
+      });
     }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['parentPayload'] && !changes['parentPayload'].firstChange) {
+      console.log('Parent payload changed:', this.parentPayload);
+      this.initializeData();
+    }
+  }
+
+  initializeData(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.getTopics();
   }
 
   getAttendance() {
@@ -81,19 +107,29 @@ export class AttendanceTableComponent implements OnInit {
   }
 
   getTopics() {
-    this.topicService
-      .getTopicByCourseId(this.parentPayload.courseId)
-      .subscribe({
-        next: (data: any) => {
-          this.topics = data;
-        },
-      });
+    if (this.parentPayload && this.parentPayload.courseId) {
+      this.topicService
+        .getTopicByCourseId(this.parentPayload.courseId)
+        .subscribe({
+          next: (data: any) => {
+            this.topics = data;
+            this.isLoading = false;
+            console.log(this.topics);
+          },
+          error: (error) => {
+            console.error('Error fetching topics:', error);
+            this.errorMessage = 'Failed to load topics. Please try again.';
+            this.isLoading = false;
+          },
+        });
+    } else {
+      this.isLoading = false;
+    }
   }
 
   closeForm() {
     this.attendanceReactiveForm.reset();
     this.parentPayload = null;
-    this.enabledTable = false;
   }
 
   // checkbox stuff

@@ -19,6 +19,7 @@ import { FlatTreeControl } from '@angular/cdk/tree';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatListModule } from '@angular/material/list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   MatTreeFlatDataSource,
   MatTreeFlattener,
@@ -63,6 +64,7 @@ import { MatMenuModule } from '@angular/material/menu';
     MatTabsModule,
     MatCheckboxModule,
     MatListModule,
+    MatProgressSpinnerModule,
   ],
 })
 export class MaterialModule {}
