@@ -42,8 +42,8 @@ export class TeacherHeaderComponent implements OnInit {
       this.teacherId = teacherDetails.teacherId;
       this.teacherName = teacherDetails.username;
 
-      console.log(this.teacherId);
-      console.log(this.teacherName);
+      // console.log(this.teacherId);
+      // console.log(this.teacherName);
     } else {
       console.log('No teacher details found in localStorage');
     }

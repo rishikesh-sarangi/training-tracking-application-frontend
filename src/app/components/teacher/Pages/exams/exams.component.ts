@@ -115,6 +115,7 @@ export class ExamsComponent implements OnInit, OnChanges {
             this.programs.push(programPayload);
           }
         }
+        // console.log(this.programs);
       },
       error: (error) => {
         console.log(error);
@@ -241,8 +242,8 @@ export class ExamsComponent implements OnInit, OnChanges {
       this.teacherId = teacherDetails.teacherId;
       this.teacherName = teacherDetails.username;
 
-      console.log(this.teacherId);
-      console.log(this.teacherName);
+      // console.log(this.teacherId);
+      // console.log(this.teacherName);
     } else {
       console.log('No teacher details found in localStorage');
     }

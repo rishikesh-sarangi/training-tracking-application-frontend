@@ -16,4 +16,8 @@ import { AttendanceComponent } from './attendance/attendance.component';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent {}
+export class HomeComponent {
+  onTabChange(event: any) {
+    console.log('Tab changed to:', event.index);
+  }
+}

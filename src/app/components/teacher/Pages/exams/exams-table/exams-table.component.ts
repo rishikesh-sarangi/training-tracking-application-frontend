@@ -8,6 +8,7 @@ import {
   Validators,
   NgForm,
   FormsModule,
+  FormArray,
 } from '@angular/forms';
 import { MaterialModule } from 'src/app/material.module';
 import { ExamsService } from '../../../shared/Services/exams.service';
@@ -25,10 +26,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { DeleteDialogueComponent } from 'src/app/components/shared/delete-dialogue/delete-dialogue.component';
 import { EvaluationService } from '../../../shared/Services/evaluation.service';
 import { TeachersTableService } from 'src/app/components/shared/Services/teachers-table.service';
+import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
+import { TimeFormatPipe } from '../../../shared/pipes/TimeFormatPipe';
+import { StudentTableService } from 'src/app/components/shared/Services/student-table.service';
+import { filter } from 'lodash';
 @Component({
   selector: 'app-exams-table',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MaterialModule],
+  imports: [TimeFormatPipe, CommonModule, ReactiveFormsModule, MaterialModule],
   templateUrl: './exams-table.component.html',
   styleUrls: ['./exams-table.component.scss'],
   animations: [
@@ -51,7 +56,7 @@ export class ExamsTableComponent implements OnInit {
   constructor(
     private _dialog: MatDialog,
     private evaluationService: EvaluationService,
-    private teacherService: TeachersTableService
+    private studentService: StudentTableService
   ) {}
 
   displayedColumns: string[] = [];
@@ -83,42 +88,33 @@ export class ExamsTableComponent implements OnInit {
 
   editingRowID: number = -1;
 
-  students: string[] = [
-    'Rishikesh Sarangi',
-    'Ateek Gautam',
-    'Harshdeep Singh',
-    'Nikita Dubey',
-  ];
+  students: any[] = [];
 
   sharedReactiveForm!: FormGroup;
+  studentMarksForm!: FormGroup;
 
   ngOnInit(): void {
     this.setUpColumns();
     this.getSharedDetails();
 
-    // console.log(' filter payload ' + this.filterPayload);
+    // console.log(this.filterPayload);
 
     this.sharedReactiveForm = new FormGroup({
-      [this.isAssignments ? 'assignmentName' : 'examName']: new FormControl(
-        null,
-        [
-          Validators.required,
-          Validators.pattern(/^[\S]+(\s+[\S]+)*$/), // regex for no whitespace
-        ]
-      ),
+      evaluationName: new FormControl(null, [
+        Validators.required,
+        noWhitespaceValidator(),
+      ]),
       totalMarks: new FormControl(null, [
         Validators.required,
-        Validators.pattern(/^[0-9]+$/), // regex for numbers only
+        Validators.pattern(/^[0-9]+$/),
       ]),
-      [this.isAssignments ? 'assignmentDate' : 'examDate']: new FormControl(
-        null,
-        [Validators.required, Validators.pattern(/^[\S]+(\s+[\S]+)*$/)]
-      ),
-      [this.isAssignments ? 'assignmentTime' : 'examTime']: new FormControl(
-        null,
-        [Validators.required, Validators.pattern(/^[\S]+(\s+[\S]+)*$/)]
-      ),
+      evaluationDate: new FormControl(null, [Validators.required]),
+      evaluationTime: new FormControl(null, [Validators.required]),
       uploadFile: new FormControl(null),
+    });
+
+    this.studentMarksForm = new FormGroup({
+      studentMarks: new FormArray([]),
     });
   }
 
@@ -171,6 +167,94 @@ export class ExamsTableComponent implements OnInit {
       });
   }
 
+  get studentMarksArray() {
+    return this.studentMarksForm.get('studentMarks') as FormArray;
+  }
+
+  getStudentsByBatchIdAndProgramId(batchId: number, programId: number) {
+    this.studentService
+      .getStudentsByBatchAndProgram(batchId, programId)
+      .subscribe({
+        next: (data) => {
+          this.students = data;
+          this.initStudentMarksControls();
+        },
+      });
+  }
+
+  initStudentMarksControls() {
+    this.studentMarksArray.clear();
+    this.students.forEach((student) => {
+      this.studentMarksArray.push(
+        new FormGroup({
+          studentId: new FormControl(student.studentId),
+          studentName: new FormControl(student.studentName),
+          marksSecured: new FormControl('', [
+            Validators.required,
+            Validators.min(0),
+            Validators.max(this.getTotalMarks()),
+          ]),
+        })
+      );
+    });
+  }
+
+  getTotalMarks(): number {
+    const row = this.expandedRowTable;
+    return row ? row.totalMarks : 100; // Default to 100 if not available
+  }
+
+  validateInput(event: Event, index: number) {
+    const input = event.target as HTMLInputElement;
+    const value = parseInt(input.value, 10);
+    const control = (this.studentMarksArray.at(index) as FormGroup).get(
+      'marksSecured'
+    );
+
+    if (isNaN(value) || value < 0 || value > this.getTotalMarks()) {
+      control?.setErrors({ invalidMarks: true });
+    } else {
+      control?.setErrors(null);
+    }
+  }
+
+  saveMarks() {
+    if (this.studentMarksForm.valid) {
+      const result = this.studentMarksArray.value
+        .filter(
+          (student: { studentId: number; marksSecured: string }) =>
+            student.marksSecured !== ''
+        )
+        .map(
+          ({
+            studentId,
+            marksSecured,
+          }: {
+            studentId: number;
+            marksSecured: string;
+          }) => ({
+            student: { studentId: studentId },
+            marksSecured: parseInt(marksSecured, 10),
+            evaluation: { evaluationId: this.expandedRowTable.evaluationId },
+          })
+        );
+
+      console.log(result);
+
+      this.evaluationService.addEvaluationForStudents(result).subscribe({
+        next: (data) => {
+          this.getSharedDetails();
+          this.toggleTable(null);
+        },
+        error: (err) => {
+          console.log(err);
+        },
+      });
+    } else {
+      console.log('Form is invalid. Please check the entered marks.');
+    }
+  }
+
   editSharedData(id: number, row: any) {
     this.editingRowID = id;
     this.sharedReactiveForm.patchValue(row);
@@ -185,74 +269,35 @@ export class ExamsTableComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        // const serviceMethod = this.isAssignments
-        //   ? this.assignmentService.deleteAssignments(row.id)
-        //   : this.examService.deleteExams(row.id);
-        // serviceMethod.subscribe({
-        //   next: (data) => {
-        //     this.getSharedDetails();
-        //   },
-        //   error: (err) => {
-        //     console.log(err);
-        //   },
-        // });
+        this.evaluationService.deleteEvaluation(row.evaluationId).subscribe({
+          next: (data) => {
+            this.getSharedDetails();
+          },
+          error: (err) => {
+            console.log(err);
+          },
+        });
       }
     });
   }
 
   saveSharedData(row: any) {
     if (this.sharedReactiveForm.valid) {
-      // console.log(this.sharedReactiveForm.get('assignmentTime')?.value);
-      // this.timeConverter(
-      //   this.sharedReactiveForm.get(
-      //     this.isAssignments ? 'assignmentTime' : 'examTime'
-      //   )?.value
-      // );
-      // const serviceMethod = this.isAssignments
-      //   ? this.assignmentService.editAssignments(
-      //       row.id,
-      //       this.sharedReactiveForm.value
-      //     )
-      //   : this.examService.editExams(row.id, this.sharedReactiveForm.value);
-      // serviceMethod.subscribe({
-      //   next: (data) => {
-      //     this.cancelEditing();
-      //     this.getSharedDetails();
-      //   },
-      //   error: (err) => {
-      //     console.log(err);
-      //   },
-      // });
+      // console.log(this.sharedReactiveForm.value);
+      this.evaluationService
+        .updateEvaluation(row.evaluationId, this.sharedReactiveForm.value)
+        .subscribe({
+          next: (data) => {
+            this.editingRowID = -1;
+            this.sharedReactiveForm.reset();
+            this.getSharedDetails();
+          },
+          error: (err) => {
+            console.log(err);
+          },
+        });
     }
   }
-
-  // timeConverter(time: string) {
-  //   const timeString = this.isAssignments
-  //     ? this.sharedReactiveForm.get('assignmentTime')?.value
-  //     : this.sharedReactiveForm.get('examTime')?.value;
-
-  //   const [hours, minutes] = timeString.split(':');
-  //   const hoursNum = parseInt(hours, 10);
-
-  //   let period = 'AM';
-  //   let hoursConverted = hoursNum;
-
-  //   if (hoursNum === 0) {
-  //     hoursConverted = 12;
-  //   } else if (hoursNum === 12) {
-  //     period = 'PM';
-  //   } else if (hoursNum > 12) {
-  //     hoursConverted = hoursNum - 12;
-  //     period = 'PM';
-  //   }
-
-  //   const formattedHours = hoursConverted.toString().padStart(2, '0');
-  //   const formattedMinutes = minutes.padStart(2, '0');
-
-  //   this.sharedReactiveForm
-  //     .get(this.isAssignments ? 'assignmentTime' : 'examTime')
-  //     ?.setValue(`${formattedHours}:${formattedMinutes} ${period}`);
-  // }
 
   cancelEditing() {
     this.editingRowID = -1;
@@ -263,8 +308,23 @@ export class ExamsTableComponent implements OnInit {
   isMarkStudentsClicked: boolean = false;
 
   toggleTable(row: any) {
-    this.expandedRowTable = this.expandedRowTable == row ? null : row;
-    this.isMarkStudentsClicked = !this.isMarkStudentsClicked;
+    if (this.expandedRowTable === row) {
+      // Closing the expanded row
+      this.expandedRowTable = null;
+      this.isMarkStudentsClicked = false; // Reset the flag when closing
+    } else if (row === null) {
+      // Explicit close action (e.g., from a close button)
+      this.expandedRowTable = null;
+      this.isMarkStudentsClicked = false; // Reset the flag when explicitly closing
+    } else {
+      // Opening a new row
+      this.expandedRowTable = row;
+      this.isMarkStudentsClicked = true; // Set the flag when opening
+      this.getStudentsByBatchIdAndProgramId(
+        row.batch.batchId,
+        row.program.programId
+      );
+    }
   }
 
   onFileSelected(event: any) {

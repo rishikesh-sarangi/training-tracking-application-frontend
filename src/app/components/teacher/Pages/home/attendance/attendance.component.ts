@@ -29,6 +29,11 @@ export class AttendanceComponent {
   programs: any[] = [];
   courses: any[] = [];
 
+  selectedBatchId: number = -1;
+
+  teacherId: number = -1;
+  teacherName: string = '';
+
   batchProgramReactiveForm!: FormGroup;
 
   // allows the opening of the table below
@@ -39,6 +44,7 @@ export class AttendanceComponent {
   ) {}
 
   ngOnInit(): void {
+    this.getTeacherDetails();
     this.getBatches();
     this.batchProgramReactiveForm = new FormGroup({
       batch: new FormControl(null, Validators.required),
@@ -62,12 +68,17 @@ export class AttendanceComponent {
   }
 
   getBatches() {
-    this.batchService.getBatches().subscribe({
+    this.batchService.getBatchDetailsByTeacherId(this.teacherId).subscribe({
       next: (data) => {
+        // console.log(data);
         for (const obj of data) {
-          this.batches.push(obj);
-
-          // console.log(obj);
+          const batchPayload = {
+            batchId: obj.batchId,
+            batchCode: obj.batchCode,
+            batchName: obj.batchName,
+            batchStartDate: obj.batchStartDate,
+          };
+          this.batches.push(batchPayload);
         }
       },
       error: (error) => {
@@ -76,16 +87,41 @@ export class AttendanceComponent {
     });
   }
 
-  getBatchProgram(batchCode: string) {
-    this.batchProgramService.getBatchProgramByBatchCode(batchCode).subscribe({
+  getBatchPrograms(batchId: number) {
+    this.batchService.getBatchDetailsByTeacherId(this.teacherId).subscribe({
       next: (data) => {
         // this.programs = data;
+        this.selectedBatchId = batchId;
         for (const obj of data) {
-          // console.log(obj);
-          this.programs.length = 0;
-          for (const batchProgram of obj.batchPrograms) {
-            this.programs.push(batchProgram);
-            // console.log(this.programs);
+          if (obj.batchId === batchId) {
+            const programPayload = {
+              programId: obj.programId,
+              programName: obj.programName,
+              programCode: obj.programCode,
+            };
+            this.programs.push(programPayload);
+          }
+        }
+      },
+      error: (error) => {
+        console.log(error);
+      },
+    });
+  }
+
+  getCourses(programId: number, selectedBatchId: number) {
+    this.batchService.getBatchDetailsByTeacherId(this.teacherId).subscribe({
+      next: (data) => {
+        // console.log(data);
+        for (const obj of data) {
+          if (obj.programId === programId && obj.batchId === selectedBatchId) {
+            const coursePayload = {
+              courseId: obj.courseId,
+              courseName: obj.courseName,
+              courseCode: obj.courseCode,
+            };
+            // console.log(coursePayload);
+            this.courses.push(coursePayload);
           }
         }
       },
@@ -96,39 +132,78 @@ export class AttendanceComponent {
   }
 
   onBatchChange(event: any) {
+    this.programs.length = 0;
+    // console.log('Dasdsa');
+    // this.showTableBasedOnFilter
+    //   ? (this.showTableBasedOnFilter = false)
+    //   : (this.showTableBasedOnFilter = true);
+
+    // this.createExam ? (this.createExam = false) : (this.createExam = true);
+
     for (const obj of this.batches) {
-      if (obj.batchCode === event.value) {
+      if (obj.batchId === event.value) {
         const batchStartDate = obj.batchStartDate;
         this.batchProgramReactiveForm?.get('program')?.enable();
-        this.getBatchProgram(obj.batchCode);
+        this.getBatchPrograms(obj.batchId);
+
         this.batchProgramReactiveForm
           .get('batchStartDate')
           ?.setValue(batchStartDate);
+
         return;
       }
     }
   }
 
-  onProgramChange() {
-    this.courses = ['Course 1', 'Course 2', 'Course 3'];
-    this.batchProgramReactiveForm?.get('course')?.enable();
+  onProgramChange(event: any) {
+    this.courses.length = 0;
+    for (const obj of this.programs) {
+      if (obj.programId === event.value) {
+        this.batchProgramReactiveForm?.get('course')?.enable();
+        this.getCourses(obj.programId, this.selectedBatchId);
+        return;
+      }
+    }
   }
 
   onCourseChange() {
     this.batchProgramReactiveForm?.get('date')?.enable();
   }
   enableAddTopic: boolean = false;
-  attendancePayload!: any[];
+  parentPayload: any = {};
   onDateChange() {
     this.enableAddTopic = true;
   }
 
   sendPayloadToChild() {
     if (this.batchProgramReactiveForm.valid) {
-      this.attendancePayload = this.batchProgramReactiveForm.value;
-      this.enableTable = true;
+      this.parentPayload = {
+        teacherId: this.teacherId,
+        batchId: this.batchProgramReactiveForm.value.batch,
+        programId: this.batchProgramReactiveForm.value.program,
+        courseId: this.batchProgramReactiveForm.value.course,
+        attendanceDate: this.batchProgramReactiveForm.value.date,
+      };
+      this.enableTable = !this.enableTable;
     }
-    // console.log(this.attendancePayload);
+    // console.log(this.parentPayload);
     // console.log(this.enableTable);
+  }
+
+  getTeacherDetails() {
+    const storedTeacherDetails = localStorage.getItem('teacherDetails');
+    if (storedTeacherDetails) {
+      // Parse the JSON string back into an object
+      const teacherDetails = JSON.parse(storedTeacherDetails);
+
+      // access the properties
+      this.teacherId = teacherDetails.teacherId;
+      this.teacherName = teacherDetails.username;
+
+      // console.log(this.teacherId);
+      // console.log(this.teacherName);
+    } else {
+      console.log('No teacher details found in localStorage');
+    }
   }
 }

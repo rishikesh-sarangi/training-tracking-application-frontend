@@ -9,6 +9,9 @@ import { Evaluation } from '../models/EvaluationModel';
 export class EvaluationService {
   private endPoint: string = 'http://localhost:5050/evaluations';
 
+  private endPointforEvaluationStudent: string =
+    'http://localhost:5050/evaluationStudent';
+
   constructor(private _http: HttpClient) {}
 
   addEvaluation(data: any): Observable<Evaluation> {
@@ -25,5 +28,16 @@ export class EvaluationService {
 
   deleteEvaluation(id: number): Observable<boolean> {
     return this._http.delete<boolean>(`${this.endPoint}/${id}`);
+  }
+
+  updateEvaluation(id: number, data: any): Observable<Evaluation> {
+    return this._http.patch<Evaluation>(`${this.endPoint}/${id}`, data);
+  }
+
+  addEvaluationForStudents(data: any): Observable<any> {
+    return this._http.post<any>(
+      `${this.endPointforEvaluationStudent}/saveAll`,
+      data
+    );
   }
 }

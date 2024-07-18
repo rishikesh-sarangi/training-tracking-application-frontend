@@ -59,7 +59,7 @@ export class ExamsAddComponent {
   ngOnInit(): void {
     this.setUpColumns();
     // console.log(this.displayedColumns);
-    console.log(this.parentPayload);
+    // console.log(this.parentPayload);
     this.sharedReactiveForm = new FormGroup({
       [this.isAssignments ? 'assignmentName' : 'examName']: new FormControl(
         null,
