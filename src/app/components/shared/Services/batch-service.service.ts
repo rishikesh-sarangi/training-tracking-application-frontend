@@ -70,4 +70,10 @@ export class BatchServiceService {
       'http://localhost:5050/batch-course-teacher' + `/${batchId}/${programId}`
     );
   }
+
+  getBatchDetailsByTeacherId(teacherId: number): Observable<any> {
+    return this._http.get(
+      `http://localhost:5050/teachers/${teacherId}/batch-program-course-info`
+    );
+  }
 }

@@ -27,7 +27,7 @@
               >
                 <mat-option
                   *ngFor="let batch of batches"
-                  [value]="batch.batchCode"
+                  [value]="batch.batchId"
                 >
                   Batch {{ batch.batchCode }}: {{ batch.batchName }}
                 </mat-option>
@@ -64,13 +64,13 @@
               <mat-select
                 placeholder="Program Code: Program Name"
                 formControlName="program"
-                (selectionChange)="onProgramChange()"
+                (selectionChange)="onProgramChange($event)"
               >
                 <mat-option
                   *ngFor="let program of programs"
-                  [value]="program.code"
+                  [value]="program.programId"
                 >
-                  {{ program.code }}: {{ program.programName }}
+                  {{ program.programCode }}: {{ program.programName }}
                 </mat-option>
               </mat-select>
               <mat-error>Field must not be empty</mat-error>
@@ -86,13 +86,13 @@
               <mat-select
                 placeholder="Course Code: Course Name"
                 formControlName="course"
-                (selectionChange)="createExam = !createExam"
+                (selectionChange)="openTableBasedOnFilter()"
               >
                 <mat-option
                   *ngFor="let course of courses"
-                  [value]="course.course"
+                  [value]="course.courseId"
                 >
-                  Course {{ course.code }}: {{ course.course }}
+                  Course {{ course.courseCode }}: {{ course.courseName }}
                 </mat-option>
               </mat-select>
               <mat-error>Field must not be empty</mat-error>
@@ -121,8 +121,11 @@
             ></app-exams-add
           ></ng-container>
 
-          <ng-container *ngIf="!openExamForm">
-            <app-exams-table [isAssignments]="isAssignments"></app-exams-table
+          <ng-container *ngIf="!openExamForm && showTableBasedOnFilter">
+            <app-exams-table
+              [isAssignments]="isAssignments"
+              [filterPayload]="filterPayload"
+            ></app-exams-table
           ></ng-container>
         </div>
       </div>

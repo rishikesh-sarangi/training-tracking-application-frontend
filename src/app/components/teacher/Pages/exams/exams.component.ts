@@ -41,14 +41,15 @@ export class ExamsComponent implements OnInit, OnChanges {
   courses: any[] = [];
   createExam: boolean = false;
   openExamForm: boolean = false;
+  teacherId: number = -1;
+  teacherName: string = '';
+  showTableBasedOnFilter: boolean = false;
+  filterPayload: any = {};
+  selectedBatchId: number = -1;
 
   @Input() isAssignments: boolean = false;
 
-  constructor(
-    private batchService: BatchServiceService,
-    private batchProgramService: BatchProgramsService,
-    private courseService: CourseTableDataService
-  ) {}
+  constructor(private batchService: BatchServiceService) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isAssignments']) {
@@ -57,6 +58,7 @@ export class ExamsComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    this.getTeacherDetails();
     this.getBatches();
     this.examReactiveForm = new FormGroup({
       batch: new FormControl(null, Validators.required),
@@ -79,11 +81,17 @@ export class ExamsComponent implements OnInit, OnChanges {
   }
 
   getBatches() {
-    this.batchService.getBatches().subscribe({
+    this.batchService.getBatchDetailsByTeacherId(this.teacherId).subscribe({
       next: (data) => {
         // console.log(data);
         for (const obj of data) {
-          this.batches.push(obj);
+          const batchPayload = {
+            batchId: obj.batchId,
+            batchCode: obj.batchCode,
+            batchName: obj.batchName,
+            batchStartDate: obj.batchStartDate,
+          };
+          this.batches.push(batchPayload);
         }
       },
       error: (error) => {
@@ -92,16 +100,19 @@ export class ExamsComponent implements OnInit, OnChanges {
     });
   }
 
-  getBatchPrograms(batchCode: string) {
-    this.batchProgramService.getBatchProgramByBatchCode(batchCode).subscribe({
+  getBatchPrograms(batchId: number) {
+    this.batchService.getBatchDetailsByTeacherId(this.teacherId).subscribe({
       next: (data) => {
         // this.programs = data;
+        this.selectedBatchId = batchId;
         for (const obj of data) {
-          // console.log(obj);
-          this.programs.length = 0;
-          for (const batchProgram of obj.batchPrograms) {
-            this.programs.push(batchProgram);
-            // console.log(this.programs);
+          if (obj.batchId === batchId) {
+            const programPayload = {
+              programId: obj.programId,
+              programName: obj.programName,
+              programCode: obj.programCode,
+            };
+            this.programs.push(programPayload);
           }
         }
       },
@@ -111,12 +122,20 @@ export class ExamsComponent implements OnInit, OnChanges {
     });
   }
 
-  getCourses() {
-    this.courseService.getCourses().subscribe({
+  getCourses(programId: number, selectedBatchId: number) {
+    this.batchService.getBatchDetailsByTeacherId(this.teacherId).subscribe({
       next: (data) => {
         // console.log(data);
         for (const obj of data) {
-          this.courses.push(obj);
+          if (obj.programId === programId && obj.batchId === selectedBatchId) {
+            const coursePayload = {
+              courseId: obj.courseId,
+              courseName: obj.courseName,
+              courseCode: obj.courseCode,
+            };
+            // console.log(coursePayload);
+            this.courses.push(coursePayload);
+          }
         }
       },
       error: (error) => {
@@ -125,12 +144,40 @@ export class ExamsComponent implements OnInit, OnChanges {
     });
   }
 
+  openTableBasedOnFilter() {
+    if (this.showTableBasedOnFilter) {
+      this.showTableBasedOnFilter = false;
+    } else {
+      this.showTableBasedOnFilter = true;
+
+      this.filterPayload = {
+        teacherId: this.teacherId,
+        batchId: this.selectedBatchId,
+        programId: this.examReactiveForm.value.program,
+        courseId: this.examReactiveForm.value.course,
+      };
+    }
+
+    if (this.createExam) {
+      this.createExam = false;
+    } else {
+      this.createExam = true;
+    }
+  }
+
   onBatchChange(event: any) {
+    this.programs.length = 0;
+    // this.showTableBasedOnFilter
+    //   ? (this.showTableBasedOnFilter = false)
+    //   : (this.showTableBasedOnFilter = true);
+
+    // this.createExam ? (this.createExam = false) : (this.createExam = true);
+
     for (const obj of this.batches) {
-      if (obj.batchCode === event.value) {
+      if (obj.batchId === event.value) {
         const batchStartDate = obj.batchStartDate;
         this.examReactiveForm?.get('program')?.enable();
-        this.getBatchPrograms(obj.batchCode);
+        this.getBatchPrograms(obj.batchId);
 
         this.examReactiveForm.get('batchStartDate')?.setValue(batchStartDate);
 
@@ -139,10 +186,15 @@ export class ExamsComponent implements OnInit, OnChanges {
     }
   }
 
-  onProgramChange() {
+  onProgramChange(event: any) {
     this.courses.length = 0;
-    this.getCourses();
-    this.examReactiveForm?.get('course')?.enable();
+    for (const obj of this.programs) {
+      if (obj.programId === event.value) {
+        this.examReactiveForm?.get('course')?.enable();
+        this.getCourses(obj.programId, this.selectedBatchId);
+        return;
+      }
+    }
   }
 
   // controlled by child component
@@ -160,11 +212,39 @@ export class ExamsComponent implements OnInit, OnChanges {
     if (this.examReactiveForm.valid) {
       this.examReactiveForm?.get('batchStartDate')?.enable();
       this.parentPayload = {
-        ...this.examReactiveForm.value,
+        course: {
+          courseId: this.examReactiveForm.value.course,
+        },
+        program: {
+          programId: this.examReactiveForm.value.program,
+        },
+        batch: {
+          batchId: this.examReactiveForm.value.batch,
+        },
+        teacher: {
+          teacherId: this.teacherId,
+        },
       };
       this.openExamForm = !this.openExamForm;
       this.examReactiveForm.disable();
       this.createExam = false;
+    }
+  }
+
+  getTeacherDetails() {
+    const storedTeacherDetails = localStorage.getItem('teacherDetails');
+    if (storedTeacherDetails) {
+      // Parse the JSON string back into an object
+      const teacherDetails = JSON.parse(storedTeacherDetails);
+
+      // access the properties
+      this.teacherId = teacherDetails.teacherId;
+      this.teacherName = teacherDetails.username;
+
+      console.log(this.teacherId);
+      console.log(this.teacherName);
+    } else {
+      console.log('No teacher details found in localStorage');
     }
   }
 }

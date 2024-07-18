@@ -11,7 +11,7 @@ import {
 } from '@angular/forms';
 import { MaterialModule } from 'src/app/material.module';
 import { ExamsService } from '../../../shared/Services/exams.service';
-import { AssignmentService } from '../../../shared/Services/assignment.service';
+import { EvaluationService } from '../../../shared/Services/evaluation.service';
 @Component({
   selector: 'app-exams-add',
   standalone: true,
@@ -20,10 +20,7 @@ import { AssignmentService } from '../../../shared/Services/assignment.service';
   styleUrls: ['./exams-add.component.scss'],
 })
 export class ExamsAddComponent {
-  constructor(
-    private examService: ExamsService,
-    private assignmentService: AssignmentService
-  ) {}
+  constructor(private evaluationService: EvaluationService) {}
 
   @Input() openExamForm: boolean = false;
   @Input() parentPayload!: any;
@@ -62,6 +59,7 @@ export class ExamsAddComponent {
   ngOnInit(): void {
     this.setUpColumns();
     // console.log(this.displayedColumns);
+    console.log(this.parentPayload);
     this.sharedReactiveForm = new FormGroup({
       [this.isAssignments ? 'assignmentName' : 'examName']: new FormControl(
         null,
@@ -87,32 +85,26 @@ export class ExamsAddComponent {
   }
   onSubmit() {
     if (this.sharedReactiveForm.valid) {
-      // this.timeConverter(
-      //   this.sharedReactiveForm.get(
-      //     this.isAssignments ? 'assignmentTime' : 'examTime'
-      //   )?.value
-      // );
-      // console.log(this.parentPayload);
       const examPayload = {
-        ...this.sharedReactiveForm.value,
         ...this.parentPayload,
+        evaluationName: this.sharedReactiveForm.get(
+          this.isAssignments ? 'assignmentName' : 'examName'
+        )?.value,
+        evaluationType: this.isAssignments ? 'assignment' : 'exam',
+        evaluationDate: this.sharedReactiveForm.get(
+          this.isAssignments ? 'assignmentDate' : 'examDate'
+        )?.value,
+        evaluationTime: this.sharedReactiveForm.get(
+          this.isAssignments ? 'assignmentTime' : 'examTime'
+        )?.value,
+        totalMarks: this.sharedReactiveForm.value.totalMarks,
       };
       // console.log(examPayload);
 
-      // conditionally check if we are in assignments or exams and make the service call
-      const serviceMethod = this.isAssignments
-        ? this.assignmentService.addAssignments(examPayload)
-        : this.examService.addExams(examPayload);
-
-      serviceMethod.subscribe({
-        next: (res) => {
-          this.sharedReactiveForm.reset();
-          this.closeForm();
-          // console.log(res);
-        },
-        error: (err) => {
-          console.log(err);
-        },
+      this.evaluationService.addEvaluation(examPayload).subscribe((res) => {
+        // console.log(res);
+        this.sharedReactiveForm.reset();
+        this.closeForm();
       });
     }
   }
@@ -127,32 +119,4 @@ export class ExamsAddComponent {
     const file = event.target.files[0];
     console.log(file);
   }
-
-  // timeConverter(time: string) {
-  //   const timeString = this.isAssignments
-  //     ? this.sharedReactiveForm.get('assignmentTime')?.value
-  //     : this.sharedReactiveForm.get('examTime')?.value;
-
-  //   const [hours, minutes] = timeString.split(':');
-  //   const hoursNum = parseInt(hours, 10);
-
-  //   let period = 'AM';
-  //   let hoursConverted = hoursNum;
-
-  //   if (hoursNum === 0) {
-  //     hoursConverted = 12;
-  //   } else if (hoursNum === 12) {
-  //     period = 'PM';
-  //   } else if (hoursNum > 12) {
-  //     hoursConverted = hoursNum - 12;
-  //     period = 'PM';
-  //   }
-
-  //   const formattedHours = hoursConverted.toString().padStart(2, '0');
-  //   const formattedMinutes = minutes.padStart(2, '0');
-
-  //   this.sharedReactiveForm
-  //     .get(this.isAssignments ? 'assignmentTime' : 'examTime')
-  //     ?.setValue(`${formattedHours}:${formattedMinutes} ${period}`);
-  // }
 }

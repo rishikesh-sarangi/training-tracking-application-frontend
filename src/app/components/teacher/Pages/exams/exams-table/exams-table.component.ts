@@ -21,9 +21,10 @@ import {
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { AssignmentService } from '../../../shared/Services/assignment.service';
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteDialogueComponent } from 'src/app/components/shared/delete-dialogue/delete-dialogue.component';
+import { EvaluationService } from '../../../shared/Services/evaluation.service';
+import { TeachersTableService } from 'src/app/components/shared/Services/teachers-table.service';
 @Component({
   selector: 'app-exams-table',
   standalone: true,
@@ -42,13 +43,16 @@ import { DeleteDialogueComponent } from 'src/app/components/shared/delete-dialog
   ],
 })
 export class ExamsTableComponent implements OnInit {
-  constructor(
-    private examService: ExamsService,
-    private assignmentService: AssignmentService,
-    private _dialog: MatDialog
-  ) {}
-
+  @Input() filterPayload: any;
   @Input() isAssignments: boolean = false;
+  exams: any[] = [];
+  assignments: any[] = [];
+  isEvaluationAvailable: boolean = true;
+  constructor(
+    private _dialog: MatDialog,
+    private evaluationService: EvaluationService,
+    private teacherService: TeachersTableService
+  ) {}
 
   displayedColumns: string[] = [];
   setUpColumns() {
@@ -92,6 +96,8 @@ export class ExamsTableComponent implements OnInit {
     this.setUpColumns();
     this.getSharedDetails();
 
+    // console.log(' filter payload ' + this.filterPayload);
+
     this.sharedReactiveForm = new FormGroup({
       [this.isAssignments ? 'assignmentName' : 'examName']: new FormControl(
         null,
@@ -117,19 +123,52 @@ export class ExamsTableComponent implements OnInit {
   }
 
   getSharedDetails() {
-    const serviceMethod = this.isAssignments
-      ? this.assignmentService.getAssignments()
-      : this.examService.getExams();
+    this.exams.length = 0;
+    this.assignments.length = 0;
 
-    serviceMethod.subscribe({
-      next: (data) => {
-        this.dataSource = new MatTableDataSource(data);
-        this.dataSource.sort = this.sort;
-      },
-      error: (err) => {
-        console.log(err);
-      },
-    });
+    this.evaluationService
+      .getEvaluationsByFilters(this.filterPayload)
+      .subscribe({
+        next: (response) => {
+          // console.log(response[0].data);
+          for (const obj of response[0].data) {
+            if (obj.evaluationType == 'exam' && this.isAssignments == false) {
+              // console.log('working');
+              this.exams.push(obj);
+            } else if (
+              obj.evaluationType == 'assignment' &&
+              this.isAssignments
+            ) {
+              this.assignments.push(obj);
+            }
+          }
+
+          // console.log(this.exams);
+          // console.log(this.assignments);
+
+          if (this.assignments.length == 0 && this.exams.length == 0) {
+            if (this.isEvaluationAvailable) {
+              this.isEvaluationAvailable = false;
+            } else {
+              this.isEvaluationAvailable = true;
+            }
+            return;
+          }
+
+          if (this.exams.length == 0) {
+            this.dataSource = new MatTableDataSource(this.assignments);
+          } else if (this.assignments.length == 0) {
+            this.dataSource = new MatTableDataSource(this.exams);
+          }
+
+          // console.log(this.isEvaluationAvailable);
+
+          this.dataSource.sort = this.sort;
+        },
+        error: (err) => {
+          console.log(err);
+        },
+      });
   }
 
   editSharedData(id: number, row: any) {
@@ -146,18 +185,17 @@ export class ExamsTableComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        const serviceMethod = this.isAssignments
-          ? this.assignmentService.deleteAssignments(row.id)
-          : this.examService.deleteExams(row.id);
-
-        serviceMethod.subscribe({
-          next: (data) => {
-            this.getSharedDetails();
-          },
-          error: (err) => {
-            console.log(err);
-          },
-        });
+        // const serviceMethod = this.isAssignments
+        //   ? this.assignmentService.deleteAssignments(row.id)
+        //   : this.examService.deleteExams(row.id);
+        // serviceMethod.subscribe({
+        //   next: (data) => {
+        //     this.getSharedDetails();
+        //   },
+        //   error: (err) => {
+        //     console.log(err);
+        //   },
+        // });
       }
     });
   }
@@ -165,29 +203,26 @@ export class ExamsTableComponent implements OnInit {
   saveSharedData(row: any) {
     if (this.sharedReactiveForm.valid) {
       // console.log(this.sharedReactiveForm.get('assignmentTime')?.value);
-
       // this.timeConverter(
       //   this.sharedReactiveForm.get(
       //     this.isAssignments ? 'assignmentTime' : 'examTime'
       //   )?.value
       // );
-
-      const serviceMethod = this.isAssignments
-        ? this.assignmentService.editAssignments(
-            row.id,
-            this.sharedReactiveForm.value
-          )
-        : this.examService.editExams(row.id, this.sharedReactiveForm.value);
-
-      serviceMethod.subscribe({
-        next: (data) => {
-          this.cancelEditing();
-          this.getSharedDetails();
-        },
-        error: (err) => {
-          console.log(err);
-        },
-      });
+      // const serviceMethod = this.isAssignments
+      //   ? this.assignmentService.editAssignments(
+      //       row.id,
+      //       this.sharedReactiveForm.value
+      //     )
+      //   : this.examService.editExams(row.id, this.sharedReactiveForm.value);
+      // serviceMethod.subscribe({
+      //   next: (data) => {
+      //     this.cancelEditing();
+      //     this.getSharedDetails();
+      //   },
+      //   error: (err) => {
+      //     console.log(err);
+      //   },
+      // });
     }
   }
 

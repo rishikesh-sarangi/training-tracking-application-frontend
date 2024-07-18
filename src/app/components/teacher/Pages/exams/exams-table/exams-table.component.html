@@ -1,5 +1,5 @@
 <div class="batches-program-component">
-  <div class="table-responsive">
+  <div class="table-responsive" *ngIf="isEvaluationAvailable">
     <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows>
       <form [formGroup]="sharedReactiveForm">
         <!-- actions -->
@@ -62,7 +62,7 @@
           <td mat-cell *matCellDef="let row; let i = dataIndex">
             <ng-container *ngIf="i != editingRowID; else editMode">
               <div>
-                {{ row[isAssignments ? "assignmentName" : "examName"] }}
+                {{ row.evaluationName }}
               </div>
             </ng-container>
             <ng-template #editMode>
@@ -105,10 +105,7 @@
           <td mat-cell *matCellDef="let row; let i = dataIndex">
             <ng-container *ngIf="i != editingRowID; else editMode">
               <div>
-                {{
-                  row[isAssignments ? "assignmentDate" : "examDate"]
-                    | date : "dd MMM yyyy"
-                }}
+                {{ row.evaluationDate | date : "dd MMM yyyy" }}
               </div>
             </ng-container>
             <ng-template #editMode>
@@ -146,7 +143,7 @@
           <td mat-cell *matCellDef="let row; let i = dataIndex">
             <ng-container *ngIf="i != editingRowID; else editMode">
               <div>
-                {{ row[isAssignments ? "assignmentTime" : "examTime"] }}
+                {{ row.evaluationTime }}
               </div>
             </ng-container>
             <ng-template #editMode>
@@ -291,4 +288,5 @@
       ></tr>
     </table>
   </div>
+  <div *ngIf="!isEvaluationAvailable">No Evaluation Available</div>
 </div>
