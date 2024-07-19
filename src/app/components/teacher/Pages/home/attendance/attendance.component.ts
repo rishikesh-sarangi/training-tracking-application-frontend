@@ -81,6 +81,7 @@ export class AttendanceComponent {
         batchId: this.selectedBatchId,
         programId: this.batchProgramReactiveForm.value.program,
         courseId: this.batchProgramReactiveForm.value.course,
+        attendanceDate: this.batchProgramReactiveForm.value.date,
       };
     }
 

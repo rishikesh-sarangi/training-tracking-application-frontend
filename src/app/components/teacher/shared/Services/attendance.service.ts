@@ -14,13 +14,19 @@ export class AttendanceService {
     return this._http.post(this.Index, data);
   }
 
-  getAttendanceByFilter(
-    data: BatchProgramTeacherCoursesDelete
-  ): Observable<any> {
+  getAttendanceByFilter(data: any): Observable<any> {
     return this._http.post(this.Index + '/filter', data);
   }
 
   deleteAttendance(attendanceId: any): Observable<boolean> {
     return this._http.delete<boolean>(this.Index + `/${attendanceId}`);
+  }
+
+  updateAttendance(attendanceId: number, data: any): Observable<any> {
+    return this._http.patch<any>(this.Index + `/${attendanceId}`, data);
+  }
+
+  getByBatchProgramTeacher(data: any): Observable<any> {
+    return this._http.post<any>(`${this.Index}/by-batch-program-teacher`, data);
   }
 }

@@ -18,7 +18,7 @@
         formControlName="batch"
         (selectionChange)="onBatchChange($event)"
       >
-        <mat-option *ngFor="let batch of batches" [value]="batch.batchCode">
+        <mat-option *ngFor="let batch of batches" [value]="batch.batchId">
           Batch {{ batch.batchCode }}: {{ batch.batchName }}
         </mat-option>
       </mat-select>
@@ -51,11 +51,49 @@
         placeholder="Program Code: Program Name"
         formControlName="program"
       >
-        <mat-option *ngFor="let program of programs" [value]="program.code">
-          {{ program.code }}: {{ program.programName }}
+        <mat-option
+          *ngFor="let program of programs"
+          [value]="program.programId"
+          (onSelectionChange)="openFilterPayload(program.programId)"
+        >
+          {{ program.programCode }}: {{ program.programName }}
         </mat-option>
       </mat-select>
       <mat-error>Field must not be empty</mat-error>
     </mat-form-field>
   </form>
+
+  <!-- actual table -->
+  <div *ngIf="showTableBasedOnFilter">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      <ng-container matColumnDef="courseName">
+        <th mat-header-cell *matHeaderCellDef>Course Name</th>
+        <td mat-cell *matCellDef="let row">{{ row.courseName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="topicsCompleted">
+        <th mat-header-cell *matHeaderCellDef>Topics Completed</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.topicsCompleted }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="topicsInProgress">
+        <th mat-header-cell *matHeaderCellDef>Topics In Progress</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.topicsInProgress }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="courseCompletionPercentage">
+        <th mat-header-cell *matHeaderCellDef>Course Completion</th>
+        <td mat-cell *matCellDef="let row">
+          {{ row.courseCompletionPercentage | percent }}
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </div>
 </div>

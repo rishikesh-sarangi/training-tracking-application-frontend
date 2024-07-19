@@ -26,4 +26,8 @@ export class CourseTableDataService {
   editCourses(id: number, data: TableData): Observable<any> {
     return this._http.put(`${this.Index}/${id}`, data);
   }
+
+  getCoursesByBatchIdProgramIdTeacherId(data: any): Observable<any> {
+    return this._http.post<any>(`${this.Index}/by-batch-program-teacher`, data);
+  }
 }

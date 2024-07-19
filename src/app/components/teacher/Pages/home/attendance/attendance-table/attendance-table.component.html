@@ -65,8 +65,12 @@
             </ng-container>
             <ng-template #editMode>
               <mat-form-field appearance="outline" class="dense-form-field-5">
-                <input matInput formControlName="topicName" />
-                <mat-error>Field must not be empty</mat-error>
+                <mat-select formControlName="topicName">
+                  <mat-option *ngFor="let topic of topics" [value]="topic">
+                    {{ topic.topicName }}
+                  </mat-option>
+                </mat-select>
+                <mat-error>Topic name is required</mat-error>
               </mat-form-field>
             </ng-template>
           </td>
@@ -93,7 +97,6 @@
         </ng-container>
 
         <!-- expansion Table -->
-        <!-- Inside the expansion Table -->
         <ng-container matColumnDef="markStudentsTable">
           <td
             mat-cell
@@ -108,6 +111,34 @@
             >
               <ng-container *ngIf="row2 === expandedRowTable">
                 <!-- logic for attendance -->
+                <div class="attendance-container">
+                  <div class="attendance-header">
+                    <h3>Mark Attendance</h3>
+                    <div class="attendance-actions">
+                      <button mat-raised-button (click)="toggleTable(null)">
+                        Save
+                      </button>
+                      <button
+                        mat-raised-button
+                        color="primary"
+                        (click)="toggleTable(null)"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                  <div class="attendance-list">
+                    <div
+                      class="attendance-row"
+                      *ngFor="let student of students"
+                    >
+                      <div class="student-name">{{ student.studentName }}</div>
+                      <div class="attendance-checkbox">
+                        <mat-checkbox color="primary">Present</mat-checkbox>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </ng-container>
             </div>
           </td>

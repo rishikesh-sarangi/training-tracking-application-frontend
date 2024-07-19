@@ -49,3 +49,42 @@ tr.example-element-row:not(.example-expanded-row):active {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
+
+.attendance-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.attendance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.attendance-actions button {
+  margin-left: 10px;
+}
+
+.attendance-list {
+  max-height: 400px; /* Adjust as needed */
+  overflow-y: auto;
+}
+
+.attendance-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.student-name {
+  flex: 1;
+}
+
+.attendance-checkbox {
+  flex: 0 0 100px;
+  text-align: right;
+}

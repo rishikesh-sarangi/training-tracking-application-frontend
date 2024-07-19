@@ -74,14 +74,17 @@ export class AttendanceTableComponent implements OnInit {
 
   students: any[] = [];
 
+  topics: any[] = [];
+
   constructor(
     private attendanceService: AttendanceService,
     private studentService: StudentTableService,
-    private _dialog: MatDialog
+    private _dialog: MatDialog,
+    private topicService: TopicsTableDataService
   ) {}
   ngOnInit(): void {
     this.getAttendance();
-    // console.log(this.parentPayload);
+    // console.log(this.filterPayload);
     this.attendanceReactiveForm = new FormGroup({
       topicName: new FormControl(null, Validators.required),
       topicPercentageCompleted: new FormControl(null, Validators.required),
@@ -89,14 +92,23 @@ export class AttendanceTableComponent implements OnInit {
   }
 
   getAttendance() {
-    this.attendanceService.getAttendanceByFilter(this.filterPayload).subscribe({
+    const payload = { ...this.filterPayload };
+
+    // Adjust the date
+    if (payload.attendanceDate) {
+      const date = new Date(payload.attendanceDate);
+      date.setDate(date.getDate() + 1);
+      payload.attendanceDate = date.toISOString().split('T')[0];
+    }
+
+    this.attendanceService.getAttendanceByFilter(payload).subscribe({
       next: (response: any) => {
         // console.log(data);
-        this.dataSource = new MatTableDataSource(response[0].data);
-        if (this.isAttendanceAvailable) {
-          this.isAttendanceAvailable = false;
-        } else {
+        if (response[0].data.length > 0) {
+          this.dataSource = new MatTableDataSource(response[0].data);
           this.isAttendanceAvailable = true;
+        } else {
+          this.isAttendanceAvailable = false;
         }
       },
       error: (error) => {
@@ -132,10 +144,37 @@ export class AttendanceTableComponent implements OnInit {
       });
   }
 
+  getTopics() {
+    this.topicService
+      .getTopicByCourseId(this.filterPayload.courseId)
+      .subscribe({
+        next: (data: any) => {
+          this.topics = data;
+          // console.log(this.topics);
+        },
+        error: (error) => {
+          console.error('Error fetching topics:', error);
+        },
+      });
+  }
+
   saveAttendance(row: any) {
-    // this.editingRowID = -1;
-    // this.attendanceReactiveForm.reset();
-    // this.getAttendance();
+    if (this.attendanceReactiveForm.valid) {
+      const payload = {
+        topicName: this.attendanceReactiveForm.value.topicName.topicName,
+        topicPercentageCompleted:
+          this.attendanceReactiveForm.value.topicPercentageCompleted,
+        topicId: this.attendanceReactiveForm.value.topicName.topicId,
+      };
+      // console.log(payload);
+      this.attendanceService
+        .updateAttendance(row.attendanceId, payload)
+        .subscribe((data) => {
+          this.editingRowID = -1;
+          this.attendanceReactiveForm.reset();
+          this.getAttendance();
+        });
+    }
   }
 
   deleteAttendance(row: any) {
@@ -177,6 +216,7 @@ export class AttendanceTableComponent implements OnInit {
   }
 
   editAttendance(id: number, row: any) {
+    this.getTopics();
     this.editingRowID = id;
     this.attendanceReactiveForm.patchValue(row);
   }
