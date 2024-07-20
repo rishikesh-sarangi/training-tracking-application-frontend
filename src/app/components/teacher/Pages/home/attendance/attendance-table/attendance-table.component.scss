@@ -74,17 +74,17 @@ tr.example-element-row:not(.example-expanded-row):active {
 
 .attendance-row {
   display: flex;
-  justify-content: space-between;
+  gap: 50px;
   align-items: center;
   padding: 5px 0;
   border-bottom: 1px solid #eee;
 }
 
-.student-name {
-  flex: 1;
-}
+// .student-name {
+//   flex: 1;
+// }
 
 .attendance-checkbox {
   flex: 0 0 100px;
-  text-align: right;
+  // text-align: right;
 }

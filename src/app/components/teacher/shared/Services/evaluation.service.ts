@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Evaluation } from '../models/EvaluationModel';
@@ -14,7 +14,7 @@ export class EvaluationService {
 
   constructor(private _http: HttpClient) {}
 
-  addEvaluation(data: any): Observable<Evaluation> {
+  addEvaluation(data: any): Observable<any> {
     return this._http.post<any>(this.endPoint, data);
   }
 
@@ -39,5 +39,22 @@ export class EvaluationService {
       `${this.endPointforEvaluationStudent}/saveAll`,
       data
     );
+  }
+
+  uploadFile(evaluationId: string, formData: FormData): Observable<any> {
+    return this._http.post(
+      `${this.endPoint}/${evaluationId}/upload`,
+      formData,
+      {
+        reportProgress: true,
+        observe: 'events',
+      }
+    );
+  }
+
+  doesFileExist(file: File): Observable<any> {
+    // Use the file name as the query parameter
+    const params = new HttpParams().set('fileName', file.name);
+    return this._http.get(`${this.endPoint}/file`, { params });
   }
 }

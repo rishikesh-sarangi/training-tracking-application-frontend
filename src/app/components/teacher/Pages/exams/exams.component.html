@@ -86,7 +86,7 @@
               <mat-select
                 placeholder="Course Code: Course Name"
                 formControlName="course"
-                (selectionChange)="openTableBasedOnFilter()"
+                (selectionChange)="onCourseChange($event)"
               >
                 <mat-option
                   *ngFor="let course of courses"
@@ -122,10 +122,11 @@
           ></ng-container>
 
           <ng-container *ngIf="!openExamForm && showTableBasedOnFilter">
-            <app-exams-table
-              [isAssignments]="isAssignments"
-              [filterPayload]="filterPayload"
-            ></app-exams-table
+            <ng-container *ngIf="showTableBasedOnFilter">
+              <app-exams-table
+                [isAssignments]="isAssignments"
+                [filterPayload]="filterPayload"
+              ></app-exams-table> </ng-container
           ></ng-container>
         </div>
       </div>

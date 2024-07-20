@@ -1,17 +1,13 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
-  FormBuilder,
   FormGroup,
   FormControl,
   ReactiveFormsModule,
   Validators,
-  NgForm,
-  FormsModule,
   FormArray,
 } from '@angular/forms';
 import { MaterialModule } from 'src/app/material.module';
-import { ExamsService } from '../../../shared/Services/exams.service';
 import {
   animate,
   state,
@@ -19,17 +15,15 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteDialogueComponent } from 'src/app/components/shared/delete-dialogue/delete-dialogue.component';
 import { EvaluationService } from '../../../shared/Services/evaluation.service';
-import { TeachersTableService } from 'src/app/components/shared/Services/teachers-table.service';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
 import { TimeFormatPipe } from '../../../shared/pipes/TimeFormatPipe';
 import { StudentTableService } from 'src/app/components/shared/Services/student-table.service';
-import { filter } from 'lodash';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-exams-table',
   standalone: true,
@@ -48,15 +42,30 @@ import { filter } from 'lodash';
   ],
 })
 export class ExamsTableComponent implements OnInit {
-  @Input() filterPayload: any;
+  private _filterPayload: any;
+  @Input() set filterPayload(value: any) {
+    if (
+      value &&
+      JSON.stringify(value) !== JSON.stringify(this._filterPayload)
+    ) {
+      this._filterPayload = value;
+      this.getSharedDetails();
+    }
+  }
+  get filterPayload(): any {
+    return this._filterPayload;
+  }
   @Input() isAssignments: boolean = false;
   exams: any[] = [];
   assignments: any[] = [];
   isEvaluationAvailable: boolean = true;
+  isExamAvailable: boolean = false;
+  isAssignmentAvailable: boolean = false;
   constructor(
     private _dialog: MatDialog,
     private evaluationService: EvaluationService,
-    private studentService: StudentTableService
+    private studentService: StudentTableService,
+    private snackBar: MatSnackBar
   ) {}
 
   displayedColumns: string[] = [];
@@ -119,50 +128,49 @@ export class ExamsTableComponent implements OnInit {
   }
 
   getSharedDetails() {
-    this.exams.length = 0;
-    this.assignments.length = 0;
+    this.exams = [];
+    this.assignments = [];
+    this.isEvaluationAvailable = true;
+    this.isExamAvailable = false;
+    this.isAssignmentAvailable = false;
+
+    if (!this.filterPayload || !this.filterPayload.courseId) {
+      this.isEvaluationAvailable = false;
+      return;
+    }
 
     this.evaluationService
       .getEvaluationsByFilters(this.filterPayload)
       .subscribe({
         next: (response) => {
-          // console.log(response[0].data);
-          for (const obj of response[0].data) {
-            if (obj.evaluationType == 'exam' && this.isAssignments == false) {
-              // console.log('working');
-              this.exams.push(obj);
-            } else if (
-              obj.evaluationType == 'assignment' &&
-              this.isAssignments
-            ) {
-              this.assignments.push(obj);
-            }
-          }
-
-          // console.log(this.exams);
-          // console.log(this.assignments);
-
-          if (this.assignments.length == 0 && this.exams.length == 0) {
-            if (this.isEvaluationAvailable) {
-              this.isEvaluationAvailable = false;
-            } else {
-              this.isEvaluationAvailable = true;
-            }
+          if (response.responseCode == 404) {
+            this.snackBar.open(response.responseMessage, 'Close', {
+              duration: 3000,
+            });
+            this.isEvaluationAvailable = false;
             return;
           }
 
-          if (this.exams.length == 0) {
-            this.dataSource = new MatTableDataSource(this.assignments);
-          } else if (this.assignments.length == 0) {
-            this.dataSource = new MatTableDataSource(this.exams);
-          }
+          const filteredData = response.data.filter(
+            (obj: any) =>
+              (obj.evaluationType == 'exam' && !this.isAssignments) ||
+              (obj.evaluationType == 'assignment' && this.isAssignments)
+          );
 
-          // console.log(this.isEvaluationAvailable);
+          this.dataSource = new MatTableDataSource(filteredData);
+          this.isEvaluationAvailable = filteredData.length > 0;
+          this.isExamAvailable = filteredData.some(
+            (obj: any) => obj.evaluationType == 'exam'
+          );
+          this.isAssignmentAvailable = filteredData.some(
+            (obj: any) => obj.evaluationType == 'assignment'
+          );
 
           this.dataSource.sort = this.sort;
         },
         error: (err) => {
           console.log(err);
+          this.isEvaluationAvailable = false;
         },
       });
   }

@@ -4,3 +4,10 @@
   padding: 20px;
   // width: 100% !important;
 }
+
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}

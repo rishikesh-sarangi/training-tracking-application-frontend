@@ -87,3 +87,13 @@ span {
 .login-text {
   color: #fff;
 }
+
+// width < 400px
+@media only screen and (max-width: 480px) {
+  .login-box {
+    width: 330px;
+  }
+  mat-form-field {
+    width: 300px;
+  }
+}

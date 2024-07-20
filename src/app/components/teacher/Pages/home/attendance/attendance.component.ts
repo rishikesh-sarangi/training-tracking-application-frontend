@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { BatchServiceService } from 'src/app/components/shared/Services/batch-service.service';
@@ -13,6 +13,7 @@ import {
   NgForm,
 } from '@angular/forms';
 import { AttendanceAddComponent } from './attendance-add/attendance-add.component';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 @Component({
   selector: 'app-attendance',
   standalone: true,
@@ -38,9 +39,14 @@ export class AttendanceComponent {
 
   showTableBasedOnFilter: boolean = false;
 
+  private filterSubject = new Subject<any>();
+
   filterPayload: any = {};
 
   batchProgramReactiveForm!: FormGroup;
+
+  enableAddTopic: boolean = false;
+  parentPayload: any = {};
 
   // allows the opening of the table below
   openAttendanceForm: boolean = false;
@@ -68,31 +74,52 @@ export class AttendanceComponent {
         Validators.required
       ),
     });
+
+    this.setupFilterListener();
   }
 
   openTableBasedOnFilter() {
-    if (this.showTableBasedOnFilter) {
-      this.showTableBasedOnFilter = false;
-    } else {
-      this.showTableBasedOnFilter = true;
-
-      this.filterPayload = {
+    if (this.batchProgramReactiveForm.valid) {
+      const payload = {
         teacherId: this.teacherId,
-        batchId: this.selectedBatchId,
+        batchId: this.batchProgramReactiveForm.value.batch,
         programId: this.batchProgramReactiveForm.value.program,
         courseId: this.batchProgramReactiveForm.value.course,
         attendanceDate: this.batchProgramReactiveForm.value.date,
       };
+
+      // adjust attendanceDate
+      const date = new Date(payload.attendanceDate);
+      date.setDate(date.getDate() + 1);
+      payload.attendanceDate = date.toISOString().split('T')[0];
+
+      // console.log(payload);
+      this.filterSubject.next(payload);
     }
 
-    if (this.enableAddTopic) {
-      this.enableAddTopic = false;
-    } else {
-      this.enableAddTopic = true;
-    }
+    this.enableAddTopic = !this.enableAddTopic;
+  }
+
+  setupFilterListener() {
+    this.filterSubject
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(
+          (prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)
+        )
+      )
+      .subscribe((filterPayload) => {
+        this.updateFilterPayload(filterPayload);
+      });
+  }
+
+  updateFilterPayload(payload: any) {
+    this.filterPayload = payload;
+    this.showTableBasedOnFilter = true;
   }
 
   getBatches() {
+    this.showTableBasedOnFilter = false;
     this.batchService.getBatchDetailsByTeacherId(this.teacherId).subscribe({
       next: (data) => {
         // to keep unique entries only
@@ -173,12 +200,8 @@ export class AttendanceComponent {
 
   onBatchChange(event: any) {
     this.programs.length = 0;
-    // console.log('Dasdsa');
-    // this.showTableBasedOnFilter
-    //   ? (this.showTableBasedOnFilter = false)
-    //   : (this.showTableBasedOnFilter = true);
-
-    // this.createExam ? (this.createExam = false) : (this.createExam = true);
+    this.courses.length = 0;
+    this.resetDateAndDisableFields();
 
     for (const obj of this.batches) {
       if (obj.batchId === event.value) {
@@ -197,6 +220,7 @@ export class AttendanceComponent {
 
   onProgramChange(event: any) {
     this.courses.length = 0;
+    this.resetDateAndDisableFields();
     for (const obj of this.programs) {
       if (obj.programId === event.value) {
         this.batchProgramReactiveForm?.get('course')?.enable();
@@ -207,10 +231,20 @@ export class AttendanceComponent {
   }
 
   onCourseChange() {
+    this.resetDate();
     this.batchProgramReactiveForm?.get('date')?.enable();
   }
-  enableAddTopic: boolean = false;
-  parentPayload: any = {};
+
+  resetDateAndDisableFields() {
+    this.batchProgramReactiveForm?.get('date')?.reset();
+    this.batchProgramReactiveForm?.get('date')?.disable();
+    this.batchProgramReactiveForm?.get('course')?.reset();
+    this.batchProgramReactiveForm?.get('course')?.disable();
+  }
+
+  resetDate() {
+    this.batchProgramReactiveForm?.get('date')?.reset();
+  }
 
   openForm() {
     if (this.batchProgramReactiveForm.valid) {

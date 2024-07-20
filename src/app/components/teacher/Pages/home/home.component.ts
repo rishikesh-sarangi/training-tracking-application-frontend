@@ -17,7 +17,13 @@ import { AttendanceComponent } from './attendance/attendance.component';
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent {
+  activeTab: number = 0;
+
   onTabChange(event: any) {
-    console.log('Tab changed to:', event.index);
+    this.activeTab = event.index;
+    console.log(
+      'Tab changed to:',
+      this.activeTab == 0 ? 'Batches & Programs' : 'Attendance'
+    );
   }
 }

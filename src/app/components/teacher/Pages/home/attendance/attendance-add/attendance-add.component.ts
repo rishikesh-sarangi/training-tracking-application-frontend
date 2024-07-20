@@ -60,6 +60,11 @@ export class AttendanceAddComponent implements OnInit {
         topic: { topicId: this.attendanceReactiveForm.value.topic.topicId },
       };
 
+      if (totalPayload.attendanceDate) {
+        const date = new Date(totalPayload.attendanceDate);
+        date.setDate(date.getDate() + 1);
+        totalPayload.attendanceDate = date.toISOString().split('T')[0];
+      }
       // console.log(totalPayload);
 
       this.attendanceService.addAttendance(totalPayload).subscribe({

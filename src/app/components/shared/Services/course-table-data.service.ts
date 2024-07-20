@@ -3,6 +3,23 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { TableData } from '../../admin/shared/models/CourseTableData';
 
+interface CourseWithTopics {
+  courseId: number;
+  courseName: string;
+  code: string;
+  description: string;
+  theoryTime: number;
+  practiceTime: number;
+  topics: TopicDTO[];
+}
+
+interface TopicDTO {
+  topicId: number;
+  topicName: string;
+  topicOrder: number;
+  theoryTime: number;
+  practiceTime: number;
+}
 @Injectable({
   providedIn: 'root',
 })

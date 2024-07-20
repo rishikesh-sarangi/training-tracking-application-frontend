@@ -15,11 +15,11 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { FlatTreeControl } from '@angular/cdk/tree';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatListModule } from '@angular/material/list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import {
   MatTreeFlatDataSource,
   MatTreeFlattener,
@@ -65,6 +65,7 @@ import { MatMenuModule } from '@angular/material/menu';
     MatCheckboxModule,
     MatListModule,
     MatProgressSpinnerModule,
+    MatProgressBarModule,
   ],
 })
 export class MaterialModule {}

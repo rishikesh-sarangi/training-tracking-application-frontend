@@ -11,12 +11,14 @@
         (selectedTabChange)="onTabChange($event)"
       >
         <mat-tab label="Batches & Programs">
-          <app-batches-and-programs></app-batches-and-programs>
+          <ng-container *ngIf="activeTab === 0">
+            <app-batches-and-programs></app-batches-and-programs>
+          </ng-container>
         </mat-tab>
         <mat-tab label="Attendance">
-          <ng-template matTabContent>
+          <ng-container *ngIf="activeTab === 1">
             <app-attendance></app-attendance>
-          </ng-template>
+          </ng-container>
         </mat-tab>
       </mat-tab-group>
     </div>

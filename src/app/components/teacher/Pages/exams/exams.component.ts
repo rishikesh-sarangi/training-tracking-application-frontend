@@ -160,34 +160,25 @@ export class ExamsComponent implements OnInit, OnChanges {
   }
 
   openTableBasedOnFilter() {
-    if (this.showTableBasedOnFilter) {
-      this.showTableBasedOnFilter = false;
-    } else {
-      this.showTableBasedOnFilter = true;
-
+    // dont know what this does
+    this.showTableBasedOnFilter = false;
+    setTimeout(() => {
       this.filterPayload = {
         teacherId: this.teacherId,
         batchId: this.selectedBatchId,
         programId: this.examReactiveForm.value.program,
         courseId: this.examReactiveForm.value.course,
       };
-    }
-
-    if (this.createExam) {
-      this.createExam = false;
-    } else {
+      this.showTableBasedOnFilter = true;
       this.createExam = true;
-    }
+    }, 0);
   }
 
   onBatchChange(event: any) {
     this.programs.length = 0;
-    // this.showTableBasedOnFilter
-    //   ? (this.showTableBasedOnFilter = false)
-    //   : (this.showTableBasedOnFilter = true);
-
-    // this.createExam ? (this.createExam = false) : (this.createExam = true);
-
+    this.courses.length = 0;
+    this.examReactiveForm.get('program')?.reset();
+    this.examReactiveForm.get('course')?.reset();
     for (const obj of this.batches) {
       if (obj.batchId === event.value) {
         const batchStartDate = obj.batchStartDate;
@@ -199,10 +190,12 @@ export class ExamsComponent implements OnInit, OnChanges {
         return;
       }
     }
+    this.showTableBasedOnFilter = false;
   }
 
   onProgramChange(event: any) {
     this.courses.length = 0;
+    this.examReactiveForm.get('course')?.reset();
     for (const obj of this.programs) {
       if (obj.programId === event.value) {
         this.examReactiveForm?.get('course')?.enable();
@@ -210,15 +203,27 @@ export class ExamsComponent implements OnInit, OnChanges {
         return;
       }
     }
+    this.showTableBasedOnFilter = false;
+  }
+
+  onCourseChange(event: any) {
+    if (this.examReactiveForm.valid) {
+      this.openTableBasedOnFilter();
+    } else {
+      this.showTableBasedOnFilter = false;
+    }
   }
 
   // controlled by child component
   closeForm() {
-    this.createExam = false;
-    this.openExamForm = false;
-    this.examReactiveForm.reset();
-    this.examReactiveForm.enable();
-    this.examReactiveForm?.get('batchStartDate')?.disable();
+    if (this.createExam == false) {
+      this.createExam = true;
+      this.openExamForm = false;
+
+      this.examReactiveForm.reset();
+      this.examReactiveForm.enable();
+      this.examReactiveForm?.get('batchStartDate')?.disable();
+    }
   }
 
   // this function controlls the child
@@ -240,6 +245,11 @@ export class ExamsComponent implements OnInit, OnChanges {
           teacherId: this.teacherId,
         },
       };
+      this.openExamForm = !this.openExamForm;
+      this.examReactiveForm.disable();
+      this.createExam = false;
+    }
+    if (this.createExam == true) {
       this.openExamForm = !this.openExamForm;
       this.examReactiveForm.disable();
       this.createExam = false;

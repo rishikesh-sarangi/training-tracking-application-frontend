@@ -1,17 +1,16 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
-  FormBuilder,
   FormGroup,
   FormControl,
   ReactiveFormsModule,
   Validators,
-  NgForm,
-  FormsModule,
 } from '@angular/forms';
 import { MaterialModule } from 'src/app/material.module';
-import { ExamsService } from '../../../shared/Services/exams.service';
 import { EvaluationService } from '../../../shared/Services/evaluation.service';
+import { MatDialog } from '@angular/material/dialog';
+import { SingleFileUploadComponent } from '../../../shared/single-file-upload/single-file-upload.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-exams-add',
   standalone: true,
@@ -20,7 +19,11 @@ import { EvaluationService } from '../../../shared/Services/evaluation.service';
   styleUrls: ['./exams-add.component.scss'],
 })
 export class ExamsAddComponent {
-  constructor(private evaluationService: EvaluationService) {}
+  constructor(
+    private evaluationService: EvaluationService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
+  ) {}
 
   @Input() openExamForm: boolean = false;
   @Input() parentPayload!: any;
@@ -31,6 +34,8 @@ export class ExamsAddComponent {
   @Output() closeExamForm = new EventEmitter<boolean>();
 
   displayedColumns: string[] = [];
+
+  temporaryFile: File | null = null;
 
   setUpColumns() {
     if (this.isAssignments) {
@@ -101,11 +106,19 @@ export class ExamsAddComponent {
       };
       // console.log(examPayload);
 
-      this.evaluationService.addEvaluation(examPayload).subscribe((res) => {
-        // console.log(res);
-        this.sharedReactiveForm.reset();
-        this.closeForm();
-      });
+      this.evaluationService.addEvaluation(examPayload).subscribe(
+        (res) => {
+          // console.log(res);
+          const evaluationId = res.data[0].evaluationId;
+          if (this.temporaryFile) {
+            this.uploadFile(evaluationId);
+          }
+          this.closeForm();
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
     }
   }
 
@@ -115,8 +128,36 @@ export class ExamsAddComponent {
     this.sharedReactiveForm.reset();
   }
 
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    console.log(file);
+  onFilesUploadClick() {
+    const dialogRef = this.dialog.open(SingleFileUploadComponent, {
+      data: {
+        isTemporary: true,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result: File | undefined) => {
+      if (result) {
+        this.temporaryFile = result;
+      }
+    });
+  }
+
+  uploadFile(evaluationId: string) {
+    if (this.temporaryFile) {
+      const formData = new FormData();
+      formData.append('file', this.temporaryFile, this.temporaryFile.name);
+
+      this.evaluationService.uploadFile(evaluationId, formData).subscribe(
+        (res) => {
+          console.log('File uploaded successfully');
+          this.temporaryFile = null;
+          this.sharedReactiveForm.reset();
+          this.closeForm();
+        },
+        (err) => {
+          this.snackBar.open(err.error.message, 'Close', { duration: 3000 });
+        }
+      );
+    }
   }
 }

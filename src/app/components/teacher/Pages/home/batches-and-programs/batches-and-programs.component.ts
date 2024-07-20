@@ -13,6 +13,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { CourseTableDataService } from 'src/app/components/shared/Services/course-table-data.service';
 import { AttendanceService } from '../../../shared/Services/attendance.service';
 import { forkJoin, map, Observable } from 'rxjs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 interface Course {
   courseId: number;
@@ -33,14 +34,38 @@ interface AttendanceRecord {
 
 interface CourseProgress {
   courseName: string;
-  topicsCompleted: number;
-  topicsInProgress: number;
-  courseCompletionPercentage: number;
+  topicsCompletedNames: string[];
+  topicsInProgress: string[];
+  courseCompletionPercentage: string;
 }
+
+interface TopicDTO {
+  topicId: number;
+  topicName: string;
+  topicOrder: number;
+  theoryTime: number;
+  practiceTime: number;
+}
+
+interface CourseWithTopics {
+  courseId: number;
+  courseName: string;
+  code: string;
+  description: string;
+  theoryTime: number;
+  practiceTime: number;
+  topics: TopicDTO[];
+}
+
 @Component({
   selector: 'app-batches-and-programs',
   standalone: true,
-  imports: [CommonModule, MaterialModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    MaterialModule,
+    ReactiveFormsModule,
+    MatTooltipModule,
+  ],
   templateUrl: './batches-and-programs.component.html',
   styleUrls: ['./batches-and-programs.component.scss'],
 })
@@ -66,7 +91,7 @@ export class BatchesAndProgramsComponent implements OnInit {
 
   displayedColumns: string[] = [
     'courseName',
-    'topicsCompleted',
+    'topicsCompletedNames',
     'topicsInProgress',
     'courseCompletionPercentage',
   ];
@@ -83,32 +108,32 @@ export class BatchesAndProgramsComponent implements OnInit {
     this.getBatches();
     this.batchProgramReactiveForm = new FormGroup({
       batch: new FormControl(null, Validators.required),
-
       batchStartDate: new FormControl(
         { value: null, disabled: true },
         Validators.required
       ),
-
       program: new FormControl(
         { value: null, disabled: true },
         Validators.required
       ),
     });
-    // console.log(this.batches);
+
+    this.batchProgramReactiveForm.get('batch')?.valueChanges.subscribe(() => {
+      this.onBatchChange();
+    });
+
+    this.batchProgramReactiveForm.get('program')?.valueChanges.subscribe(() => {
+      this.onProgramChange();
+    });
   }
 
   getBatches() {
     this.batchService.getBatchDetailsByTeacherId(this.teacherId).subscribe({
       next: (data) => {
-        // to keep unique entries only
         const uniqueBatchIds = new Set();
-
         for (const obj of data) {
-          // check if the batchId is already in the set
           if (!uniqueBatchIds.has(obj.batchId)) {
             uniqueBatchIds.add(obj.batchId);
-
-            // creation of the batch payload
             const batchPayload = {
               batchId: obj.batchId,
               batchCode: obj.batchCode,
@@ -125,49 +150,38 @@ export class BatchesAndProgramsComponent implements OnInit {
     });
   }
 
-  onBatchChange(event: any) {
-    this.programs.length = 0;
-    // this.showTableBasedOnFilter
-    //   ? (this.showTableBasedOnFilter = false)
-    //   : (this.showTableBasedOnFilter = true);
-
-    // this.createExam ? (this.createExam = false) : (this.createExam = true);
-
-    for (const obj of this.batches) {
-      if (obj.batchId === event.value) {
-        const batchStartDate = obj.batchStartDate;
-        this.batchProgramReactiveForm?.get('program')?.enable();
-        this.getBatchPrograms(obj.batchId);
-
-        this.batchProgramReactiveForm
-          .get('batchStartDate')
-          ?.setValue(batchStartDate);
-        return;
-      }
+  onBatchChange() {
+    const selectedBatchId = this.batchProgramReactiveForm.get('batch')?.value;
+    const selectedBatch = this.batches.find(
+      (batch) => batch.batchId === selectedBatchId
+    );
+    if (selectedBatch) {
+      this.batchProgramReactiveForm
+        .get('batchStartDate')
+        ?.setValue(selectedBatch.batchStartDate);
+      this.batchProgramReactiveForm.get('program')?.enable();
+      this.selectedBatchId = selectedBatchId;
+      this.getBatchPrograms(selectedBatchId);
+    } else {
+      this.batchProgramReactiveForm.get('batchStartDate')?.setValue(null);
+      this.batchProgramReactiveForm.get('program')?.disable();
     }
   }
 
   getBatchPrograms(batchId: number) {
     this.batchService.getBatchDetailsByTeacherId(this.teacherId).subscribe({
       next: (data) => {
-        this.selectedBatchId = batchId;
-        // set to track unique programIDs
+        this.programs.length = 0; // Clear previous programs
         const uniqueProgramIds = new Set();
-
         for (const obj of data) {
-          if (obj.batchId === batchId) {
-            // check if the programId is already in the set
-            if (!uniqueProgramIds.has(obj.programId)) {
-              uniqueProgramIds.add(obj.programId);
-
-              // creation of the program payload
-              const programPayload = {
-                programId: obj.programId,
-                programName: obj.programName,
-                programCode: obj.programCode,
-              };
-              this.programs.push(programPayload);
-            }
+          if (obj.batchId === batchId && !uniqueProgramIds.has(obj.programId)) {
+            uniqueProgramIds.add(obj.programId);
+            const programPayload = {
+              programId: obj.programId,
+              programName: obj.programName,
+              programCode: obj.programCode,
+            };
+            this.programs.push(programPayload);
           }
         }
       },
@@ -177,103 +191,74 @@ export class BatchesAndProgramsComponent implements OnInit {
     });
   }
 
-  openFilterPayload(programId: number) {
+  onProgramChange() {
+    const programId = this.batchProgramReactiveForm.get('program')?.value;
     this.filterPayload = {
       teacherId: this.teacherId,
       batchId: this.selectedBatchId,
       programId: programId,
     };
-
-    if (this.showTableBasedOnFilter) {
-      this.showTableBasedOnFilter = false;
-    } else {
-      this.showTableBasedOnFilter = true;
-      this.loadData();
-    }
+    this.showTableBasedOnFilter = false;
+    this.loadData();
   }
 
-  // make it type safe
   processCourseData(
-    courses: Course[],
+    courses: CourseWithTopics[],
     attendanceRecords: AttendanceRecord[]
   ): CourseProgress[] {
-    // console.log('Courses:', courses);
-    // console.log('Attendance Records:', attendanceRecords);
-
-    return courses.map((course: Course) => {
+    return courses.map((course: CourseWithTopics) => {
       const courseTopics = course.topics || [];
       const courseAttendance = attendanceRecords.filter(
         (a: AttendanceRecord) => a.course.courseId === course.courseId
       );
 
-      const topicsCompleted = courseTopics.filter((topic: Topic) =>
-        courseAttendance.some(
-          (a: AttendanceRecord) =>
-            a.topic.topicId === topic.topicId &&
-            a.topicPercentageCompleted === 100
+      const topicsCompletedNames = courseTopics
+        .filter((topic: TopicDTO) =>
+          courseAttendance.some(
+            (a: AttendanceRecord) =>
+              a.topic.topicId === topic.topicId &&
+              a.topicPercentageCompleted === 100
+          )
         )
-      ).length;
+        .map((topic: TopicDTO) => topic.topicName);
 
-      const topicsInProgress = courseTopics.filter((topic: Topic) =>
-        courseAttendance.some(
-          (a: AttendanceRecord) =>
-            a.topic.topicId === topic.topicId &&
-            a.topicPercentageCompleted > 0 &&
-            a.topicPercentageCompleted < 100
+      const topicsInProgress = courseTopics
+        .filter((topic: TopicDTO) =>
+          courseAttendance.some(
+            (a: AttendanceRecord) =>
+              a.topic.topicId === topic.topicId &&
+              a.topicPercentageCompleted > 0 &&
+              a.topicPercentageCompleted < 100
+          )
         )
-      ).length;
+        .map((topic: TopicDTO) => topic.topicName);
 
       const courseCompletionPercentage =
         courseTopics.length > 0
-          ? courseTopics.reduce((sum: number, topic: Topic) => {
-              const topicAttendance = courseAttendance.find(
-                (a: AttendanceRecord) => a.topic.topicId === topic.topicId
-              );
-              return (
-                sum +
-                (topicAttendance ? topicAttendance.topicPercentageCompleted : 0)
-              );
-            }, 0) / courseTopics.length
-          : 0;
+          ? (
+              courseTopics.reduce((sum: number, topic: TopicDTO) => {
+                const topicAttendance = courseAttendance.find(
+                  (a: AttendanceRecord) => a.topic.topicId === topic.topicId
+                );
+                return (
+                  sum +
+                  (topicAttendance
+                    ? topicAttendance.topicPercentageCompleted
+                    : 0)
+                );
+              }, 0) / courseTopics.length
+            ).toFixed(2) + '%'
+          : '0.00%';
 
-      const result: CourseProgress = {
+      return {
         courseName: course.courseName,
-        topicsCompleted,
-        topicsInProgress,
+        topicsCompletedNames:
+          topicsCompletedNames.length > 0 ? topicsCompletedNames : ['None'],
+        topicsInProgress:
+          topicsInProgress.length > 0 ? topicsInProgress : ['None'],
         courseCompletionPercentage,
       };
-
-      // console.log('Processed Course:', result);
-      return result;
     });
-  }
-
-  getCourses() {
-    this.courseService
-      .getCoursesByBatchIdProgramIdTeacherId(this.filterPayload)
-      .subscribe({
-        next: (response) => {
-          // console.log(response[0].data);
-          this.courses = response[0].data;
-        },
-        error: (error) => {
-          console.log(error);
-        },
-      });
-  }
-
-  getAttendace() {
-    this.attendanceService
-      .getByBatchProgramTeacher(this.filterPayload)
-      .subscribe({
-        next: (response) => {
-          // console.log(response[0].data);
-          this.attendanceRecords = response[0].data;
-        },
-        error: (error) => {
-          console.log(error);
-        },
-      });
   }
 
   loadData() {
@@ -286,18 +271,16 @@ export class BatchesAndProgramsComponent implements OnInit {
 
     this.courseProgressData$ = forkJoin([courses$, attendance$]).pipe(
       map(([coursesResponse, attendanceResponse]) => {
-        const courses = coursesResponse[0].data;
-        const attendanceRecords = attendanceResponse[0].data;
-        console.log('Courses:', courses);
-        console.log('Attendance Records:', attendanceRecords);
+        const courses = coursesResponse.data;
+        const attendanceRecords = attendanceResponse.data;
         return this.processCourseData(courses, attendanceRecords);
       })
     );
-    // Subscribe to trigger the HTTP requests
+
     this.courseProgressData$.subscribe({
       next: (data) => {
-        // console.log('Processed Course Progress Data:', data);
         this.dataSource = new MatTableDataSource(data);
+        this.showTableBasedOnFilter = true;
       },
       error: (error) => console.error('Error loading data:', error),
     });
@@ -306,15 +289,9 @@ export class BatchesAndProgramsComponent implements OnInit {
   getTeacherDetails() {
     const storedTeacherDetails = localStorage.getItem('teacherDetails');
     if (storedTeacherDetails) {
-      // Parse the JSON string back into an object
       const teacherDetails = JSON.parse(storedTeacherDetails);
-
-      // access the properties
       this.teacherId = teacherDetails.teacherId;
       this.teacherName = teacherDetails.username;
-
-      // console.log(this.teacherId);
-      // console.log(this.teacherName);
     } else {
       console.log('No teacher details found in localStorage');
     }

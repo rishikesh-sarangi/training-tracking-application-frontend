@@ -1,4 +1,10 @@
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { NgFor } from '@angular/common';
@@ -22,6 +28,8 @@ import {
 } from '@angular/animations';
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteDialogueComponent } from 'src/app/components/shared/delete-dialogue/delete-dialogue.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subject, takeUntil } from 'rxjs';
 @Component({
   selector: 'app-attendance-table',
   standalone: true,
@@ -45,7 +53,7 @@ import { DeleteDialogueComponent } from 'src/app/components/shared/delete-dialog
     ]),
   ],
 })
-export class AttendanceTableComponent implements OnInit {
+export class AttendanceTableComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = [
     'actions',
     'topicName',
@@ -57,11 +65,23 @@ export class AttendanceTableComponent implements OnInit {
   isLoading: boolean = false;
   errorMessage: string = '';
   showTableBasedOnFilter: boolean = false;
-  @Input() filterPayload: any = {};
+
+  @Input() set filterPayload(value: any) {
+    if (value && Object.keys(value).length > 0) {
+      this._filterPayload = value;
+      this.fetchData();
+    }
+  }
+  get filterPayload(): any {
+    return this._filterPayload;
+  }
+  private _filterPayload: any = {};
 
   isAttendanceAvailable: boolean = false;
 
   expandedRowTable: any = null;
+
+  isMarkAttendanceOpen: boolean = true;
 
   teacherId: number = -1;
   teacherName: string = '';
@@ -76,19 +96,70 @@ export class AttendanceTableComponent implements OnInit {
 
   topics: any[] = [];
 
+  private destroy$ = new Subject<void>();
+  private dataFetchInProgress = false;
+
   constructor(
     private attendanceService: AttendanceService,
     private studentService: StudentTableService,
     private _dialog: MatDialog,
-    private topicService: TopicsTableDataService
+    private topicService: TopicsTableDataService,
+    private snackBar: MatSnackBar
   ) {}
   ngOnInit(): void {
+    this.getStudentsByBatchIdAndProgramId(
+      this.filterPayload.batchId,
+      this.filterPayload.programId
+    );
     this.getAttendance();
+
     // console.log(this.filterPayload);
     this.attendanceReactiveForm = new FormGroup({
       topicName: new FormControl(null, Validators.required),
       topicPercentageCompleted: new FormControl(null, Validators.required),
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['filterPayload'] && !changes['filterPayload'].firstChange) {
+      this.fetchData();
+    }
+  }
+
+  fetchData() {
+    if (this.dataFetchInProgress) {
+      return;
+    }
+
+    this.dataFetchInProgress = true;
+    this.isLoading = true;
+
+    this.attendanceService
+      .getAttendanceByFilter(this.filterPayload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: any) => {
+          console.log(response);
+          if (response.data.length > 0) {
+            this.dataSource = new MatTableDataSource(response.data);
+            this.isAttendanceAvailable = true;
+          } else {
+            this.isAttendanceAvailable = false;
+          }
+          this.dataFetchInProgress = false;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          if (error.error.responseCode == 404) {
+            this.dataSource = new MatTableDataSource();
+          }
+          this.snackBar.open(error.error.message, 'Close', {
+            duration: 3000,
+          });
+          this.dataFetchInProgress = false;
+          this.isLoading = false;
+        },
+      });
   }
 
   getAttendance() {
@@ -103,16 +174,22 @@ export class AttendanceTableComponent implements OnInit {
 
     this.attendanceService.getAttendanceByFilter(payload).subscribe({
       next: (response: any) => {
-        // console.log(data);
-        if (response[0].data.length > 0) {
-          this.dataSource = new MatTableDataSource(response[0].data);
+        console.log(response);
+
+        if (response.data.length > 0) {
+          this.dataSource = new MatTableDataSource(response.data);
           this.isAttendanceAvailable = true;
         } else {
           this.isAttendanceAvailable = false;
         }
       },
       error: (error) => {
-        console.log(error);
+        if (error.error.responseCode == 404) {
+          this.dataSource = new MatTableDataSource();
+        }
+        this.snackBar.open(error.error.message, 'Close', {
+          duration: 3000,
+        });
       },
     });
   }
@@ -142,6 +219,15 @@ export class AttendanceTableComponent implements OnInit {
           this.students = data;
         },
       });
+  }
+
+  fetchStudents() {
+    if (this.filterPayload.batchId && this.filterPayload.programId) {
+      this.getStudentsByBatchIdAndProgramId(
+        this.filterPayload.batchId,
+        this.filterPayload.programId
+      );
+    }
   }
 
   getTopics() {
@@ -177,6 +263,9 @@ export class AttendanceTableComponent implements OnInit {
     }
   }
 
+  saveStudentAttendance() {
+    this.isMarkAttendanceOpen = !this.isMarkAttendanceOpen;
+  }
   deleteAttendance(row: any) {
     const dialogRef = this._dialog.open(DeleteDialogueComponent, {
       data: {
@@ -201,7 +290,7 @@ export class AttendanceTableComponent implements OnInit {
       this.expandedRowTable = null;
       this.isMarkStudentsClicked = false; // Reset the flag when closing
     } else if (row === null) {
-      // Explicit close action (e.g., from a close button)
+      // Explicit close action
       this.expandedRowTable = null;
       this.isMarkStudentsClicked = false; // Reset the flag when explicitly closing
     } else {
@@ -224,5 +313,10 @@ export class AttendanceTableComponent implements OnInit {
   cancelEditing() {
     this.editingRowID = -1;
     this.attendanceReactiveForm.reset();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

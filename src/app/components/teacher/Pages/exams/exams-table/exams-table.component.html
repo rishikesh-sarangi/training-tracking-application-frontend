@@ -1,5 +1,12 @@
 <div class="batches-program-component">
-  <div class="table-responsive" *ngIf="isEvaluationAvailable">
+  <div
+    class="table-responsive"
+    *ngIf="
+      (!isAssignments && isExamAvailable && isEvaluationAvailable) ||
+        (isAssignments && isAssignmentAvailable && isEvaluationAvailable);
+      else noEvaluation
+    "
+  >
     <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows>
       <form [formGroup]="sharedReactiveForm">
         <!-- actions -->
@@ -151,6 +158,7 @@
         </ng-container>
 
         <!-- files -->
+        <!-- files -->
         <ng-container matColumnDef="uploadFile">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
             Files
@@ -158,9 +166,33 @@
           </th>
           <td mat-cell *matCellDef="let row; let i = dataIndex">
             <ng-container *ngIf="i != editingRowID; else editMode">
-              <div>
-                <!-- {{ row.uploadFile }} -->
-                filename.pdf
+              <div fxLayout="row" fxLayoutAlign=" center">
+                <mat-icon
+                  ><span class="material-symbols-outlined"> upload </span>
+                </mat-icon>
+                <mat-icon
+                  style="transform: rotate(90deg)"
+                  *ngIf="row.files.length > 0"
+                  ><span class="material-symbols-outlined">
+                    horizontal_rule
+                  </span></mat-icon
+                >
+
+                <span
+                  *ngIf="row.files[0]?.fileName.length > 10; else shortName"
+                  class="file-name"
+                  matTooltip="{{ row.files[0]?.fileName }}"
+                  style="
+                    text-decoration: underline;
+                    color: rgb(70, 140, 201);
+                    cursor: pointer;
+                  "
+                >
+                  {{ row.files[0]?.fileName | slice : 0 : 10 }}........
+                </span>
+                <ng-template #shortName>
+                  <span class="file-name">{{ row.files[0]?.fileName }}</span>
+                </ng-template>
               </div>
             </ng-container>
             <ng-template #editMode>
@@ -173,7 +205,6 @@
                   matFileInput
                   formControlName="uploadFile"
                 />
-
                 <mat-icon (click)="fileInput.click()"
                   ><span class="material-icons-outlined">
                     file_upload
@@ -303,5 +334,7 @@
       ></tr>
     </table>
   </div>
-  <div *ngIf="!isEvaluationAvailable">No Evaluation Available</div>
+  <ng-template #noEvaluation>
+    <div>No Evaluation Available</div>
+  </ng-template>
 </div>

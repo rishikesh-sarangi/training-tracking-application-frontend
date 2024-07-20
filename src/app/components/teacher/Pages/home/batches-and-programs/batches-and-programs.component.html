@@ -13,11 +13,7 @@
       ngStyle.gt-sm="min-width: 200px"
       ngStyle.gt-md="min-width: 300px"
     >
-      <mat-select
-        placeholder="Batch Code: Batch Name"
-        formControlName="batch"
-        (selectionChange)="onBatchChange($event)"
-      >
+      <mat-select placeholder="Batch Code: Batch Name" formControlName="batch">
         <mat-option *ngFor="let batch of batches" [value]="batch.batchId">
           Batch {{ batch.batchCode }}: {{ batch.batchName }}
         </mat-option>
@@ -54,7 +50,6 @@
         <mat-option
           *ngFor="let program of programs"
           [value]="program.programId"
-          (onSelectionChange)="openFilterPayload(program.programId)"
         >
           {{ program.programCode }}: {{ program.programName }}
         </mat-option>
@@ -64,36 +59,64 @@
   </form>
 
   <!-- actual table -->
-  <div *ngIf="showTableBasedOnFilter">
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-      <ng-container matColumnDef="courseName">
-        <th mat-header-cell *matHeaderCellDef>Course Name</th>
-        <td mat-cell *matCellDef="let row">{{ row.courseName }}</td>
-      </ng-container>
+  <div class="table-responsive">
+    <div *ngIf="showTableBasedOnFilter">
+      <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+        <ng-container matColumnDef="courseName">
+          <th mat-header-cell *matHeaderCellDef>Course Name</th>
+          <td mat-cell *matCellDef="let row">{{ row.courseName }}</td>
+        </ng-container>
 
-      <ng-container matColumnDef="topicsCompleted">
-        <th mat-header-cell *matHeaderCellDef>Topics Completed</th>
-        <td mat-cell *matCellDef="let row">
-          {{ row.topicsCompleted }}
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="topicsCompletedNames">
+          <th mat-header-cell *matHeaderCellDef>Topics Completed</th>
+          <td mat-cell *matCellDef="let element">
+            <span>{{ element.topicsCompletedNames[0] }}</span>
+            <ng-container *ngIf="element.topicsCompletedNames.length > 1">
+              <span
+                *ngFor="
+                  let topic of element.topicsCompletedNames.slice(1, 2);
+                  let i = index
+                "
+                matTooltip="{{
+                  element.topicsCompletedNames.slice(1).join(', ')
+                }}"
+                style="color: rgb(70, 140, 201); cursor: pointer"
+              >
+                +{{ element.topicsCompletedNames.length - 1 }}
+              </span>
+            </ng-container>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="topicsInProgress">
-        <th mat-header-cell *matHeaderCellDef>Topics In Progress</th>
-        <td mat-cell *matCellDef="let row">
-          {{ row.topicsInProgress }}
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="topicsInProgress">
+          <th mat-header-cell *matHeaderCellDef>Topics In Progress</th>
+          <td mat-cell *matCellDef="let element">
+            <span>{{ element.topicsInProgress[0] }}</span>
+            <ng-container *ngIf="element.topicsInProgress.length > 1">
+              <span
+                *ngFor="
+                  let topic of element.topicsInProgress.slice(1, 2);
+                  let i = index
+                "
+                matTooltip="{{ element.topicsInProgress.slice(1).join(', ') }}"
+                style="color: rgb(70, 140, 201); cursor: pointer"
+              >
+                +{{ element.topicsInProgress.length - 1 }}
+              </span>
+            </ng-container>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="courseCompletionPercentage">
-        <th mat-header-cell *matHeaderCellDef>Course Completion</th>
-        <td mat-cell *matCellDef="let row">
-          {{ row.courseCompletionPercentage | percent }}
-        </td>
-      </ng-container>
+        <ng-container matColumnDef="courseCompletionPercentage">
+          <th mat-header-cell *matHeaderCellDef>Course Completion</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row.courseCompletionPercentage }}
+          </td>
+        </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    </table>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
   </div>
 </div>

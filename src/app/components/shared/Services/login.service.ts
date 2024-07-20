@@ -12,10 +12,7 @@ export class LoginService {
 
   constructor(private _http: HttpClient) {}
 
-  login(loginCredentials: LoginCredentials): Observable<Credentials> {
-    return this._http.post<Credentials>(
-      this.endpoint + '/login',
-      loginCredentials
-    );
+  login(loginCredentials: any): Observable<any> {
+    return this._http.post<any>(this.endpoint + '/login', loginCredentials);
   }
 }

@@ -20,7 +20,6 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoginService } from '../Services/login.service';
-import { Credentials } from '../models/Credentials';
 import { TeachersTableService } from '../Services/teachers-table.service';
 
 @Component({
@@ -63,20 +62,13 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  protected openSnackBar() {
-    this.snackBar.open('Login Invalid', 'Close', {
-      horizontalPosition: 'end',
-      verticalPosition: 'top',
-      duration: 2000,
-    });
-  }
-
   protected onSubmit() {
     this.loginService.login(this.loginForm.value).subscribe({
-      next: (data: Credentials) => {
-        if (data.userRole.toUpperCase() == 'ADMIN') {
+      next: (response) => {
+        console.log(response);
+        if (response.data[0].userRole.toUpperCase() == 'ADMIN') {
           localStorage.setItem('loggedInSaveAdmin', 'true');
-          localStorage.setItem('username', data.username);
+          localStorage.setItem('username', response.data[0].username);
           this.router.navigate(['admin/home/', 'courses']);
           return;
         }
@@ -89,7 +81,7 @@ export class LoginComponent implements OnInit {
               localStorage.setItem('loggedInSaveTeacher', 'true');
 
               const teacherDetails = {
-                username: data.username,
+                username: response.data[0].username,
                 teacherId: teacherId,
               };
 
@@ -107,8 +99,11 @@ export class LoginComponent implements OnInit {
           });
       },
       error: (err) => {
-        console.log('Login error:', err);
-        // Handle login error
+        this.snackBar.open(err.error.message, 'Close', {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'top',
+        });
       },
     });
   }

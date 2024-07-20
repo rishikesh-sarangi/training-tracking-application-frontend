@@ -39,10 +39,17 @@ tr.example-element-row:not(.example-expanded-row):active {
 }
 
 .batches-table-component {
-  margin: 0px 50px;
+  margin: 0px 0px;
 }
 
 .disabled-icon {
   opacity: 0.5;
   pointer-events: none;
+}
+
+.table-responsive {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }

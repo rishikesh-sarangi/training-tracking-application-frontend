@@ -1,27 +1,20 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import {
-  MatDialog,
-  MatDialogRef,
-  MatDialogModule,
-} from '@angular/material/dialog';
-import {
-  FormBuilder,
   FormGroup,
   FormControl,
   ReactiveFormsModule,
   Validators,
-  NgForm,
   FormsModule,
 } from '@angular/forms';
 import { TopicsTableDataService } from 'src/app/components/shared/Services/topics-table-data.service';
 import { DeleteDialogueComponent } from '../../../../../../shared/delete-dialogue/delete-dialogue.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TopicsData } from 'src/app/components/admin/shared/models/topics-table.model';
 import { Topic } from 'src/app/components/admin/shared/models/Topic';
 import { FileUploadComponent } from './file-upload/file-upload.component';
 import { MaterialModule } from 'src/app/material.module';
