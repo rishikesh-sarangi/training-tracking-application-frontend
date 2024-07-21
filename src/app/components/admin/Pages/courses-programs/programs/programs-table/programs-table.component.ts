@@ -67,18 +67,22 @@ export class ProgramsTableComponent {
       programCode: new FormControl(null, [
         Validators.required,
         noWhitespaceValidator(),
+        Validators.maxLength(10),
       ]),
       programName: new FormControl(null, [
         Validators.required,
         noWhitespaceValidator(),
+        Validators.maxLength(10),
       ]),
       theoryTime: new FormControl(null, [
         Validators.required,
         Validators.pattern('[0-9]*'),
+        Validators.maxLength(10),
       ]),
       practiceTime: new FormControl(null, [
         Validators.required,
         Validators.pattern('[0-9]*'),
+        Validators.maxLength(10),
       ]),
       description: new FormControl(null, [
         Validators.required,

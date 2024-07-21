@@ -12,6 +12,7 @@ import {
   FormsModule,
 } from '@angular/forms';
 import { BatchServiceService } from '../../../shared/Services/batch-service.service';
+import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
 @Component({
   selector: 'app-batch',
   standalone: true,
@@ -39,8 +40,14 @@ export class BatchComponent implements OnInit {
 
   ngOnInit(): void {
     this.addBatchReactiveForm = new FormGroup({
-      batchCode: new FormControl(null, Validators.required),
-      batchName: new FormControl(null, Validators.required),
+      batchCode: new FormControl(null, [
+        Validators.required,
+        noWhitespaceValidator(),
+      ]),
+      batchName: new FormControl(null, [
+        Validators.required,
+        noWhitespaceValidator(),
+      ]),
       batchStartDate: new FormControl(null, Validators.required),
     });
   }

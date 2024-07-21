@@ -11,6 +11,7 @@ import { EvaluationService } from '../../../shared/Services/evaluation.service';
 import { MatDialog } from '@angular/material/dialog';
 import { SingleFileUploadComponent } from '../../../shared/single-file-upload/single-file-upload.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
 @Component({
   selector: 'app-exams-add',
   standalone: true,
@@ -71,11 +72,13 @@ export class ExamsAddComponent {
         [
           Validators.required,
           Validators.pattern(/^[\S]+(\s+[\S]+)*$/), // regex for no whitespace
+          noWhitespaceValidator(),
         ]
       ),
       totalMarks: new FormControl(null, [
         Validators.required,
         Validators.pattern(/^[0-9]+$/), // regex for numbers only
+        noWhitespaceValidator(),
       ]),
       [this.isAssignments ? 'assignmentDate' : 'examDate']: new FormControl(
         null,

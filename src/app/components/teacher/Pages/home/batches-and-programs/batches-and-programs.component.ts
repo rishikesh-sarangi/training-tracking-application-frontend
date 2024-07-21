@@ -95,7 +95,7 @@ export class BatchesAndProgramsComponent implements OnInit {
     'topicsInProgress',
     'courseCompletionPercentage',
   ];
-  dataSource!: MatTableDataSource<CourseProgress>;
+  dataSource!: MatTableDataSource<any>;
 
   constructor(
     private batchService: BatchServiceService,
@@ -282,7 +282,10 @@ export class BatchesAndProgramsComponent implements OnInit {
         this.dataSource = new MatTableDataSource(data);
         this.showTableBasedOnFilter = true;
       },
-      error: (error) => console.error('Error loading data:', error),
+      error: (error) => {
+        // this.dataSource = new MatTableDataSource([]);
+        console.error('Error loading data:', error);
+      },
     });
   }
 

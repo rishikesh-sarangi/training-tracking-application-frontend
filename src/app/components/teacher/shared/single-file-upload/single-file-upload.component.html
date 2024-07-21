@@ -1,8 +1,6 @@
 <div fxLayout="row" fxLayoutAlign="space-between center" style="padding: 20px">
   <span style="font-size: 20px">Upload File</span>
-  <button mat-icon-button [mat-dialog-close]="false">
-    <mat-icon>close</mat-icon>
-  </button>
+  <span [mat-dialog-close]="false"><mat-icon>close</mat-icon></span>
 </div>
 
 <div
@@ -10,9 +8,13 @@
   (dragover)="$event.preventDefault()"
   (drop)="onFileDropped($event)"
 >
-  <div fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="10px">
-    <mat-icon>cloud_upload</mat-icon>
-    <p>Drag & Drop your file here</p>
+  <div
+    fxLayout="column"
+    fxLayoutAlign="center center"
+    fxLayoutGap="10px"
+    style="font-size: 15px"
+  >
+    <p>Drag & Drop your File</p>
     <p>Or</p>
     <input
       type="file"
@@ -21,26 +23,54 @@
       (change)="fileBrowseHandler($event)"
       style="display: none"
     />
-    <button mat-raised-button color="primary" (click)="fileDropRef.click()">
-      Choose File
-    </button>
+    <p
+      (click)="fileDropRef.click()"
+      style="text-decoration: underline; cursor: pointer; color: cornflowerblue"
+    >
+      Upload
+    </p>
   </div>
 </div>
 
 <p style="text-align: center">
-  Supported formats: PDF, XLS, XLSX, PPT, PPTX, MP3, MP4 (Max Size: 2MB)
+  (Supported formats: pdf, xls, xlsx, ppt, pptx, mp3, mp4) (Max Size 2mb)
 </p>
 
 <div
-  *ngIf="file"
   fxLayout="row"
-  fxLayoutAlign="space-between center"
-  class="file-info"
+  fxLayoutAlign="space-between end"
+  fxLayoutGap="10px"
+  class="action-buttons"
 >
-  <span>{{ file.name }}</span>
-  <button mat-icon-button color="warn" (click)="deleteFile()">
-    <mat-icon>delete</mat-icon>
-  </button>
+  <div
+    class="file-info"
+    *ngIf="file"
+    fxLayout="row"
+    fxLayoutAlign="start center"
+    fxLayoutGap="10px"
+  >
+    <div>
+      <span
+        [matTooltip]="file.name"
+        matTooltipClass="tooltip-custom"
+        style="color: cornflowerblue; text-decoration: underline"
+      >
+        1
+      </span>
+      file selected
+    </div>
+  </div>
+  <div>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="uploadFile()"
+      [disabled]="!file"
+    >
+      Upload
+    </button>
+    <button mat-raised-button [mat-dialog-close]="false">Cancel</button>
+  </div>
 </div>
 
 <mat-progress-bar
@@ -48,20 +78,3 @@
   mode="determinate"
   [value]="uploadProgress"
 ></mat-progress-bar>
-
-<div
-  fxLayout="row"
-  fxLayoutAlign="end center"
-  fxLayoutGap="10px"
-  class="action-buttons"
->
-  <button
-    mat-raised-button
-    color="primary"
-    (click)="uploadFile()"
-    [disabled]="!file"
-  >
-    {{ data.isTemporary ? "Save" : "Upload" }}
-  </button>
-  <button mat-raised-button [mat-dialog-close]="false">Cancel</button>
-</div>

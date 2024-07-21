@@ -61,7 +61,7 @@
   <!-- actual table -->
   <div class="table-responsive">
     <div *ngIf="showTableBasedOnFilter">
-      <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      <table mat-table [dataSource]="dataSource" *ngIf="showTableBasedOnFilter">
         <ng-container matColumnDef="courseName">
           <th mat-header-cell *matHeaderCellDef>Course Name</th>
           <td mat-cell *matCellDef="let row">{{ row.courseName }}</td>
@@ -118,5 +118,6 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
     </div>
+    <div *ngIf="!showTableBasedOnFilter">No Data Available</div>
   </div>
 </div>

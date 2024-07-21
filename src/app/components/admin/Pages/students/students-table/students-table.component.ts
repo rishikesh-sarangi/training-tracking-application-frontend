@@ -62,10 +62,12 @@ export class StudentsTableComponent implements OnInit, OnChanges {
       studentCode: new FormControl(null, [
         Validators.required,
         noWhitespaceValidator(),
+        Validators.maxLength(10),
       ]),
       studentName: new FormControl(null, [
         Validators.required,
         noWhitespaceValidator(),
+        Validators.maxLength(20),
       ]),
       studentEmail: new FormControl(null, [
         Validators.required,

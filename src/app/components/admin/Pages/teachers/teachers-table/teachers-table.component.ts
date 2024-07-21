@@ -67,6 +67,7 @@ export class TeachersTableComponent implements OnInit, OnChanges {
       teacherName: new FormControl(null, [
         Validators.required,
         noWhitespaceValidator(),
+        Validators.maxLength(20),
       ]),
       courses: new FormControl([], [Validators.required]),
       teacherEmail: new FormControl(null, [
