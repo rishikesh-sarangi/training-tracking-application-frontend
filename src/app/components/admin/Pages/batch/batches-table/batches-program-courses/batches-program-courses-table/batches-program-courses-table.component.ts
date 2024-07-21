@@ -127,9 +127,13 @@ export class BatchesProgramCoursesTableComponent implements OnInit {
             error: (error) => {
               // console.log('THIS IS THE ERROR BELOW');
               // console.log(error);
-              this.snackBar.open('Course Already Exists!', 'Close', {
-                duration: 3000,
-              });
+              this.snackBar.open(
+                'Course Already Exists under this teacher!',
+                'Close',
+                {
+                  duration: 3000,
+                }
+              );
               console.log(error);
             },
           });

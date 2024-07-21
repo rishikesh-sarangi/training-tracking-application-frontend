@@ -1,4 +1,7 @@
-<div class="courses-component">
+<div
+  class="courses-component"
+  [ngClass]="{ 'blur-background': isEmailSending }"
+>
   <!-- header -->
   <div class="courses-header">
     <p class="mat-h2">Student</p>

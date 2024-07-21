@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { Router } from '@angular/router';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { LoginService } from 'src/app/components/shared/Services/login.service';
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -23,7 +24,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
   styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private loginService: LoginService) {}
 
   // course-programs toggle
   selectedTab: string = 'Courses';
@@ -31,8 +32,7 @@ export class HeaderComponent {
   username: string | null = localStorage.getItem('username');
 
   protected logOut() {
-    localStorage.clear();
-    this.router.navigate(['']);
+    this.loginService.logout();
   }
 
   protected toggleCoursePrograms(selectedTabBool: boolean) {

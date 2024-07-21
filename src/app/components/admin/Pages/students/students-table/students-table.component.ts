@@ -26,6 +26,7 @@ import {
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
+import { LoginService } from 'src/app/components/shared/Services/login.service';
 @Component({
   selector: 'app-students-table',
   standalone: true,
@@ -37,7 +38,8 @@ export class StudentsTableComponent implements OnInit, OnChanges {
   constructor(
     private studentService: StudentTableService,
     private _dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private loginService: LoginService
   ) {}
   editStudentReactiveForm!: FormGroup;
   editingRowID: number | null = null;
@@ -49,6 +51,8 @@ export class StudentsTableComponent implements OnInit, OnChanges {
     'studentEmail',
   ];
   dataSource!: MatTableDataSource<StudentTableData>;
+
+  isEmailSending: boolean = false;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -140,27 +144,44 @@ export class StudentsTableComponent implements OnInit, OnChanges {
         },
       });
     } else if (this.editStudentReactiveForm.valid) {
+      this.isEmailSending = true;
       const sendingSnackBar = this.snackBar.open('Sending...', '', {
         duration: undefined, // The snackbar will not auto-dismiss
       });
 
-      this.studentService
-        .editStudent(row.studentId, this.editStudentReactiveForm.value)
+      this.loginService
+        .checkEmailValidity(this.editStudentReactiveForm.value.studentEmail)
         .subscribe({
           next: (data) => {
-            sendingSnackBar.dismiss();
-            // Show "Email sent" message
-            this.snackBar.open('Email sent', 'Close', {
-              duration: 3000, // The snackbar will auto-dismiss after 3 seconds
-            });
+            this.isEmailSending = false;
+            this.studentService
+              .editStudent(row.studentId, this.editStudentReactiveForm.value)
+              .subscribe({
+                next: (data) => {
+                  sendingSnackBar.dismiss();
+                  // Show "Email sent" message
+                  this.snackBar.open('Email sent', 'Close', {
+                    duration: 3000, // The snackbar will auto-dismiss after 3 seconds
+                  });
 
-            this.getStudents();
-            this.cancelEditing();
+                  this.getStudents();
+                  this.cancelEditing();
+                },
+                error: (error) => {
+                  this.isEmailSending = false;
+                  // Show error message
+                  this.snackBar.open(error, 'Close', {
+                    duration: 3000,
+                  });
+                },
+              });
           },
           error: (error) => {
-            // Show error message
-            this.snackBar.open(error, 'Close', {
+            this.isEmailSending = false;
+            this.snackBar.open('Email already used !', 'Close', {
               duration: 3000,
+              horizontalPosition: 'center',
+              verticalPosition: 'top',
             });
           },
         });

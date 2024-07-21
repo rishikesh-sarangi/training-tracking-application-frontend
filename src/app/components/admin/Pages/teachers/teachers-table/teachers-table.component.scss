@@ -15,3 +15,8 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
+
+.blur-background {
+  filter: blur(3px);
+  pointer-events: none;
+}

@@ -28,6 +28,7 @@ import { DeleteDialogueComponent } from '../../../../shared/delete-dialogue/dele
 import { TableData } from '../../../shared/models/CourseTableData';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
+import { LoginService } from 'src/app/components/shared/Services/login.service';
 @Component({
   selector: 'app-teachers-table',
   standalone: true,
@@ -40,10 +41,12 @@ export class TeachersTableComponent implements OnInit, OnChanges {
     private teachersService: TeachersTableService,
     private coursesService: CourseTableDataService,
     private _dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private loginService: LoginService
   ) {}
 
   editTeachersReactiveForm!: FormGroup;
+  isEmailSending: boolean = false;
   editingRowID: number = -1;
   courses: TableData[] = [];
   displayedColumns: string[] = [
@@ -127,24 +130,27 @@ export class TeachersTableComponent implements OnInit, OnChanges {
   }
 
   saveTeacher(row: TeachersTableData) {
-    const areAllCoursesEqual: boolean =
-      this.editTeachersReactiveForm.value.courses.every(
-        (formCourse: any, index: any) => {
-          return (
-            formCourse.courseId === row.courses[index].courseId &&
-            formCourse.code === row.courses[index].code &&
-            formCourse.courseName === row.courses[index].courseName &&
-            formCourse.theoryTime === row.courses[index].theoryTime &&
-            formCourse.practiceTime === row.courses[index].practiceTime &&
-            formCourse.description === row.courses[index].description
-          );
-        }
+    const areCoursesChanged = () => {
+      const formCourses = this.editTeachersReactiveForm.value.courses;
+      const rowCourses = row.courses;
+
+      if (formCourses.length !== rowCourses.length) {
+        return true;
+      }
+
+      const formCourseIds = new Set(formCourses.map((c: any) => c.courseId));
+      const rowCourseIds = new Set(rowCourses.map((c: any) => c.courseId));
+
+      return (
+        ![...formCourseIds].every((id) => rowCourseIds.has(id)) ||
+        ![...rowCourseIds].every((id) => formCourseIds.has(id))
       );
+    };
 
     if (
-      this.editTeachersReactiveForm.value.teacherEmail == row.teacherEmail &&
-      this.editTeachersReactiveForm.value.teacherName == row.teacherName &&
-      areAllCoursesEqual
+      this.editTeachersReactiveForm.value.teacherEmail === row.teacherEmail &&
+      this.editTeachersReactiveForm.value.teacherName === row.teacherName &&
+      !areCoursesChanged()
     ) {
       this.cancelEditing();
       return;
@@ -152,7 +158,7 @@ export class TeachersTableComponent implements OnInit, OnChanges {
 
     if (
       this.editTeachersReactiveForm.valid &&
-      this.editTeachersReactiveForm.value.teacherEmail == row.teacherEmail
+      this.editTeachersReactiveForm.value.teacherEmail === row.teacherEmail
     ) {
       const customPayload = {
         teacherName: this.editTeachersReactiveForm.value.teacherName,
@@ -173,8 +179,9 @@ export class TeachersTableComponent implements OnInit, OnChanges {
           },
         });
     } else if (this.editTeachersReactiveForm.valid) {
+      this.isEmailSending = true;
       const sendingSnackBar = this.snackBar.open('Sending...', '', {
-        duration: undefined, // The snackbar will not auto-dismiss
+        duration: undefined,
       });
 
       const customPayload = {
@@ -184,47 +191,43 @@ export class TeachersTableComponent implements OnInit, OnChanges {
         newEmail: this.editTeachersReactiveForm.value.teacherEmail,
       };
 
-      this.teachersService
-        .editTeachers(row.teacherId, customPayload)
-        .subscribe({
-          next: (data) => {
-            sendingSnackBar.dismiss();
-
-            // Show "Email sent" message
-            this.snackBar.open('Email sent', 'Close', {
-              duration: 3000, // The snackbar will auto-dismiss after 3 seconds
+      this.loginService.checkEmailValidity(customPayload.newEmail).subscribe({
+        next: (data) => {
+          this.teachersService
+            .editTeachers(row.teacherId, customPayload)
+            .subscribe({
+              next: (data) => {
+                this.isEmailSending = false;
+                sendingSnackBar.dismiss();
+                this.snackBar.open('Email sent', 'Close', {
+                  duration: 3000,
+                });
+                this.cancelEditing();
+                this.getTeachers();
+              },
+              error: (error) => {
+                this.isEmailSending = false;
+                sendingSnackBar.dismiss();
+                this.snackBar.open(error, 'Close', {
+                  duration: 3000,
+                });
+              },
             });
-            this.cancelEditing();
-            this.getTeachers();
-          },
-          error: (error) => {
-            sendingSnackBar.dismiss();
-
-            // Show error message
-            this.snackBar.open(error, 'Close', {
-              duration: 3000,
-            });
-          },
-        });
+        },
+        error: (error) => {
+          this.isEmailSending = false;
+          this.snackBar.open('Email is already used !', 'Close', {
+            duration: 3000,
+            verticalPosition: 'top',
+            horizontalPosition: 'center',
+          });
+        },
+      });
     }
   }
 
   editTeacher(id: number, row: TeachersTableData) {
-    // console.log(row);
     this.editingRowID = id;
-    // console.log(id);
-    // this.editTeachersReactiveForm.patchValue(row);
-
-    // const courseName = [];
-    // for (const course of row.courses) {
-    //   courseName.push(course.courseName);
-    // }
-
-    // this.editTeachersReactiveForm.patchValue({
-    //   teacherName: row.teacherName,
-    //   teacherEmail: row.teacherEmail,
-    //   courses: courseName,
-    // });
 
     const selectedCourses = this.courses.filter((course) =>
       row.courses.some(

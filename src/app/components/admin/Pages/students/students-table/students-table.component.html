@@ -1,4 +1,8 @@
-<div style="margin-top: 40px" class="courses-table-component">
+<div
+  style="margin-top: 40px"
+  class="courses-table-component"
+  [ngClass]="{ 'blur-background': isEmailSending }"
+>
   <div class="table-responsive">
     <table mat-table [dataSource]="dataSource" matSort>
       <form [formGroup]="editStudentReactiveForm">

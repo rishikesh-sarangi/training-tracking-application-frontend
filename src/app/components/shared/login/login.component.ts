@@ -20,6 +20,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoginService } from '../Services/login.service';
+import { Credentials } from '../models/Credentials';
 import { TeachersTableService } from '../Services/teachers-table.service';
 
 @Component({
@@ -51,10 +52,11 @@ export class LoginComponent implements OnInit {
 
   // reactive forms
   loginForm!: FormGroup;
+  teacherId!: number;
 
   ngOnInit(): void {
     this.loginForm = new FormGroup({
-      email: new FormControl(null, [Validators.required, Validators.email]),
+      email: new FormControl(null, Validators.required),
       password: new FormControl(null, [
         Validators.required,
         Validators.minLength(3),
@@ -64,45 +66,48 @@ export class LoginComponent implements OnInit {
 
   protected onSubmit() {
     this.loginService.login(this.loginForm.value).subscribe({
-      next: (response) => {
-        console.log(response);
-        if (response.data[0].userRole.toUpperCase() == 'ADMIN') {
+      next: (response: any) => {
+        // console.log(response);
+        if (response.userRole === 'ROLE_ADMIN') {
           localStorage.setItem('loggedInSaveAdmin', 'true');
-          localStorage.setItem('username', response.data[0].username);
+          localStorage.setItem('username', response.username);
           this.router.navigate(['admin/home/', 'courses']);
-          return;
+        } else if (response.userRole === 'ROLE_TEACHER') {
+          console.log('inside teacher');
+          this.teacherService
+            .getTeacherByEmail(this.loginForm.value.email)
+            .subscribe({
+              next: (data) => {
+                console.log(data);
+                const teacherDetails = {
+                  username: data.teacherName,
+                  teacherId: data.teacherId,
+                };
+
+                localStorage.setItem(
+                  'teacherDetails',
+                  JSON.stringify(teacherDetails)
+                );
+
+                localStorage.setItem('loggedInSaveTeacher', 'true');
+                this.router.navigate(['teacher', 'home']);
+              },
+              error: (err) => {
+                this.snackBar.open('Error fetching data!', 'Close', {
+                  horizontalPosition: 'end',
+                  verticalPosition: 'top',
+                  duration: 2000,
+                });
+              },
+            });
         }
-
-        // For teacher role
-        this.teacherService
-          .getTeacherIdByTeacherEmail(this.loginForm.value.email)
-          .subscribe({
-            next: (teacherId) => {
-              localStorage.setItem('loggedInSaveTeacher', 'true');
-
-              const teacherDetails = {
-                username: response.data[0].username,
-                teacherId: teacherId,
-              };
-
-              localStorage.setItem(
-                'teacherDetails',
-                JSON.stringify(teacherDetails)
-              );
-
-              this.router.navigate(['teacher', 'home']);
-            },
-            error: (err) => {
-              console.log('Error fetching teacher ID:', err);
-              // Handle the error appropriately
-            },
-          });
       },
       error: (err) => {
-        this.snackBar.open(err.error.message, 'Close', {
-          duration: 3000,
-          horizontalPosition: 'center',
+        console.log(err);
+        this.snackBar.open(err.error.error, 'Close', {
+          horizontalPosition: 'end',
           verticalPosition: 'top',
+          duration: 2000,
         });
       },
     });

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MaterialModule } from 'src/app/material.module';
+import { LoginService } from 'src/app/components/shared/Services/login.service';
 @Component({
   selector: 'app-teacher-header',
   standalone: true,
@@ -10,7 +11,7 @@ import { MaterialModule } from 'src/app/material.module';
   styleUrls: ['./teacher-header.component.scss'],
 })
 export class TeacherHeaderComponent implements OnInit {
-  constructor(private router: Router) {}
+  constructor(private router: Router, private loginService: LoginService) {}
 
   teacherId: number = -1;
   teacherName: string = '';
@@ -22,8 +23,7 @@ export class TeacherHeaderComponent implements OnInit {
   selectedTab: string = 'Courses';
 
   protected logOut() {
-    localStorage.clear();
-    this.router.navigate(['']);
+    this.loginService.logout();
   }
 
   protected toggleCoursePrograms(selectedTabBool: boolean) {

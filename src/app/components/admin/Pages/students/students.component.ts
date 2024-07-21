@@ -15,6 +15,7 @@ import { StudentTableService } from '../../../shared/Services/student-table.serv
 import { StudentsTableComponent } from './students-table/students-table.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
+import { LoginService } from 'src/app/components/shared/Services/login.service';
 @Component({
   selector: 'app-students',
   standalone: true,
@@ -31,10 +32,12 @@ import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWh
 export class StudentsComponent {
   constructor(
     private studentService: StudentTableService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private loginService: LoginService
   ) {}
 
   isAddStudentClicked: boolean = false;
+  isEmailSending: boolean = false;
   addStudentReactiveForm!: FormGroup;
   displayedColumns: string[] = [
     'actions',
@@ -63,31 +66,48 @@ export class StudentsComponent {
 
   protected onSubmit() {
     if (this.addStudentReactiveForm.valid) {
+      this.isEmailSending = true;
       const sendingSnackBar = this.snackBar.open('Sending...', '', {
         duration: undefined, // The snackbar will not auto-dismiss
       });
 
-      this.studentService
-        .addStudent(this.addStudentReactiveForm.value)
+      this.loginService
+        .checkEmailValidity(this.addStudentReactiveForm.value.studentEmail)
         .subscribe({
           next: (data) => {
-            // console.log(data);
+            this.isEmailSending = false;
+            this.studentService
+              .addStudent(this.addStudentReactiveForm.value)
+              .subscribe({
+                next: (data) => {
+                  // console.log(data);
 
-            sendingSnackBar.dismiss();
+                  sendingSnackBar.dismiss();
 
-            // Show "Email sent" message
-            this.snackBar.open('Email sent', 'Close', {
-              duration: 3000,
-            });
+                  // Show "Email sent" message
+                  this.snackBar.open('Email sent', 'Close', {
+                    duration: 3000,
+                  });
 
-            this.isAddStudentClicked = !this.isAddStudentClicked;
+                  this.isAddStudentClicked = !this.isAddStudentClicked;
+                },
+                error: (err) => {
+                  this.isEmailSending = false;
+                  sendingSnackBar.dismiss();
+
+                  // Show error message
+                  this.snackBar.open(err, 'Close', {
+                    duration: 3000,
+                  });
+                },
+              });
           },
           error: (err) => {
-            sendingSnackBar.dismiss();
-
-            // Show error message
-            this.snackBar.open(err, 'Close', {
+            this.isEmailSending = false;
+            this.snackBar.open('Email is already used !', 'Close', {
               duration: 3000,
+              horizontalPosition: 'center',
+              verticalPosition: 'top',
             });
           },
         });

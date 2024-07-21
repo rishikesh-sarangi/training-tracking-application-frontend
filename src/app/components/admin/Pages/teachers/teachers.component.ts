@@ -23,6 +23,7 @@ import { TeachersTableData } from '../../shared/models/TeachersTableData';
 import { TableData } from '../../shared/models/CourseTableData';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
+import { LoginService } from 'src/app/components/shared/Services/login.service';
 @Component({
   selector: 'app-teachers',
   standalone: true,
@@ -45,11 +46,14 @@ export class TeachersComponent implements OnInit {
   constructor(
     private courseTableData: CourseTableDataService,
     private teacherService: TeachersTableService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private loginService: LoginService
   ) {}
 
   protected isAddTeacherClicked: boolean = false;
   protected addTeacherReactiveForm!: FormGroup;
+
+  isEmailSending: boolean = false;
 
   displayedColumns: string[] = [
     'actions',
@@ -88,34 +92,61 @@ export class TeachersComponent implements OnInit {
 
   protected onSubmit() {
     if (this.addTeacherReactiveForm.valid) {
+      this.isEmailSending = true;
       const sendingSnackBar = this.snackBar.open('Sending...', '', {
         duration: undefined, // The snackbar will not auto-dismiss
       });
 
-      this.teacherService
-        .addTeachers(this.addTeacherReactiveForm.value)
+      // disable form
+      this.addTeacherReactiveForm.disable();
+
+      this.loginService
+        .checkEmailValidity(this.addTeacherReactiveForm.value.teacherEmail)
         .subscribe({
           next: (data) => {
-            // console.log(data);
+            this.teacherService
+              .addTeachers(this.addTeacherReactiveForm.value)
+              .subscribe({
+                next: (data) => {
+                  // console.log(data);
+                  this.isEmailSending = false;
 
-            sendingSnackBar.dismiss();
+                  sendingSnackBar.dismiss();
 
-            // Show "Email sent" message
-            this.snackBar.open('Email sent', 'Close', {
-              duration: 3000,
-            });
+                  // Show "Email sent" message
+                  this.snackBar.open('Email sent', 'Close', {
+                    duration: 3000,
+                  });
 
-            this.closeForm();
+                  // enable form
+                  this.addTeacherReactiveForm.enable();
+
+                  this.closeForm();
+                },
+                error: (err) => {
+                  sendingSnackBar.dismiss();
+
+                  this.isEmailSending = false;
+
+                  // Show error message
+                  this.snackBar.open('Error sending email', 'Close', {
+                    duration: 3000,
+                  });
+
+                  console.log(err);
+                },
+              });
           },
+
           error: (err) => {
-            sendingSnackBar.dismiss();
-
-            // Show error message
-            this.snackBar.open('Error sending email', 'Close', {
+            this.isEmailSending = false;
+            // enable reactive form
+            this.addTeacherReactiveForm.enable();
+            this.snackBar.open('Email is already used !', 'Close', {
               duration: 3000,
+              horizontalPosition: 'center',
+              verticalPosition: 'top',
             });
-
-            console.log(err);
           },
         });
     }

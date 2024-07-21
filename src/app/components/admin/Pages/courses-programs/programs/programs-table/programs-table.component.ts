@@ -22,6 +22,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { ProgramsTable } from 'src/app/components/admin/shared/models/ProgramsTable';
 import { TableData } from 'src/app/components/admin/shared/models/CourseTableData';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
+
 @Component({
   selector: 'app-programs-table',
   standalone: true,
@@ -84,7 +85,7 @@ export class ProgramsTableComponent {
         noWhitespaceValidator(),
         Validators.maxLength(40),
       ]),
-      courses: new FormControl(null, [Validators.required]),
+      courses: new FormControl([], [Validators.required]),
     });
   }
 
@@ -105,7 +106,6 @@ export class ProgramsTableComponent {
     this.courseService.getCourses().subscribe({
       next: (data) => {
         this.courses = data;
-        // console.log(data);
       },
       error: (error) => {
         console.log(error);
@@ -115,18 +115,12 @@ export class ProgramsTableComponent {
 
   editPrograms(id: number, row: ProgramsTable) {
     this.editingRowID = id;
-    // this.editProgramsReactiveForm.patchValue(row);
-    // console.log(this.editProgramsReactiveForm.value);
-
-    // console.log(row.courses);
 
     const selectedCourses = this.courses.filter((course) =>
       row.courses.some(
         (programCourse) => programCourse.courseId === course.courseId
       )
     );
-
-    // console.log(selectedCourses);
 
     this.editProgramsReactiveForm.patchValue({
       programCode: row.programCode,
@@ -147,7 +141,6 @@ export class ProgramsTableComponent {
       if (result) {
         this.programService.deleteProgram(id).subscribe({
           next: (data) => {
-            // console.log(data);
             this.getProgramsList();
           },
           error: (error) => {
@@ -159,52 +152,36 @@ export class ProgramsTableComponent {
   }
 
   savePrograms(row: any) {
-    // console.log(this.editProgramsReactiveForm.valid);
+    if (this.editProgramsReactiveForm.invalid) {
+      return;
+    }
 
-    const areAllCoursesEqual: boolean =
-      this.editProgramsReactiveForm.value.courses.every(
-        (formCourse: any, index: any) => {
-          return (
-            formCourse.courseId === row.courses[index].courseId &&
-            formCourse.code === row.courses[index].code &&
-            formCourse.courseName === row.courses[index].courseName &&
-            formCourse.theoryTime === row.courses[index].theoryTime &&
-            formCourse.practiceTime === row.courses[index].practiceTime &&
-            formCourse.description === row.courses[index].description
-          );
-        }
-      );
-
-    // console.log(this.editProgramsReactiveForm.value);
+    const formValue = this.editProgramsReactiveForm.value;
 
     if (
-      this.editProgramsReactiveForm.value.programCode == row.programCode &&
-      this.editProgramsReactiveForm.value.programName == row.programName &&
-      this.editProgramsReactiveForm.value.theoryTime == row.theoryTime &&
-      this.editProgramsReactiveForm.value.practiceTime == row.practiceTime &&
-      this.editProgramsReactiveForm.value.description == row.description &&
-      areAllCoursesEqual
+      formValue.programCode === row.programCode &&
+      formValue.programName === row.programName &&
+      formValue.theoryTime === row.theoryTime &&
+      formValue.practiceTime === row.practiceTime &&
+      formValue.description === row.description &&
+      _.isEqual(
+        formValue.courses.map((course: any) => course.courseId),
+        row.courses.map((course: any) => course.courseId)
+      )
     ) {
-      // console.log('im out');
       this.cancelEditing();
       return;
     }
 
-    if (this.editProgramsReactiveForm.valid) {
-      console.log(this.editProgramsReactiveForm.value);
-      this.programService
-        .editPrograms(row.programId, this.editProgramsReactiveForm.value)
-        .subscribe({
-          next: (data) => {
-            // console.log(data);
-            this.editingRowID = null;
-            this.getProgramsList();
-          },
-          error: (error) => {
-            console.log(error);
-          },
-        });
-    }
+    this.programService.editPrograms(row.programId, formValue).subscribe({
+      next: (data) => {
+        this.editingRowID = null;
+        this.getProgramsList();
+      },
+      error: (error) => {
+        console.log(error);
+      },
+    });
   }
 
   cancelEditing() {
@@ -219,7 +196,6 @@ export class ProgramsTableComponent {
 
   getRemainingCoursesWithNumbers(courses: any[]): string {
     const remainingCourses = courses.slice(2);
-    // console.log(remainingCourses);
     return remainingCourses
       .map((course: any, index: any) => `${index + 1}. ${course.courseName}`)
       .join('\n');
