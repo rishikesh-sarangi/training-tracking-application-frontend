@@ -145,4 +145,16 @@ export class TopicsComponent implements OnInit {
     this.lettersTypedSummary = event.target.value.length;
     return;
   }
+
+  // Search Filter
+  SearchValue: string = '';
+  onSearchChange(event: any) {
+    this.SearchValue = (event.target as HTMLInputElement).value;
+  }
+
+  $clickEvent!: any;
+  refresh($event: any) {
+    this.$clickEvent = $event;
+    // console.log('parent clicked');
+  }
 }

@@ -1,4 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  SimpleChange,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableData } from 'src/app/components/admin/shared/models/CourseTableData';
 import { MatIconModule } from '@angular/material/icon';
@@ -83,6 +90,33 @@ export class CoursesTableComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+
+  // Search Filter
+  @Input() filterValue!: string;
+
+  // Refresh
+  @Input() $clickEvent!: any;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['filterValue']) {
+      this.applyFilter(this.filterValue);
+    }
+
+    if (changes['$clickEvent']) {
+      // console.log('REFRESHINGGGGGG');
+      this.getCoursesList();
+    }
+  }
+
+  applyFilter(filterValue: string) {
+    // console.log(this.dataSource);
+    if (this.dataSource) {
+      this.dataSource.filter = this.filterValue.trim().toLowerCase();
+      if (this.dataSource.paginator) {
+        this.dataSource.paginator.firstPage();
+      }
+    }
+  }
 
   // READ DATA
   ngOnInit(): void {

@@ -116,4 +116,16 @@ export class ProgramsComponent implements OnInit {
     this.addProgramsReactiveForm.reset();
     this.isAddProgramsClicked = !this.isAddProgramsClicked;
   }
+
+  // Search Filter
+  SearchValue: string = '';
+  onSearchChange(event: any) {
+    this.SearchValue = (event.target as HTMLInputElement).value;
+  }
+
+  $clickEvent!: any;
+  refresh($event: any) {
+    this.$clickEvent = $event;
+    // console.log('parent clicked');
+  }
 }

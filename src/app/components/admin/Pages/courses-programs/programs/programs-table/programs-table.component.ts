@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, Input, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import * as _ from 'lodash';
@@ -87,6 +87,32 @@ export class ProgramsTableComponent {
       ]),
       courses: new FormControl([], [Validators.required]),
     });
+  }
+
+  // Search Filter
+  @Input() filterValue!: string;
+
+  // Refresh
+  @Input() $clickEvent!: any;
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['filterValue']) {
+      this.applyFilter(this.filterValue);
+    }
+
+    if (changes['$clickEvent']) {
+      // console.log('REFRESHINGGGGGG');
+      this.getProgramsList();
+    }
+  }
+
+  applyFilter(filterValue: string) {
+    // console.log(this.dataSource);
+    if (this.dataSource) {
+      this.dataSource.filter = this.filterValue.trim().toLowerCase();
+      if (this.dataSource.paginator) {
+        this.dataSource.paginator.firstPage();
+      }
+    }
   }
 
   getProgramsList() {

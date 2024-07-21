@@ -61,4 +61,16 @@ export class BatchComponent implements OnInit {
     this.addBatchReactiveForm.reset();
     this.isBatchClicked = !this.isBatchClicked;
   }
+
+  // Search Filter
+  SearchValue: string = '';
+  onSearchChange(event: any) {
+    this.SearchValue = (event.target as HTMLInputElement).value;
+  }
+
+  $clickEvent!: any;
+  refresh($event: any) {
+    this.$clickEvent = $event;
+    // console.log('parent clicked');
+  }
 }
