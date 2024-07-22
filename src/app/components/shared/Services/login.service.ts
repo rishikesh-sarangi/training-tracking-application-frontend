@@ -53,6 +53,6 @@ export class LoginService {
   }
 
   checkEmailValidity(email: string): Observable<any> {
-    return this._http.get<any>(this.endpoint + '/email/' + email);
+    return this._http.post<any>(this.endpoint + '/email', email);
   }
 }

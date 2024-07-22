@@ -100,10 +100,12 @@ export class TeachersComponent implements OnInit {
       // disable form
       this.addTeacherReactiveForm.disable();
 
+      // console.log(this.addTeacherReactiveForm.value.teacherEmail);
       this.loginService
         .checkEmailValidity(this.addTeacherReactiveForm.value.teacherEmail)
         .subscribe({
           next: (data) => {
+            // console.log('triggered');
             this.teacherService
               .addTeachers(this.addTeacherReactiveForm.value)
               .subscribe({

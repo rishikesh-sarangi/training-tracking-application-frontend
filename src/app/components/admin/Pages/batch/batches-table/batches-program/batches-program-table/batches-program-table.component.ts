@@ -100,9 +100,16 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
   // while editing the entire student list should be visible
   getStudents() {
     this.studentService.getStudents().subscribe({
-      next: (data) => {
-        // console.log(data);
-        this.students = data;
+      next: (data: any) => {
+        for (const student of data) {
+          // console.log(student);
+          if (student.batch == null || student.batch.batchId == this.batchId) {
+            this.students.push(student);
+          }
+        }
+      },
+      error: (err) => {
+        console.log(err);
       },
     });
   }

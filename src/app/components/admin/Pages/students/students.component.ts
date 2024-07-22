@@ -75,12 +75,12 @@ export class StudentsComponent {
         .checkEmailValidity(this.addStudentReactiveForm.value.studentEmail)
         .subscribe({
           next: (data) => {
-            this.isEmailSending = false;
             this.studentService
               .addStudent(this.addStudentReactiveForm.value)
               .subscribe({
                 next: (data) => {
                   // console.log(data);
+                  this.isEmailSending = false;
 
                   sendingSnackBar.dismiss();
 
