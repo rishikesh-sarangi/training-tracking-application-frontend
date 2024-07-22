@@ -25,6 +25,7 @@ import { Topic } from 'src/app/components/admin/shared/models/Topic';
 import { FileUploadComponent } from './file-upload/file-upload.component';
 import { MaterialModule } from 'src/app/material.module';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-topics-table',
   standalone: true,
@@ -46,8 +47,8 @@ import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWh
 export class TopicsTableComponent implements OnInit {
   constructor(
     private topicService: TopicsTableDataService,
-    private _deleteDialog: MatDialog,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {}
 
   selectedCourse!: any;
@@ -116,7 +117,7 @@ export class TopicsTableComponent implements OnInit {
   // DELETE DATA
   deleteTopics(row: Topic) {
     // console.log(row.topicId);
-    const dialogRef = this._deleteDialog.open(DeleteDialogueComponent, {
+    const dialogRef = this.dialog.open(DeleteDialogueComponent, {
       data: {
         targetTopicName: row.topicName,
       },
@@ -160,10 +161,18 @@ export class TopicsTableComponent implements OnInit {
     if (this.editTopicsReactiveForm.valid) {
       this.topicService
         .editTopics(row.topicId, this.editTopicsReactiveForm.value)
-        .subscribe((data) => {
-          this.editingRowID = null;
-          this.getTopicsList(this.selectedCourse.courseId);
-        });
+        .subscribe(
+          (data) => {
+            this.editingRowID = null;
+            this.getTopicsList(this.selectedCourse.courseId);
+          },
+          (err) => {
+            console.log(err);
+            this.snackBar.open(err.error, 'Close', {
+              duration: 2000,
+            });
+          }
+        );
     }
   }
 

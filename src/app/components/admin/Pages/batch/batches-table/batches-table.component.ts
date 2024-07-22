@@ -33,6 +33,7 @@ import {
 import { BatchProgramCoursesService } from 'src/app/components/shared/Services/batch-program-courses.service';
 import { BatchLayer1Data } from '../../../shared/models/BatchLayer1Data';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-batches-table',
   standalone: true,
@@ -60,7 +61,8 @@ export class BatchesTableComponent implements OnInit {
   constructor(
     private batchService: BatchServiceService,
     private _dialog: MatDialog,
-    private batchProgramCoursesService: BatchProgramCoursesService
+    private batchProgramCoursesService: BatchProgramCoursesService,
+    private snackBar: MatSnackBar
   ) {}
   editBatchReactiveForm!: FormGroup;
   dataSource!: MatTableDataSource<BatchLayer1Data>;
@@ -123,8 +125,10 @@ export class BatchesTableComponent implements OnInit {
             this.cancelEditing();
             this.getBatches();
           },
-          error: (error) => {
-            console.log(error);
+          error: (err) => {
+            this.snackBar.open(err.error, 'Close', {
+              duration: 2000,
+            });
           },
         });
     }

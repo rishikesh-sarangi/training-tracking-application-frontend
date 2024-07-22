@@ -82,17 +82,20 @@ export class StudentsComponent {
               .addStudent(this.addStudentReactiveForm.value)
               .subscribe({
                 next: (data) => {
+                  // console.log(this.addStudentReactiveForm.value.studentName);
                   // console.log(data);
                   this.isEmailSending = false;
 
                   sendingSnackBar.dismiss();
 
+                  const studentName =
+                    this.addStudentReactiveForm.value.studentName;
+
                   this.closeForm();
 
                   const dialogRef = this._dialog.open(UserAddedComponent, {
                     data: {
-                      targetStudentName:
-                        this.addStudentReactiveForm.value.studentName,
+                      targetStudentName: studentName,
                     },
                   });
 
@@ -107,7 +110,7 @@ export class StudentsComponent {
                   sendingSnackBar.dismiss();
 
                   // Show error message
-                  this.snackBar.open(err, 'Close', {
+                  this.snackBar.open(err.error, 'Close', {
                     duration: 3000,
                   });
                 },

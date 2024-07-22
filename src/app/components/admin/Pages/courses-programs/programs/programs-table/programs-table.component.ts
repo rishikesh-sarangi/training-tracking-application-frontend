@@ -22,6 +22,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { ProgramsTable } from 'src/app/components/admin/shared/models/ProgramsTable';
 import { TableData } from 'src/app/components/admin/shared/models/CourseTableData';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-programs-table',
@@ -34,7 +35,8 @@ export class ProgramsTableComponent {
   constructor(
     private programService: ProgramsTableService,
     private courseService: CourseTableDataService,
-    private _dialog: MatDialog
+    private _dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {}
 
   protected editingRowID: number | null = null;
@@ -208,8 +210,10 @@ export class ProgramsTableComponent {
         this.editingRowID = null;
         this.getProgramsList();
       },
-      error: (error) => {
-        console.log(error);
+      error: (err) => {
+        this.snackBar.open(err.error, 'Close', {
+          duration: 2000,
+        });
       },
     });
   }

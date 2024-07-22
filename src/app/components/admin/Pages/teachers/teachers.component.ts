@@ -116,13 +116,15 @@ export class TeachersComponent implements OnInit {
                   // console.log(data);
                   this.isEmailSending = false;
 
+                  const teacherName =
+                    this.addTeacherReactiveForm.value.teacherName;
+
                   sendingSnackBar.dismiss();
 
                   this.closeForm();
                   const dialogRef = this._dialog.open(UserAddedComponent, {
                     data: {
-                      targetTeacherName:
-                        this.addTeacherReactiveForm.value.teacherName,
+                      targetTeacherName: teacherName,
                     },
                   });
 

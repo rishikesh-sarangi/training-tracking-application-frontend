@@ -100,12 +100,12 @@ export class CoursesComponent {
             this.closeForm();
           },
           error: (err: any) => {
-            if (err.status == 403) {
-              this.snackBar.open('Duplicate Course', 'Close', {
-                duration: 2000,
-              });
-            }
             // console.log(err);
+            this.snackBar.open(err.error, 'Close', {
+              horizontalPosition: 'center',
+              verticalPosition: 'bottom',
+              duration: 2000,
+            });
           },
         });
     }

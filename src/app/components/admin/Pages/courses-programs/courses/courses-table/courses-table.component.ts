@@ -227,11 +227,10 @@ export class CoursesTableComponent implements OnInit {
             this.getCoursesList();
           },
           error: (err) => {
-            if (err.status == 403) {
-              this.snackBar.open('Duplicate Course', 'Close', {
-                duration: 2000,
-              });
-            }
+            console.log(err);
+            this.snackBar.open(err.error, 'Close', {
+              duration: 2000,
+            });
           },
         });
     }

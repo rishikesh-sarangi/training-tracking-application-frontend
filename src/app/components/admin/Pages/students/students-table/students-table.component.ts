@@ -143,7 +143,9 @@ export class StudentsTableComponent implements OnInit, OnChanges {
           this.cancelEditing();
         },
         error: (error) => {
-          console.log(error);
+          this.snackBar.open(error.error, 'Close', {
+            duration: 2000,
+          });
         },
       });
     } else if (this.editStudentReactiveForm.valid) {
@@ -180,11 +182,11 @@ export class StudentsTableComponent implements OnInit, OnChanges {
                   });
                 },
                 error: (error) => {
-                  this.isEmailSending = false;
-                  // Show error message
-                  this.snackBar.open(error, 'Close', {
+                  this.snackBar.open(error.error, 'Close', {
                     duration: 3000,
                   });
+                  this.isEmailSending = false;
+                  // Show error message
                 },
               });
           },

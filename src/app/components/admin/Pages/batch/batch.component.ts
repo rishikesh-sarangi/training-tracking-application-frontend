@@ -13,6 +13,7 @@ import {
 } from '@angular/forms';
 import { BatchServiceService } from '../../../shared/Services/batch-service.service';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-batch',
   standalone: true,
@@ -27,7 +28,10 @@ import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWh
   styleUrls: ['./batch.component.scss'],
 })
 export class BatchComponent implements OnInit {
-  constructor(private batchService: BatchServiceService) {}
+  constructor(
+    private batchService: BatchServiceService,
+    private snackBar: MatSnackBar
+  ) {}
 
   isBatchClicked: boolean = false;
   protected addBatchReactiveForm!: FormGroup;
@@ -59,7 +63,9 @@ export class BatchComponent implements OnInit {
           this.addBatchReactiveForm.reset();
         },
         error: (err) => {
-          console.log(err);
+          this.snackBar.open(err.error, 'Close', {
+            duration: 2000,
+          });
         },
       });
     }

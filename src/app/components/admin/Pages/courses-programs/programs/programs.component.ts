@@ -14,6 +14,7 @@ import { CourseTableDataService } from '../../../../shared/Services/course-table
 import { ProgramsTableService } from '../../../../shared/Services/programs-table.service';
 import { ProgramsTableComponent } from './programs-table/programs-table.component';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-programs',
   standalone: true,
@@ -30,7 +31,8 @@ import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWh
 export class ProgramsComponent implements OnInit {
   constructor(
     private courseTableData: CourseTableDataService,
-    private programService: ProgramsTableService
+    private programService: ProgramsTableService,
+    private snackBar: MatSnackBar
   ) {}
 
   isAddProgramsClicked: boolean = false;
@@ -93,8 +95,11 @@ export class ProgramsComponent implements OnInit {
             // console.log(data);
             this.closeForm();
           },
-          error: (error) => {
-            console.log(error);
+          error: (err) => {
+            // console.log(err);
+            this.snackBar.open(err.error, 'Close', {
+              duration: 2000,
+            });
           },
         });
     }

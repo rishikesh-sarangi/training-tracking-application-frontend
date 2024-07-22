@@ -23,6 +23,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatInputModule } from '@angular/material/input';
 import { MatDividerModule } from '@angular/material/divider';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-topics',
   standalone: true,
@@ -43,11 +44,13 @@ import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWh
   styleUrls: ['./topics.component.scss'],
 })
 export class TopicsComponent implements OnInit {
-  constructor(private addTopicsData: TopicsTableDataService) {}
+  constructor(
+    private addTopicsData: TopicsTableDataService,
+    private snackBar: MatSnackBar
+  ) {}
 
   displayedColumns: string[] = [
     'actions',
-    'order',
     'topicName',
     'theoryTime',
     'practiceTime',
@@ -75,11 +78,6 @@ export class TopicsComponent implements OnInit {
     // console.log(this.selectedCourse);
 
     this.addTopicsReactiveForm = new FormGroup({
-      order: new FormControl(null, [
-        Validators.required,
-        Validators.pattern('[0-9]*'),
-        noWhitespaceValidator(),
-      ]),
       topicName: new FormControl(null, [
         Validators.required,
         noWhitespaceValidator(),
@@ -111,11 +109,18 @@ export class TopicsComponent implements OnInit {
 
       this.addTopicsData
         .addTopics(this.courseId, this.addTopicsReactiveForm.value)
-        .subscribe((data) => {
-          this.addTopicsReactiveForm.reset();
-          this.isAddTopicsClicked = !this.isAddTopicsClicked;
-          this.refreshTopicsTable();
-        });
+        .subscribe(
+          (data) => {
+            this.addTopicsReactiveForm.reset();
+            this.isAddTopicsClicked = !this.isAddTopicsClicked;
+            this.refreshTopicsTable();
+          },
+          (error) => {
+            this.snackBar.open(error.error, 'Close', {
+              duration: 3000,
+            });
+          }
+        );
     }
   }
 
