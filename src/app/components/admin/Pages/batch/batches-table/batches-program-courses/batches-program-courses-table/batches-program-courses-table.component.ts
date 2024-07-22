@@ -85,14 +85,10 @@ export class BatchesProgramCoursesTableComponent implements OnInit {
   }
 
   onCourseChange(event: any) {
-    // console.log(event.value);
-    const index = this.courses.indexOf(event.value);
-    const code = this.courses[index].courseCode;
-    // console.log(code);
+    const selectedCourse = event.value;
+    const code = selectedCourse.courseCode;
     this.editBatchProgramCoursesReactiveForm.get('code')?.setValue(code);
-
-    this.teachers = event.value.teachers;
-    // console.log(this.teachers);
+    this.teachers = selectedCourse.teachers;
   }
 
   saveBatchProgramCourse(row: any) {
@@ -178,7 +174,27 @@ export class BatchesProgramCoursesTableComponent implements OnInit {
 
   editBatchProgramCourse(i: number, row: any) {
     this.editingRowID = i;
-    this.editBatchProgramCoursesReactiveForm.patchValue(row);
+
+    // Find the course object that matches the current row
+    const selectedCourse = this.courses.find(
+      (course) => course.courseCode === row.courseCode
+    );
+
+    // Find the teacher object that matches the current row
+    const selectedTeacher = this.teachers.find(
+      (teacher) => teacher.teacherName === row.teacherName
+    );
+
+    this.editBatchProgramCoursesReactiveForm.patchValue({
+      code: row.courseCode,
+      courseName: selectedCourse,
+      teacherName: selectedTeacher,
+    });
+
+    // Update the teachers list based on the selected course
+    if (selectedCourse) {
+      this.teachers = selectedCourse.teachers;
+    }
   }
 
   cancelEditing() {

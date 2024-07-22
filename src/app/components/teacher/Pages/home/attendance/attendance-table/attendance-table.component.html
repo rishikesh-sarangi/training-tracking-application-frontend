@@ -18,10 +18,10 @@
           <td mat-cell *matCellDef="let row; let i = dataIndex">
             <div class="action-buttons">
               <span
-                *ngIf="i != editingRowID; else editMode"
+                *ngIf="row.attendanceId !== editingRowID; else editMode"
                 class="action-buttons"
               >
-                <mat-icon (click)="editAttendance(i, row)">
+                <mat-icon (click)="editAttendance(row)">
                   <span class="material-icons-outlined"> edit </span>
                 </mat-icon>
                 <mat-icon (click)="deleteAttendance(row)">
@@ -51,7 +51,9 @@
         <ng-container matColumnDef="topicName">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Topic Name</th>
           <td mat-cell *matCellDef="let row; let i = dataIndex">
-            <ng-container *ngIf="i != editingRowID; else editMode">
+            <ng-container
+              *ngIf="row.attendanceId !== editingRowID; else editMode"
+            >
               <div>
                 {{ row.topicName }}
               </div>
@@ -75,7 +77,9 @@
             Topic Percentage Completed
           </th>
           <td mat-cell *matCellDef="let row; let i = dataIndex">
-            <ng-container *ngIf="i != editingRowID; else editMode">
+            <ng-container
+              *ngIf="row.attendanceId !== editingRowID; else editMode"
+            >
               <div>
                 {{ row.topicPercentageCompleted }}
               </div>

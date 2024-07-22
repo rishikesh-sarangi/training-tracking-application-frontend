@@ -29,7 +29,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteDialogueComponent } from 'src/app/components/shared/delete-dialogue/delete-dialogue.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Subject, takeUntil } from 'rxjs';
+import { Observable, Subject, takeUntil, tap } from 'rxjs';
 @Component({
   selector: 'app-attendance-table',
   standalone: true,
@@ -230,20 +230,15 @@ export class AttendanceTableComponent implements OnInit, OnDestroy {
     }
   }
 
-  getTopics() {
-    this.topicService
+  getTopics(): Observable<any> {
+    return this.topicService
       .getTopicByCourseId(this.filterPayload.courseId)
-      .subscribe({
-        next: (data: any) => {
+      .pipe(
+        tap((data: any) => {
           this.topics = data;
-          // console.log(this.topics);
-        },
-        error: (error) => {
-          console.error('Error fetching topics:', error);
-        },
-      });
+        })
+      );
   }
-
   saveAttendance(row: any) {
     if (this.attendanceReactiveForm.valid) {
       const payload = {
@@ -252,13 +247,18 @@ export class AttendanceTableComponent implements OnInit, OnDestroy {
           this.attendanceReactiveForm.value.topicPercentageCompleted,
         topicId: this.attendanceReactiveForm.value.topicName.topicId,
       };
-      // console.log(payload);
       this.attendanceService
         .updateAttendance(row.attendanceId, payload)
-        .subscribe((data) => {
-          this.editingRowID = -1;
-          this.attendanceReactiveForm.reset();
-          this.getAttendance();
+        .subscribe({
+          next: (data) => {
+            this.editingRowID = -1;
+            this.attendanceReactiveForm.reset();
+            this.getAttendance();
+          },
+          error: (error) => {
+            console.error('Error updating attendance:', error);
+            // Handle error (e.g., show an error message)
+          },
         });
     }
   }
@@ -304,14 +304,22 @@ export class AttendanceTableComponent implements OnInit, OnDestroy {
     }
   }
 
-  editAttendance(id: number, row: any) {
-    this.getTopics();
-    this.editingRowID = id;
-    this.attendanceReactiveForm.patchValue(row);
+  editAttendance(row: any) {
+    this.editingRowID = row.attendanceId;
+    this.getTopics().subscribe(() => {
+      const selectedTopic = this.topics.find(
+        (topic) => topic.topicName === row.topicName
+      );
+
+      this.attendanceReactiveForm.patchValue({
+        topicName: selectedTopic || null,
+        topicPercentageCompleted: row.topicPercentageCompleted,
+      });
+    });
   }
 
   cancelEditing() {
-    this.editingRowID = -1;
+    this.editingRowID = -1; // or any value that doesn't match an attendanceId
     this.attendanceReactiveForm.reset();
   }
 

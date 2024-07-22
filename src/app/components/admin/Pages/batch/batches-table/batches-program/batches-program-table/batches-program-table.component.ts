@@ -155,7 +155,23 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
 
   editBatchProgram(id: number, row: any) {
     this.editingRowID = id;
-    this.editBatchProgramReactiveForm.patchValue(row);
+
+    // Find the selected program from the programs array
+    const selectedProgram = this.programs.find(
+      (program) => program.programId === row.programId
+    );
+
+    // Get the students for this program
+    const selectedStudents = this.getStudentsForRow(row);
+
+    this.editBatchProgramReactiveForm.patchValue({
+      code: row.code, // Patch the code directly from the row data
+      programName: selectedProgram, // This should be the full program object
+      students: selectedStudents, // Patch the students
+    });
+
+    // Manually trigger the onProgramChange to set the code
+    this.onProgramChange({ value: selectedProgram });
   }
 
   deleteBatchProgram(row: any) {
