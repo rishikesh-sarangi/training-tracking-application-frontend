@@ -57,6 +57,8 @@ export class TopicsComponent implements OnInit {
 
   selectedCourse!: TableData;
 
+  courseId!: number;
+
   selectedCourseId!: number;
 
   isAddTopicsClicked: boolean = false;
@@ -65,6 +67,7 @@ export class TopicsComponent implements OnInit {
 
   ngOnInit(): void {
     this.selectedCourse = history.state;
+    this.courseId = this.selectedCourse.courseId;
     // console.log(
     //   typeof this.selectedCourse.courseId + ' ' + this.selectedCourse.courseId
     // );
@@ -107,13 +110,11 @@ export class TopicsComponent implements OnInit {
       // console.log(this.addTopicsReactiveForm.value);
 
       this.addTopicsData
-        .addTopics(
-          this.selectedCourse.courseId,
-          this.addTopicsReactiveForm.value
-        )
+        .addTopics(this.courseId, this.addTopicsReactiveForm.value)
         .subscribe((data) => {
           this.addTopicsReactiveForm.reset();
           this.isAddTopicsClicked = !this.isAddTopicsClicked;
+          this.refreshTopicsTable();
         });
     }
   }
@@ -121,6 +122,11 @@ export class TopicsComponent implements OnInit {
   closeForm() {
     this.addTopicsReactiveForm.reset();
     this.isAddTopicsClicked = !this.isAddTopicsClicked;
+    this.refreshTopicsTable();
+  }
+  refreshTopicsTable() {
+    // Trigger a refresh of the topics table
+    this.$clickEvent = new Date().getTime(); // Use a timestamp to force change detection
   }
 
   addTopics() {
@@ -154,7 +160,7 @@ export class TopicsComponent implements OnInit {
 
   $clickEvent!: any;
   refresh($event: any) {
-    this.$clickEvent = $event;
+    window.location.reload();
     // console.log('parent clicked');
   }
 }

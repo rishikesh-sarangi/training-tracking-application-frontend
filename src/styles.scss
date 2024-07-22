@@ -8,9 +8,11 @@ body {
   height: 100%;
   overflow: scroll;
   overflow-x: hidden;
+  margin: 0;
 }
 body {
-  margin: 0;
+  display: flex;
+  flex-direction: column;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 

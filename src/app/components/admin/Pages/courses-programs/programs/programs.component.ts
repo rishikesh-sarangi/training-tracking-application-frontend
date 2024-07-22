@@ -125,7 +125,7 @@ export class ProgramsComponent implements OnInit {
 
   $clickEvent!: any;
   refresh($event: any) {
-    this.$clickEvent = $event;
+    window.location.reload();
     // console.log('parent clicked');
   }
 }

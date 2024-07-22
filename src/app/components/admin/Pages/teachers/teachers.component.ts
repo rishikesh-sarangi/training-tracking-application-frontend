@@ -24,6 +24,8 @@ import { TableData } from '../../shared/models/CourseTableData';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
 import { LoginService } from 'src/app/components/shared/Services/login.service';
+import { UserAddedComponent } from '../../shared/user-added/user-added.component';
+import { MatDialog } from '@angular/material/dialog';
 @Component({
   selector: 'app-teachers',
   standalone: true,
@@ -47,7 +49,8 @@ export class TeachersComponent implements OnInit {
     private courseTableData: CourseTableDataService,
     private teacherService: TeachersTableService,
     private snackBar: MatSnackBar,
-    private loginService: LoginService
+    private loginService: LoginService,
+    private _dialog: MatDialog
   ) {}
 
   protected isAddTeacherClicked: boolean = false;
@@ -115,15 +118,20 @@ export class TeachersComponent implements OnInit {
 
                   sendingSnackBar.dismiss();
 
-                  // Show "Email sent" message
-                  this.snackBar.open('Email sent', 'Close', {
-                    duration: 3000,
+                  this.closeForm();
+                  const dialogRef = this._dialog.open(UserAddedComponent, {
+                    data: {
+                      targetTeacherName:
+                        this.addTeacherReactiveForm.value.teacherName,
+                    },
                   });
 
-                  // enable form
-                  this.addTeacherReactiveForm.enable();
-
-                  this.closeForm();
+                  dialogRef.afterClosed().subscribe((result) => {
+                    if (result) {
+                      // enable form
+                      this.addTeacherReactiveForm.enable();
+                    }
+                  });
                 },
                 error: (err) => {
                   sendingSnackBar.dismiss();
@@ -162,7 +170,7 @@ export class TeachersComponent implements OnInit {
   // Refresh
   $clickEvent!: any;
   refresh($event: any) {
-    this.$clickEvent = $event;
+    window.location.reload();
     // console.log('parent clicked');
   }
 

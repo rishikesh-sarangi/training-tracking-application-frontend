@@ -19,6 +19,8 @@ import {
 import { CoursesTableComponent } from './courses-table/courses-table.component';
 import { CourseTableDataService } from '../../../../shared/Services/course-table-data.service';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MaterialModule } from 'src/app/material.module';
 
 @Component({
   selector: 'app-courses',
@@ -35,12 +37,16 @@ import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWh
     OverlayModule,
     CoursesTableComponent,
     MatTooltipModule,
+    MaterialModule,
   ],
   templateUrl: './courses.component.html',
   styleUrls: ['./courses.component.scss'],
 })
 export class CoursesComponent {
-  constructor(private courseTableData: CourseTableDataService) {}
+  constructor(
+    private courseTableData: CourseTableDataService,
+    private snackBar: MatSnackBar
+  ) {}
 
   displayedColumns: string[] = [
     'actions',
@@ -91,12 +97,15 @@ export class CoursesComponent {
           next: (data: any) => {
             // console.log(data);
             // add snackbar
+            this.closeForm();
           },
           error: (err: any) => {
-            console.log(err);
-          },
-          complete: () => {
-            this.closeForm();
+            if (err.status == 403) {
+              this.snackBar.open('Duplicate Course', 'Close', {
+                duration: 2000,
+              });
+            }
+            // console.log(err);
           },
         });
     }
@@ -124,7 +133,7 @@ export class CoursesComponent {
 
   $clickEvent!: any;
   refresh($event: any) {
-    this.$clickEvent = $event;
+    window.location.reload();
     // console.log('parent clicked');
   }
 }

@@ -186,10 +186,10 @@ export class AttendanceTableComponent implements OnInit, OnDestroy {
       error: (error) => {
         if (error.error.responseCode == 404) {
           this.dataSource = new MatTableDataSource();
+          // this.snackBar.open(error.error.message, 'Close', {
+          //   duration: 3000,
+          // });
         }
-        this.snackBar.open(error.error.message, 'Close', {
-          duration: 3000,
-        });
       },
     });
   }

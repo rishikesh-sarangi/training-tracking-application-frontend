@@ -64,6 +64,11 @@ input:-webkit-autofill:focus {
 }
 
 .mdc-tooltip__surface {
+  background-color: #fff !important;
+  color: black !important;
+  // font-size: 20px;
+  font-weight: bold;
+  padding: 20px;
   letter-spacing: normal !important;
   text-align: left !important;
 }

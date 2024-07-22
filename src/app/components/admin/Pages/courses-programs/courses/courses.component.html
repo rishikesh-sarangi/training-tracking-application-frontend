@@ -203,6 +203,7 @@
                             mat-raised-button
                             color="primary"
                             (click)="isDescOpen = !isDescOpen"
+                            [disabled]="lettersTypedDesc > 40"
                           >
                             Save</button
                           ><button

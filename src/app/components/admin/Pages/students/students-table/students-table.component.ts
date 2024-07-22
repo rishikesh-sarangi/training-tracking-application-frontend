@@ -27,6 +27,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
 import { LoginService } from 'src/app/components/shared/Services/login.service';
+import { UserAddedComponent } from '../../../shared/user-added/user-added.component';
 @Component({
   selector: 'app-students-table',
   standalone: true,
@@ -155,19 +156,28 @@ export class StudentsTableComponent implements OnInit, OnChanges {
         .checkEmailValidity(this.editStudentReactiveForm.value.studentEmail)
         .subscribe({
           next: (data) => {
-            this.isEmailSending = false;
             this.studentService
               .editStudent(row.studentId, this.editStudentReactiveForm.value)
               .subscribe({
                 next: (data) => {
                   sendingSnackBar.dismiss();
                   // Show "Email sent" message
-                  this.snackBar.open('Email sent', 'Close', {
-                    duration: 3000, // The snackbar will auto-dismiss after 3 seconds
-                  });
+                  this.isEmailSending = false;
+
+                  this.cancelEditing();
 
                   this.getStudents();
-                  this.cancelEditing();
+                  const dialogRef = this._dialog.open(UserAddedComponent, {
+                    data: {
+                      targetStudentName: row.studentName,
+                    },
+                  });
+
+                  dialogRef.afterClosed().subscribe((result) => {
+                    if (result) {
+                      // enable form
+                    }
+                  });
                 },
                 error: (error) => {
                   this.isEmailSending = false;

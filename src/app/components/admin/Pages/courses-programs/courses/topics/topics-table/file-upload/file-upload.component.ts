@@ -16,6 +16,8 @@ import { EvaluationService } from 'src/app/components/teacher/shared/Services/ev
 export class FileUploadComponent {
   files: File[] = [];
   allowedFileTypes = ['.pdf', '.xls', '.ppt', '.mp3', 'mp4'];
+  maxFileSize = 2 * 1024 * 1024; // 2 MB in bytes
+  maxFiles = 10;
 
   constructor(
     private snackBar: MatSnackBar,
@@ -25,6 +27,7 @@ export class FileUploadComponent {
   ) {}
 
   topicId: string = this.data.topicId;
+
   onFileDropped(event: DragEvent) {
     event.preventDefault();
     this.handleFiles(event.dataTransfer?.files);
@@ -36,9 +39,26 @@ export class FileUploadComponent {
 
   handleFiles(files: FileList | null | undefined) {
     if (files) {
+      if (this.files.length + files.length > this.maxFiles) {
+        this.snackBar.open(
+          `Cannot upload more than ${this.maxFiles} files.`,
+          'Close',
+          { duration: 3000 }
+        );
+        return;
+      }
+
       for (let i = 0; i < files.length; i++) {
         if (this.isValidFileType(files[i])) {
-          this.checkFileExistenceAndAdd(files[i]);
+          if (files[i].size <= this.maxFileSize) {
+            this.checkFileExistenceAndAdd(files[i]);
+          } else {
+            this.snackBar.open(
+              `File "${files[i].name}" exceeds the 2 MB size limit.`,
+              'Close',
+              { duration: 3000 }
+            );
+          }
         } else {
           this.snackBar.open(
             'Invalid file type. Only .pdf, .xls, .ppt, .mp3, .mp4 formats are allowed.',
@@ -54,7 +74,6 @@ export class FileUploadComponent {
     this.evaluationService.doesFileExist(file).subscribe(
       (response: any) => {
         if (response.exists) {
-          // Assuming the backend returns an object with an 'exists' property
           this.snackBar.open(
             `File "${file.name}" already exists. Skipping upload.`,
             'Close',
@@ -74,6 +93,7 @@ export class FileUploadComponent {
       }
     );
   }
+
   getFileNames(): string {
     return this.files.map((file) => file.name).join('\n');
   }

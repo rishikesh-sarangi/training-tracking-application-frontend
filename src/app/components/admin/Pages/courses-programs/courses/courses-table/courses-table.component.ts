@@ -39,6 +39,8 @@ import { DeleteDialogueComponent } from '../../../../../shared/delete-dialogue/d
 import { TopicsData } from 'src/app/components/admin/shared/models/topics-table.model';
 import { TopicsTableDataService } from 'src/app/components/shared/Services/topics-table-data.service';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
+import { MaterialModule } from 'src/app/material.module';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-courses-table',
@@ -59,6 +61,7 @@ import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWh
     MatDialogModule,
     RouterModule,
     MatTooltipModule,
+    MaterialModule,
   ],
   templateUrl: './courses-table.component.html',
   styleUrls: ['./courses-table.component.scss'],
@@ -68,7 +71,8 @@ export class CoursesTableComponent implements OnInit {
     private courseTableData: CourseTableDataService,
     private addTopicsData: TopicsTableDataService,
     public _deleteDialog: MatDialog,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) {}
 
   // reactive form
@@ -223,7 +227,11 @@ export class CoursesTableComponent implements OnInit {
             this.getCoursesList();
           },
           error: (err) => {
-            console.log(err);
+            if (err.status == 403) {
+              this.snackBar.open('Duplicate Course', 'Close', {
+                duration: 2000,
+              });
+            }
           },
         });
     }

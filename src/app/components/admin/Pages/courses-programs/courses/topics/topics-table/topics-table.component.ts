@@ -69,6 +69,7 @@ export class TopicsTableComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
+  @Input() courseId!: number;
   ngOnInit(): void {
     this.selectedCourse = history.state;
     // console.log(this.selectedCourse);
@@ -100,13 +101,16 @@ export class TopicsTableComponent implements OnInit {
       ]),
     });
   }
+
   // READ DATA
   protected getTopicsList(courseId: number) {
-    this.topicService.getTopicByCourseId(courseId).subscribe((data) => {
-      this.dataSource = new MatTableDataSource(data);
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    });
+    if (courseId) {
+      this.topicService.getTopicByCourseId(courseId).subscribe((data) => {
+        this.dataSource = new MatTableDataSource(data);
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+      });
+    }
   }
 
   // DELETE DATA
@@ -194,9 +198,8 @@ export class TopicsTableComponent implements OnInit {
       this.applyFilter(this.filterValue);
     }
 
-    if (changes['$clickEvent']) {
-      // console.log('REFRESHINGGGGGG');
-      this.getTopicsList(this.selectedCourse.courseId);
+    if (changes['$clickEvent'] || changes['courseId']) {
+      this.getTopicsList(this.courseId);
     }
   }
 
@@ -208,5 +211,24 @@ export class TopicsTableComponent implements OnInit {
         this.dataSource.paginator.firstPage();
       }
     }
+  }
+
+  // 0/40 logic
+  // For Content
+  protected isContentOpen = false;
+  protected lettersTypedContent: number = 0;
+
+  protected onContentInputChange(event: any) {
+    this.lettersTypedContent = event.target.value.length;
+    return;
+  }
+
+  // For Summary
+  protected isSummaryOpen = false;
+  protected lettersTypedSummary: number = 0;
+
+  protected onSummaryInputChange(event: any) {
+    this.lettersTypedSummary = event.target.value.length;
+    return;
   }
 }

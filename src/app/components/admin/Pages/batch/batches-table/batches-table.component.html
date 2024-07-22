@@ -1,6 +1,12 @@
 <div style="margin-top: 40px" class="batches-table-component">
   <div class="table-responsive">
-    <table mat-table [dataSource]="dataSource" matSort multiTemplateDataRows>
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      matSort
+      multiTemplateDataRows
+      *ngIf="dataSource && dataSource.data.length > 0"
+    >
       <form [formGroup]="editBatchReactiveForm">
         <ng-container matColumnDef="actions">
           <th
@@ -117,7 +123,7 @@
           <td mat-cell *matCellDef="let row; let i = dataIndex">
             <ng-container *ngIf="i != editingRowID; else editMode">
               <div>
-                {{ row.batchStartDate | date : "dd/MM/yyyy" }}
+                {{ row.batchStartDate | date : "dd MMM yyyy" }}
               </div>
             </ng-container>
             <ng-template #editMode>
@@ -208,6 +214,13 @@
         class="example-detail-row"
       ></tr>
     </table>
+
+    <div
+      *ngIf="dataSource && dataSource.data.length === 0"
+      style="font-weight: bold; font-size: 25px; padding: 20px"
+    >
+      Please add a batch to see content
+    </div>
   </div>
 
   <mat-paginator

@@ -16,6 +16,8 @@ import { StudentsTableComponent } from './students-table/students-table.componen
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
 import { LoginService } from 'src/app/components/shared/Services/login.service';
+import { UserAddedComponent } from '../../shared/user-added/user-added.component';
+import { MatDialog } from '@angular/material/dialog';
 @Component({
   selector: 'app-students',
   standalone: true,
@@ -33,7 +35,8 @@ export class StudentsComponent {
   constructor(
     private studentService: StudentTableService,
     private snackBar: MatSnackBar,
-    private loginService: LoginService
+    private loginService: LoginService,
+    private _dialog: MatDialog
   ) {}
 
   isAddStudentClicked: boolean = false;
@@ -84,12 +87,20 @@ export class StudentsComponent {
 
                   sendingSnackBar.dismiss();
 
-                  // Show "Email sent" message
-                  this.snackBar.open('Email sent', 'Close', {
-                    duration: 3000,
+                  this.closeForm();
+
+                  const dialogRef = this._dialog.open(UserAddedComponent, {
+                    data: {
+                      targetStudentName:
+                        this.addStudentReactiveForm.value.studentName,
+                    },
                   });
 
-                  this.isAddStudentClicked = !this.isAddStudentClicked;
+                  dialogRef.afterClosed().subscribe((result) => {
+                    if (result) {
+                      // enable form
+                    }
+                  });
                 },
                 error: (err) => {
                   this.isEmailSending = false;
@@ -121,7 +132,7 @@ export class StudentsComponent {
 
   $clickEvent!: any;
   refresh($event: any) {
-    this.$clickEvent = $event;
+    window.location.reload();
     // console.log('parent clicked');
   }
 

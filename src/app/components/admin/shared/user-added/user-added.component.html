@@ -1,0 +1,35 @@
+<div class="delete-dialogue-component" style="padding: 20px">
+  <div class="title">
+    <div style="font-size: 20px; font-weight: 500">
+      <span *ngIf="targetStudentName">Student</span>
+      <span *ngIf="targetTeacherName">Teacher</span>
+      Added
+    </div>
+    <mat-icon [mat-dialog-close]="false"
+      ><span class="material-icon" style="cursor: pointer"
+        >close</span
+      ></mat-icon
+    >
+  </div>
+
+  <mat-divider></mat-divider>
+  <ng-container *ngIf="targetTeacherName">
+    <div mat-dialog-content class="dialogue-content">
+      An Email has been sent to {{ targetTeacherName }} with their email id and
+      password
+    </div></ng-container
+  >
+
+  <ng-container *ngIf="targetStudentName">
+    <div mat-dialog-content class="dialogue-content">
+      An Email has been sent to {{ targetStudentName }} with their email id and
+      password
+    </div></ng-container
+  >
+
+  <mat-dialog-actions class="action-btns" align="end">
+    <button mat-raised-button color="primary" [mat-dialog-close]="true">
+      Ok
+    </button>
+  </mat-dialog-actions>
+</div>

@@ -151,6 +151,7 @@ export class BatchesAndProgramsComponent implements OnInit {
   }
 
   onBatchChange() {
+    this.batchProgramReactiveForm.get('program')?.reset();
     const selectedBatchId = this.batchProgramReactiveForm.get('batch')?.value;
     const selectedBatch = this.batches.find(
       (batch) => batch.batchId === selectedBatchId

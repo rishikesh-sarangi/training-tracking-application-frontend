@@ -87,10 +87,17 @@
 <!-- child components -->
 <router-outlet></router-outlet>
 
+<!-- footer here -->
+<footer class="footer">
+  <div class="footer-content">
+    <p>Copyright &copy; 2024 Cozentus</p>
+  </div>
+</footer>
+
 <!-- menus -->
 <!-- logout -->
 <mat-menu #menu="matMenu" class="user-menu dense-3">
-  <span class="xs-user-name">Ritesh Sahoo</span>
+  <span class="xs-user-name">{{ username }}</span>
   <button mat-menu-item (click)="logOut()" class="logout-btn">
     <mat-icon>
       <span class="material-icons-outlined white-text">

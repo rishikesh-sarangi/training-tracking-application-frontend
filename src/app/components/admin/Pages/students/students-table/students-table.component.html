@@ -4,7 +4,12 @@
   [ngClass]="{ 'blur-background': isEmailSending }"
 >
   <div class="table-responsive">
-    <table mat-table [dataSource]="dataSource" matSort>
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      matSort
+      *ngIf="dataSource && dataSource.data.length > 0"
+    >
       <form [formGroup]="editStudentReactiveForm">
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Actions</th>
@@ -107,6 +112,13 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
+
+    <div
+      *ngIf="dataSource && dataSource.data.length === 0"
+      style="font-weight: bold; font-size: 25px; padding: 20px"
+    >
+      Please add a student to see content
+    </div>
 
     <mat-paginator
       [pageSizeOptions]="[10, 25, 100]"

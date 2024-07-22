@@ -1,6 +1,12 @@
 <div style="margin-top: 40px" class="courses-table-component">
   <div class="table-responsive">
-    <table mat-table [dataSource]="dataSource" matSort matSortActive="order">
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      matSort
+      matSortActive="order"
+      *ngIf="dataSource && dataSource.data.length > 0"
+    >
       <form [formGroup]="editTopicsReactiveForm">
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Actions</th>
@@ -41,17 +47,14 @@
           <td mat-cell *matCellDef="let row; let i = index">
             <ng-container *ngIf="i != editingRowID; else editMode">
               <!-- (click)="navigateToTopics(row)" -->
-              <div class="code" matTooltip="Click to view or add topic">
+              <div>
                 {{ row.order }}
               </div>
             </ng-container>
             <ng-template #editMode>
-              <input
-                type="text"
-                formControlName="order"
-                placeholder="Enter Code"
-                class="input-fields enter-code"
-              />
+              <div>
+                {{ row.order }}
+              </div>
             </ng-template>
           </td>
         </ng-container>
@@ -111,8 +114,17 @@
         <ng-container matColumnDef="summary">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Summary</th>
           <td mat-cell *matCellDef="let row; let i = index">
-            <ng-container *ngIf="i != editingRowID; else editMode"
+            <!-- <ng-container *ngIf="i != editingRowID; else editMode"
               >{{ row.summary }}
+            </ng-container> -->
+
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              <span
+                [matTooltip]="row.summary"
+                style="color: rgb(70, 140, 201); text-decoration: underline"
+                >{{ row.summary | slice : 0 : 25
+                }}{{ row.summary.length > 25 ? "..." : "" }}</span
+              >
             </ng-container>
             <ng-template #editMode>
               <input
@@ -128,8 +140,13 @@
         <ng-container matColumnDef="content">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Content</th>
           <td mat-cell *matCellDef="let row; let i = index">
-            <ng-container *ngIf="i != editingRowID; else editMode"
-              >{{ row.content }}
+            <ng-container *ngIf="i != editingRowID; else editMode">
+              <span
+                [matTooltip]="row.content"
+                style="color: rgb(70, 140, 201); text-decoration: underline"
+                >{{ row.content | slice : 0 : 25
+                }}{{ row.content.length > 25 ? "..." : "" }}</span
+              >
             </ng-container>
             <ng-template #editMode>
               <input
@@ -168,11 +185,7 @@
                 *ngIf="row.files.length > 0"
                 [matTooltip]="getFileNames(row.files)"
                 matTooltipClass="tooltip-custom"
-                style="
-                  text-decoration: underline;
-                  color: rgb(70, 140, 201);
-                  cursor: pointer;
-                "
+                style="color: rgb(70, 140, 201); cursor: pointer"
                 >+{{ row.files.length }} files</span
               >
             </div>
@@ -182,6 +195,13 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
+
+    <div
+      *ngIf="dataSource && dataSource.data.length === 0"
+      style="font-weight: bold; font-size: 25px; padding: 20px"
+    >
+      Please add a topic to see content
+    </div>
 
     <mat-paginator
       [pageSizeOptions]="[10, 25, 100]"

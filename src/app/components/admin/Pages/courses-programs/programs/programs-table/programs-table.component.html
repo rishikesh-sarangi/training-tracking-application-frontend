@@ -1,6 +1,11 @@
 <div style="margin-top: 40px" class="courses-table-component">
   <div class="table-responsive">
-    <table mat-table [dataSource]="dataSource" matSort>
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      matSort
+      *ngIf="dataSource && dataSource.data.length > 0"
+    >
       <form [formGroup]="editProgramsReactiveForm">
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Actions</th>
@@ -141,7 +146,7 @@
             <ng-container *ngIf="i != editingRowID; else editMode">
               <span
                 [matTooltip]="row.description"
-                style="color: rgb(70, 140, 201)"
+                style="color: rgb(70, 140, 201); text-decoration: underline"
                 >{{ row.description | slice : 0 : 25
                 }}{{ row.description.length > 25 ? "..." : "" }}</span
               >
@@ -242,7 +247,7 @@
                     cursor: pointer;
                   "
                 >
-                  +{{ row.courses.length - 2 }}
+                  +{{ row.courses.length - 2 }} more
                 </span>
               </ng-container>
             </ng-container>
@@ -270,6 +275,13 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
+
+    <div
+      *ngIf="dataSource && dataSource.data.length === 0"
+      style="font-weight: bold; font-size: 25px; padding: 20px"
+    >
+      Please add a program to see content
+    </div>
 
     <mat-paginator
       [pageSizeOptions]="[10, 25, 100]"

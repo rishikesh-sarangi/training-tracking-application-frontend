@@ -29,6 +29,7 @@ import { TableData } from '../../../shared/models/CourseTableData';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
 import { LoginService } from 'src/app/components/shared/Services/login.service';
+import { UserAddedComponent } from '../../../shared/user-added/user-added.component';
 @Component({
   selector: 'app-teachers-table',
   standalone: true,
@@ -200,11 +201,18 @@ export class TeachersTableComponent implements OnInit, OnChanges {
               next: (data) => {
                 this.isEmailSending = false;
                 sendingSnackBar.dismiss();
-                this.snackBar.open('Email sent', 'Close', {
-                  duration: 3000,
-                });
                 this.cancelEditing();
-                this.getTeachers();
+                const dialogRef = this._dialog.open(UserAddedComponent, {
+                  data: {
+                    targetTeacherName: row.teacherName,
+                  },
+                });
+
+                dialogRef.afterClosed().subscribe((result) => {
+                  if (result) {
+                    this.getTeachers();
+                  }
+                });
               },
               error: (error) => {
                 this.isEmailSending = false;
