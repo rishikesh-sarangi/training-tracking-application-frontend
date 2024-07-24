@@ -31,6 +31,7 @@ export class AttendanceAddComponent implements OnInit {
   @Input() parentPayload: any = {};
   @Input() openAttendanceForm: boolean = false;
   @Output() closeAssignmentForm = new EventEmitter<boolean>();
+  @Output() attendanceAdded = new EventEmitter<void>();
 
   constructor(
     private topicService: TopicsTableDataService,
@@ -56,21 +57,22 @@ export class AttendanceAddComponent implements OnInit {
         topicName: this.attendanceReactiveForm.value.topic.topicName,
         topicPercentageCompleted:
           this.attendanceReactiveForm.value.topicPercentageCompleted,
-        attendanceDate: this.parentPayload.attendanceDate,
+        attendanceDate: new Date(this.parentPayload.attendanceDate)
+          .toISOString()
+          .split('T')[0],
         topic: { topicId: this.attendanceReactiveForm.value.topic.topicId },
       };
-
-      if (totalPayload.attendanceDate) {
-        const date = new Date(totalPayload.attendanceDate);
-        date.setDate(date.getDate() + 1);
-        totalPayload.attendanceDate = date.toISOString().split('T')[0];
-      }
-      // console.log(totalPayload);
 
       this.attendanceService.addAttendance(totalPayload).subscribe({
         next: () => {
           this.attendanceReactiveForm.reset();
           this.closeForm();
+          // Emit an event to refresh the table
+          this.attendanceAdded.emit();
+        },
+        error: (error) => {
+          console.error('Error adding attendance:', error);
+          // Handle error (show message to user)
         },
       });
     }
@@ -93,8 +95,7 @@ export class AttendanceAddComponent implements OnInit {
   }
 
   closeForm() {
-    this.openAttendanceForm = !this.openAttendanceForm;
-    this.closeAssignmentForm.emit(this.openAttendanceForm);
-    this.attendanceReactiveForm.reset();
+    this.openAttendanceForm = false;
+    this.closeAssignmentForm.emit();
   }
 }

@@ -85,21 +85,17 @@ export class AttendanceComponent {
         batchId: this.batchProgramReactiveForm.value.batch,
         programId: this.batchProgramReactiveForm.value.program,
         courseId: this.batchProgramReactiveForm.value.course,
-        attendanceDate: this.batchProgramReactiveForm.value.date,
+        attendanceDate: new Date(this.batchProgramReactiveForm.value.date)
+          .toISOString()
+          .split('T')[0],
       };
 
-      // adjust attendanceDate
-      const date = new Date(payload.attendanceDate);
-      date.setDate(date.getDate() + 1);
-      payload.attendanceDate = date.toISOString().split('T')[0];
-
-      // console.log(payload);
       this.filterSubject.next(payload);
     }
 
-    this.enableAddTopic = !this.enableAddTopic;
+    // Always enable the Add Topic button
+    this.enableAddTopic = true;
   }
-
   setupFilterListener() {
     this.filterSubject
       .pipe(
@@ -253,13 +249,13 @@ export class AttendanceComponent {
         batchId: this.batchProgramReactiveForm.value.batch,
         programId: this.batchProgramReactiveForm.value.program,
         courseId: this.batchProgramReactiveForm.value.course,
-        attendanceDate: this.batchProgramReactiveForm.value.date,
+        attendanceDate: new Date(this.batchProgramReactiveForm.value.date)
+          .toISOString()
+          .split('T')[0],
       };
-      this.openAttendanceForm = !this.openAttendanceForm;
+      this.openAttendanceForm = true;
       this.batchProgramReactiveForm.disable();
     }
-    // console.log(this.parentPayload);
-    // console.log(this.enableTable);
   }
 
   getTeacherDetails() {
@@ -278,12 +274,28 @@ export class AttendanceComponent {
       console.log('No teacher details found in localStorage');
     }
   }
+  refreshTable() {
+    if (this.batchProgramReactiveForm.valid) {
+      const payload = {
+        teacherId: this.teacherId,
+        batchId: this.batchProgramReactiveForm.value.batch,
+        programId: this.batchProgramReactiveForm.value.program,
+        courseId: this.batchProgramReactiveForm.value.course,
+        attendanceDate: new Date(this.batchProgramReactiveForm.value.date)
+          .toISOString()
+          .split('T')[0],
+      };
+      this.filterSubject.next(payload);
+    }
+  }
 
   closeForm() {
-    this.enableAddTopic = false;
     this.openAttendanceForm = false;
-    this.batchProgramReactiveForm.reset();
     this.batchProgramReactiveForm.enable();
-    this.batchProgramReactiveForm?.get('batchStartDate')?.disable();
+    this.batchProgramReactiveForm.get('batchStartDate')?.disable();
+    // Keep the Add Topic button enabled
+    this.enableAddTopic = true;
+    // Refresh the table
+    this.refreshTable();
   }
 }

@@ -108,7 +108,7 @@
                   (selectionChange)="onProgramChange($event)"
                 >
                   <mat-option
-                    *ngFor="let program of programs"
+                    *ngFor="let program of filteredPrograms"
                     [value]="program"
                   >
                     {{ program.programName }}

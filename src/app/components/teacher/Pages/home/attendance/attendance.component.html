@@ -118,8 +118,9 @@
         [openAttendanceForm]="openAttendanceForm"
         [parentPayload]="parentPayload"
         (closeAssignmentForm)="closeForm()"
-      ></app-attendance-add
-    ></ng-container>
+        (attendanceAdded)="refreshTable()"
+      ></app-attendance-add>
+    </ng-container>
 
     <ng-container *ngIf="!openAttendanceForm && showTableBasedOnFilter">
       <app-attendance-table

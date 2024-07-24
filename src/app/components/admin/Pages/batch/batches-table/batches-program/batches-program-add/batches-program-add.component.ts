@@ -19,6 +19,7 @@ import {
 import { ProgramsTable } from 'src/app/components/admin/shared/models/ProgramsTable';
 import { EnrollmentService } from 'src/app/components/shared/Services/enrollment.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { BatchServiceService } from 'src/app/components/shared/Services/batch-service.service';
 
 @Component({
   selector: 'app-batches-program-add',
@@ -42,7 +43,7 @@ export class BatchesProgramAddComponent implements OnInit {
   constructor(
     private programService: ProgramsTableService,
     private studentService: StudentTableService,
-    private batchProgramsService: BatchProgramsService,
+    private batchService: BatchServiceService,
     private enrollmentService: EnrollmentService,
     private snackBar: MatSnackBar
   ) {}
@@ -60,17 +61,34 @@ export class BatchesProgramAddComponent implements OnInit {
 
   getPrograms() {
     this.programService.getPrograms().subscribe({
-      next: (res: any) => {
-        for (const obj of res) {
-          // this.programCodes.push(obj.programCode);
-          // this.programNames.push(obj.programName);
-          this.programs.push(obj);
-        }
+      next: (allPrograms: any) => {
+        this.batchService.getBatchPrograms(this.batchId).subscribe({
+          next: (existingPrograms: any) => {
+            // Create a Set of existing program IDs for quick lookup
+            const existingProgramIds = new Set(
+              existingPrograms.map(
+                (program: ProgramsTable) => program.programId
+              )
+            );
 
-        // console.log(this.programCodes + '|' + this.programNames);
+            // Filter out the programs that are already in the batch
+            this.programs = allPrograms.filter(
+              (program: ProgramsTable) =>
+                !existingProgramIds.has(program.programId)
+            );
+          },
+          error: (error) => {
+            if (error.responseCode === 404) {
+              // If no existing programs found, set programs to all available programs
+              this.programs = allPrograms;
+            } else {
+              console.error('Error fetching batch programs:', error);
+            }
+          },
+        });
       },
       error: (err) => {
-        console.log(err);
+        console.error('Error fetching all programs:', err);
       },
     });
   }

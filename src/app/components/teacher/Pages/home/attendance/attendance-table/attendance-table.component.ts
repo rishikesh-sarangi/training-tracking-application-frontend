@@ -168,15 +168,15 @@ export class AttendanceTableComponent implements OnInit, OnDestroy {
     // Adjust the date
     if (payload.attendanceDate) {
       const date = new Date(payload.attendanceDate);
-      date.setDate(date.getDate() + 1);
       payload.attendanceDate = date.toISOString().split('T')[0];
     }
 
     this.attendanceService.getAttendanceByFilter(payload).subscribe({
       next: (response: any) => {
+        console.log('Fetched data for date:', payload.attendanceDate);
         console.log(response);
 
-        if (response.data.length > 0) {
+        if (response.data && response.data.length > 0) {
           this.dataSource = new MatTableDataSource(response.data);
           this.isAttendanceAvailable = true;
         } else {
@@ -184,12 +184,11 @@ export class AttendanceTableComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
-        if (error.error.responseCode == 404) {
+        if (error.error && error.error.responseCode === 404) {
           this.dataSource = new MatTableDataSource();
-          // this.snackBar.open(error.error.message, 'Close', {
-          //   duration: 3000,
-          // });
+          this.isAttendanceAvailable = false;
         }
+        console.error('Error fetching attendance:', error);
       },
     });
   }

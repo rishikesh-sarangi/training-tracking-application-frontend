@@ -197,7 +197,7 @@ export class ExamsTableComponent implements OnInit {
         new FormGroup({
           studentId: new FormControl(student.studentId),
           studentName: new FormControl(student.studentName),
-          marksSecured: new FormControl('', [
+          marksSecured: new FormControl(0, [
             Validators.required,
             Validators.min(0),
             Validators.max(this.getTotalMarks()),
@@ -259,7 +259,9 @@ export class ExamsTableComponent implements OnInit {
         },
       });
     } else {
-      console.log('Form is invalid. Please check the entered marks.');
+      this.snackBar.open('Please enter marks for all students', 'Close', {
+        duration: 3000,
+      });
     }
   }
 

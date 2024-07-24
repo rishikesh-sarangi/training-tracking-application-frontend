@@ -89,10 +89,7 @@ export class BatchesTableComponent implements OnInit {
         Validators.required,
         noWhitespaceValidator(),
       ]),
-      batchStartDate: new FormControl(null, [
-        Validators.required,
-        noWhitespaceValidator(),
-      ]),
+      batchStartDate: new FormControl(null, [Validators.required]),
     });
   }
   getBatches() {

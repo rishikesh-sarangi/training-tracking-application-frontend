@@ -69,6 +69,8 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
 
   programs: ProgramsTable[] = [];
 
+  filteredPrograms: ProgramsTable[] = [];
+
   // from parent
   @Input() batchId!: number;
 
@@ -163,21 +165,23 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
   editBatchProgram(id: number, row: any) {
     this.editingRowID = id;
 
-    // Find the selected program from the programs array
     const selectedProgram = this.programs.find(
       (program) => program.programId === row.programId
     );
 
-    // Get the students for this program
     const selectedStudents = this.getStudentsForRow(row);
 
+    const filteredPrograms = this.filterProgramsForEditing(row.programId);
+
     this.editBatchProgramReactiveForm.patchValue({
-      code: row.code, // Patch the code directly from the row data
-      programName: selectedProgram, // This should be the full program object
-      students: selectedStudents, // Patch the students
+      code: row.code,
+      programName: selectedProgram,
+      students: selectedStudents,
     });
 
-    // Manually trigger the onProgramChange to set the code
+    // Set the filtered programs to be used in the template
+    this.filteredPrograms = filteredPrograms;
+
     this.onProgramChange({ value: selectedProgram });
   }
 
@@ -263,6 +267,17 @@ export class BatchesProgramTableComponent implements OnInit, OnChanges {
         console.log(error);
       },
     });
+  }
+
+  filterProgramsForEditing(currentProgramId: number): ProgramsTable[] {
+    const batchProgramIds = new Set(
+      this.dataSource.map((item: any) => item.programId)
+    );
+    return this.programs.filter(
+      (program) =>
+        program.programId === currentProgramId ||
+        !batchProgramIds.has(program.programId)
+    );
   }
 
   getRemainingStudentsWithNumbers(students: any[]): string {

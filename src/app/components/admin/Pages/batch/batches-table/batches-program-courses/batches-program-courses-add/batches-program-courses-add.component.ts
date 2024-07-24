@@ -2,18 +2,11 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import {
-  FormBuilder,
   FormGroup,
   FormControl,
   ReactiveFormsModule,
   Validators,
-  NgForm,
 } from '@angular/forms';
-import { ProgramsTableService } from 'src/app/components/shared/Services/programs-table.service';
-import { TeachersTableService } from 'src/app/components/shared/Services/teachers-table.service';
-import { CourseTableDataService } from 'src/app/components/shared/Services/course-table-data.service';
-import { BatchProgramsService } from 'src/app/components/shared/Services/batch-programs.service';
-import { BatchProgramCoursesService } from 'src/app/components/shared/Services/batch-program-courses.service';
 import { BatchServiceService } from 'src/app/components/shared/Services/batch-service.service';
 import {
   CoursesDTO,
@@ -34,6 +27,7 @@ export class BatchesProgramCoursesAddComponent implements OnInit {
   @Input() programId!: number;
   @Input() batchId!: number;
 
+  assignedCourses: any[] = [];
   courses: CoursesDTO[] = [];
   teachers: TeacherDTO[] = [];
   courseCode: string[] = [];
@@ -44,8 +38,7 @@ export class BatchesProgramCoursesAddComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // this.getCourses();
-    // this.getTeachers();
+    this.getBatchProgramCoursesTeachers();
     this.getProgramCourse(this.programId, this.batchId);
     // console.log(this.programId + ' ' + this.batchId);
     this.addBatchProgramCoursesReactiveForm = new FormGroup({
@@ -58,12 +51,26 @@ export class BatchesProgramCoursesAddComponent implements OnInit {
   getProgramCourse(programId: number, batchId: number) {
     this.batchService.getBatchProgramCourses(batchId, programId).subscribe({
       next: (data) => {
-        this.courses = data;
+        // Filter out the courses that are already assigned
+        this.courses = data.filter(
+          (course) =>
+            !this.assignedCourses.some(
+              (assignedCourse) => assignedCourse.courseId === course.courseId
+            )
+        );
       },
       error: (error) => {
         console.log(error);
       },
     });
+  }
+
+  getBatchProgramCoursesTeachers() {
+    this.batchService
+      .getCoursesAndTeacher(this.batchId, this.programId)
+      .subscribe((data) => {
+        this.assignedCourses = data;
+      });
   }
 
   onCourseChange(event: any) {

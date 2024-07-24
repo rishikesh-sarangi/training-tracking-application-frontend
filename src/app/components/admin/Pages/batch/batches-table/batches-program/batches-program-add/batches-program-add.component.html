@@ -86,7 +86,9 @@
                 >
                   <mat-select
                     formControlName="programs"
-                    placeholder="Select Program"
+                    [placeholder]="
+                      programs.length > 0 ? 'Select Program' : 'No Programs'
+                    "
                     (selectionChange)="onProgramChange($event)"
                   >
                     <mat-option

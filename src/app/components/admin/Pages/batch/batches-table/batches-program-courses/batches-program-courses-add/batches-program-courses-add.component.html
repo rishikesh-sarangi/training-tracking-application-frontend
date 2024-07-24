@@ -85,7 +85,11 @@
                 <mat-form-field appearance="outline" class="dense-form-field-5">
                   <mat-select
                     formControlName="course"
-                    placeholder="Select Course"
+                    [placeholder]="
+                      courses.length > 0
+                        ? 'Select Course'
+                        : 'No Courses Available'
+                    "
                     (selectionChange)="onCourseChange($event)"
                   >
                     <mat-option *ngFor="let course of courses" [value]="course">

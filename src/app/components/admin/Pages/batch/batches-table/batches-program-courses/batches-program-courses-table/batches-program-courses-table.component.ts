@@ -43,6 +43,8 @@ export class BatchesProgramCoursesTableComponent implements OnInit {
 
   editingRowID: number | null = null;
 
+  filteredCourses: CoursesDTO[] = [];
+
   @Input() programId!: number;
   @Input() batchId!: number;
 
@@ -82,6 +84,17 @@ export class BatchesProgramCoursesTableComponent implements OnInit {
         console.log(error);
       },
     });
+  }
+
+  filteredCoursesForEditing(currentCourseId: number): CoursesDTO[] {
+    const registeredCourseIds = new Set(
+      this.dataSource.data.map((item: any) => item.courseId)
+    );
+    return this.courses.filter(
+      (course) =>
+        course.courseId === currentCourseId ||
+        !registeredCourseIds.has(course.courseId)
+    );
   }
 
   onCourseChange(event: any) {
@@ -185,11 +198,15 @@ export class BatchesProgramCoursesTableComponent implements OnInit {
       (teacher) => teacher.teacherName === row.teacherName
     );
 
+    const filteredCourses = this.filteredCoursesForEditing(row.courseId);
+
     this.editBatchProgramCoursesReactiveForm.patchValue({
       code: row.courseCode,
       courseName: selectedCourse,
       teacherName: selectedTeacher,
     });
+
+    this.filteredCourses = filteredCourses;
 
     // Update the teachers list based on the selected course
     if (selectedCourse) {

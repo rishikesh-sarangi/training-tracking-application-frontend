@@ -100,3 +100,19 @@ mat-toolbar-row .navbar-buttons {
 .activeColor {
   background-color: #3e5172 !important;
 }
+
+.footer {
+  // flex-shrink: 0;
+  display: flex;
+  flex-direction: row-reverse;
+  background-color: white;
+  color: black;
+  padding: 8px 0px 5px 0px;
+  text-align: end;
+}
+
+.footer-content {
+  max-width: 1200px;
+  // margin: 0 auto;
+  padding: 0 20px;
+}
