@@ -13,7 +13,11 @@
       ngStyle.gt-sm="min-width: 200px"
       ngStyle.gt-md="min-width: 300px"
     >
-      <mat-select placeholder="Batch Code: Batch Name" formControlName="batch">
+      <mat-select
+        placeholder="Batch Code: Batch Name"
+        formControlName="batch"
+        (selectionChange)="onBatchChange()"
+      >
         <mat-option *ngFor="let batch of batches" [value]="batch.batchId">
           Batch {{ batch.batchCode }}: {{ batch.batchName }}
         </mat-option>
@@ -46,6 +50,7 @@
       <mat-select
         placeholder="Program Code: Program Name"
         formControlName="program"
+        (selectionChange)="onProgramChange()"
       >
         <mat-option
           *ngFor="let program of programs"

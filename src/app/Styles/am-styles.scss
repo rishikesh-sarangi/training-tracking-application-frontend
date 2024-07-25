@@ -71,7 +71,24 @@ input:-webkit-autofill:focus {
   padding: 20px;
   letter-spacing: normal !important;
   text-align: left !important;
+  line-height: 1.4; /* Improve line spacing */
+  border-radius: 4px; /* Optional: rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Optional: add a subtle shadow */
 }
+
+// .mdc-tooltip__surface {
+//   background-color: #fff !important;
+//   color: black !important;
+//   font-weight: bold;
+//   font-size: 14px !important;  /* Increased from 13px */
+//   padding: 12px 16px !important;  /* Increased padding */
+//   letter-spacing: normal !important;
+//   text-align: left !important;
+
+//   /* Additional styles for size and spacing */
+//   min-width: 200px;  /* Set a minimum width */
+//   max-width: 300px;  /* Set a maximum width */
+// }
 
 .mat-mdc-text-field-wrapper {
   background-color: #fff !important;

@@ -29,6 +29,7 @@ interface Topic {
 interface AttendanceRecord {
   course: { courseId: number };
   topic: { topicId: number };
+  topicName: string;
   topicPercentageCompleted: number;
 }
 
@@ -117,19 +118,12 @@ export class BatchesAndProgramsComponent implements OnInit {
         Validators.required
       ),
     });
-
-    this.batchProgramReactiveForm.get('batch')?.valueChanges.subscribe(() => {
-      this.onBatchChange();
-    });
-
-    this.batchProgramReactiveForm.get('program')?.valueChanges.subscribe(() => {
-      this.onProgramChange();
-    });
   }
 
   getBatches() {
     this.batchService.getBatchDetailsByTeacherId(this.teacherId).subscribe({
       next: (data) => {
+        console.log('inside');
         const uniqueBatchIds = new Set();
         for (const obj of data) {
           if (!uniqueBatchIds.has(obj.batchId)) {
@@ -150,39 +144,19 @@ export class BatchesAndProgramsComponent implements OnInit {
     });
   }
 
-  onBatchChange() {
-    this.batchProgramReactiveForm.get('program')?.reset();
-    const selectedBatchId = this.batchProgramReactiveForm.get('batch')?.value;
-    const selectedBatch = this.batches.find(
-      (batch) => batch.batchId === selectedBatchId
-    );
-    if (selectedBatch) {
-      this.batchProgramReactiveForm
-        .get('batchStartDate')
-        ?.setValue(selectedBatch.batchStartDate);
-      this.batchProgramReactiveForm.get('program')?.enable();
-      this.selectedBatchId = selectedBatchId;
-      this.getBatchPrograms(selectedBatchId);
-    } else {
-      this.batchProgramReactiveForm.get('batchStartDate')?.setValue(null);
-      this.batchProgramReactiveForm.get('program')?.disable();
-    }
-  }
-
   getBatchPrograms(batchId: number) {
     this.batchService.getBatchDetailsByTeacherId(this.teacherId).subscribe({
       next: (data) => {
-        this.programs.length = 0; // Clear previous programs
+        this.programs = []; // Clear previous programs
         const uniqueProgramIds = new Set();
         for (const obj of data) {
           if (obj.batchId === batchId && !uniqueProgramIds.has(obj.programId)) {
             uniqueProgramIds.add(obj.programId);
-            const programPayload = {
+            this.programs.push({
               programId: obj.programId,
               programName: obj.programName,
               programCode: obj.programCode,
-            };
-            this.programs.push(programPayload);
+            });
           }
         }
       },
@@ -192,25 +166,71 @@ export class BatchesAndProgramsComponent implements OnInit {
     });
   }
 
+  onBatchChange() {
+    this.batchProgramReactiveForm.get('program')?.disable();
+
+    // clear the program select field
+    this.batchProgramReactiveForm.get('program')?.reset();
+
+    const selectedBatchId = this.batchProgramReactiveForm.get('batch')?.value;
+    if (selectedBatchId) {
+      const selectedBatch = this.batches.find(
+        (batch) => batch.batchId === selectedBatchId
+      );
+      if (selectedBatch) {
+        this.batchProgramReactiveForm.patchValue({
+          batchStartDate: selectedBatch.batchStartDate,
+        });
+        this.batchProgramReactiveForm.get('program')?.enable();
+        this.selectedBatchId = selectedBatchId;
+        this.getBatchPrograms(selectedBatchId);
+      }
+    } else {
+      this.batchProgramReactiveForm.patchValue({
+        batchStartDate: null,
+        program: null,
+      });
+      this.batchProgramReactiveForm.get('program')?.disable();
+    }
+    // Reset the filter-related properties
+    this.showTableBasedOnFilter = false;
+    this.filterPayload = {};
+  }
+
   onProgramChange() {
     const programId = this.batchProgramReactiveForm.get('program')?.value;
-    this.filterPayload = {
-      teacherId: this.teacherId,
-      batchId: this.selectedBatchId,
-      programId: programId,
-    };
-    this.showTableBasedOnFilter = false;
-    this.loadData();
+    if (programId) {
+      this.filterPayload = {
+        teacherId: this.teacherId,
+        batchId: this.selectedBatchId,
+        programId: programId,
+      };
+      this.showTableBasedOnFilter = false;
+      this.loadData();
+    }
   }
 
   processCourseData(
     courses: CourseWithTopics[],
     attendanceRecords: AttendanceRecord[]
   ): CourseProgress[] {
+    // First, filter out invalid attendance records
+    const validAttendanceRecords = attendanceRecords.filter(
+      (a: AttendanceRecord) =>
+        a.topic &&
+        a.topic.topicId != null &&
+        a.topicName != null &&
+        a.topicPercentageCompleted != null
+    );
+
     return courses.map((course: CourseWithTopics) => {
-      const courseTopics = course.topics || [];
-      const courseAttendance = attendanceRecords.filter(
-        (a: AttendanceRecord) => a.course.courseId === course.courseId
+      const courseTopics = (course.topics || []).filter(
+        (topic: TopicDTO) =>
+          topic && topic.topicId != null && topic.topicName != null
+      );
+      const courseAttendance = validAttendanceRecords.filter(
+        (a: AttendanceRecord) =>
+          a.course && a.course.courseId === course.courseId
       );
 
       const topicsCompletedNames = courseTopics

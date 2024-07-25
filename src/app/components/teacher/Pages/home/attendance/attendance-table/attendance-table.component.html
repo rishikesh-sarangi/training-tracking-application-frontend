@@ -105,28 +105,31 @@
         style="background-color: #f0f6ff"
       ></tr>
     </table>
-
-    <!-- Attendance Marking Section -->
-    <div class="attendance-container" *ngIf="isMarkAttendanceOpen">
-      <div class="attendance-header">
-        <h3>Mark Attendance</h3>
-        <div class="attendance-actions">
-          <button mat-raised-button (click)="saveStudentAttendance()">
-            Save
-          </button>
-        </div>
+  </div>
+  <div *ngIf="!isLoading && !isAttendanceAvailable">No Topics Available</div>
+  <!-- Attendance Marking Section -->
+  <div class="attendance-container" *ngIf="!isLoading && students.length > 0">
+    <div class="attendance-header">
+      <h3>Mark Attendance</h3>
+      <div class="attendance-actions">
+        <button mat-raised-button (click)="saveStudentAttendance()">
+          Save
+        </button>
       </div>
-      <div class="attendance-list">
-        <div class="attendance-row" *ngFor="let student of students">
-          <div class="student-name">{{ student.studentName }}</div>
-          <div class="attendance-checkbox">
-            <mat-checkbox color="primary">Present</mat-checkbox>
-          </div>
+    </div>
+    <div class="attendance-list">
+      <div class="attendance-row" *ngFor="let student of students">
+        <div class="student-name">{{ student.studentName }}</div>
+        <div class="attendance-checkbox">
+          <mat-checkbox
+            color="primary"
+            [checked]="studentAttendance[student.studentId] || false"
+            (change)="onAttendanceChange(student.studentId, $event.checked)"
+          >
+            Present
+          </mat-checkbox>
         </div>
       </div>
     </div>
-  </div>
-  <div *ngIf="!isLoading && !isAttendanceAvailable">
-    No Attendance Available
   </div>
 </div>

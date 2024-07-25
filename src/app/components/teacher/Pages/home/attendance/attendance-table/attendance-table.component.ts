@@ -29,7 +29,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteDialogueComponent } from 'src/app/components/shared/delete-dialogue/delete-dialogue.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Observable, Subject, takeUntil, tap } from 'rxjs';
+import { map, Observable, Subject, takeUntil, tap } from 'rxjs';
 @Component({
   selector: 'app-attendance-table',
   standalone: true,
@@ -61,6 +61,9 @@ export class AttendanceTableComponent implements OnInit, OnDestroy {
   ];
 
   dataSource!: MatTableDataSource<any>;
+
+  studentAttendance: { [key: number]: boolean } = {};
+
   // @Input() enabledTable!: boolean;
   isLoading: boolean = false;
   errorMessage: string = '';
@@ -107,11 +110,12 @@ export class AttendanceTableComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar
   ) {}
   ngOnInit(): void {
+    this.fetchStudents();
+
     this.getStudentsByBatchIdAndProgramId(
       this.filterPayload.batchId,
       this.filterPayload.programId
     );
-    this.getAttendance();
 
     // console.log(this.filterPayload);
     this.attendanceReactiveForm = new FormGroup({
@@ -120,43 +124,46 @@ export class AttendanceTableComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['filterPayload'] && !changes['filterPayload'].firstChange) {
-      this.fetchData();
-    }
-  }
+  // ngOnChanges(changes: SimpleChanges) {
+  //   if (changes['filterPayload'] && !changes['filterPayload'].firstChange) {
+  //     this.fetchData();
+  //   }
+  // }
 
   fetchData() {
-    if (this.dataFetchInProgress) {
-      return;
-    }
-
-    this.dataFetchInProgress = true;
     this.isLoading = true;
+    this.fetchStudents(); // Always fetch students
 
     this.attendanceService
       .getAttendanceByFilter(this.filterPayload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: any) => {
-          console.log(response);
-          if (response.data.length > 0) {
-            this.dataSource = new MatTableDataSource(response.data);
-            this.isAttendanceAvailable = true;
+          if (response.data && response.data.length > 0) {
+            // Filter the data to include only entries where topicId, topicName, and topicPercentageComplete are not null
+            const filteredData = response.data.filter(
+              (item: any) =>
+                item.topic !== null &&
+                item.topicName !== null &&
+                item.topicPercentageComplete !== null
+            );
+
+            this.dataSource = new MatTableDataSource(filteredData);
+            this.isAttendanceAvailable = filteredData.length > 0;
           } else {
             this.isAttendanceAvailable = false;
-          }
-          this.dataFetchInProgress = false;
-          this.isLoading = false;
-        },
-        error: (error) => {
-          if (error.error.responseCode == 404) {
             this.dataSource = new MatTableDataSource();
           }
-          this.snackBar.open(error.error.message, 'Close', {
-            duration: 3000,
-          });
-          this.dataFetchInProgress = false;
+          this.isLoading = false;
+          this.fetchExistingAttendance();
+        },
+        error: (error) => {
+          // this.snackBar.open('No attendance available', 'Close', {
+          //   duration: 3000,
+          // });
+          console.log(error);
+          this.isAttendanceAvailable = false;
+          this.dataSource = new MatTableDataSource();
           this.isLoading = false;
         },
       });
@@ -171,24 +178,122 @@ export class AttendanceTableComponent implements OnInit, OnDestroy {
       payload.attendanceDate = date.toISOString().split('T')[0];
     }
 
+    // console.log(payload);
+
     this.attendanceService.getAttendanceByFilter(payload).subscribe({
       next: (response: any) => {
-        console.log('Fetched data for date:', payload.attendanceDate);
+        // console.log('Fetched data for date:', payload.attendanceDate);
         console.log(response);
 
         if (response.data && response.data.length > 0) {
-          this.dataSource = new MatTableDataSource(response.data);
-          this.isAttendanceAvailable = true;
+          const filteredData = response.data.filter(
+            (item: any) =>
+              item.topic !== null &&
+              item.topicName !== null &&
+              item.topicPercentageComplete !== null
+          );
+
+          this.dataSource = new MatTableDataSource(filteredData);
+          this.isAttendanceAvailable = filteredData.length > 0;
         } else {
           this.isAttendanceAvailable = false;
+          this.dataSource = new MatTableDataSource();
         }
+        this.fetchStudents();
+        this.fetchExistingAttendance();
       },
       error: (error) => {
-        if (error.error && error.error.responseCode === 404) {
-          this.dataSource = new MatTableDataSource();
-          this.isAttendanceAvailable = false;
-        }
-        console.error('Error fetching attendance:', error);
+        // this.snackBar.open('No attendance available', 'Close', {
+        //   duration: 3000,
+        // });
+        console.log(error);
+        this.isAttendanceAvailable = false;
+        this.dataSource = new MatTableDataSource(); // Empty data source
+        this.fetchStudents();
+      },
+    });
+  }
+
+  getUniqueTopics(currentTopicName: string): Observable<any[]> {
+    return this.topicService
+      .getTopicByCourseId(this.filterPayload.courseId)
+      .pipe(
+        map((topics: any[]) => {
+          // Get all topic names currently in the table
+          const existingTopicNames = this.dataSource.data
+            .map((item) => item.topicName)
+            .filter((name) => name !== currentTopicName); // Exclude the current topic being edited
+
+          // Filter out topics that are already in the table
+          return topics.filter(
+            (topic) => !existingTopicNames.includes(topic.topicName)
+          );
+        }),
+        tap((filteredTopics: any[]) => {
+          this.topics = filteredTopics;
+        })
+      );
+  }
+
+  fetchExistingAttendance() {
+    if (this.filterPayload.attendanceDate && this.filterPayload.batchId) {
+    }
+  }
+
+  onAttendanceChange(studentId: number, isPresent: boolean) {
+    this.studentAttendance[studentId] = isPresent;
+  }
+
+  saveStudentAttendance() {
+    // First, create or get the attendance record for this day
+    const attendancePayload = {
+      attendanceDate: new Date(this.filterPayload.attendanceDate)
+        .toISOString()
+        .split('T')[0],
+      batch: { batchId: this.filterPayload.batchId },
+      program: { programId: this.filterPayload.programId },
+      course: { courseId: this.filterPayload.courseId },
+      teacher: { teacherId: this.filterPayload.teacherId },
+      topic: null,
+      topicName: null,
+      topicPercentageCompleted: null,
+    };
+
+    // console.log(attendancePayload);
+
+    this.attendanceService.createOrGetAttendance(attendancePayload).subscribe({
+      next: (attendanceResponse) => {
+        // console.log(attendanceResponse.data[0].attendanceDate);
+        const attendanceRecords = this.students.map((student) => ({
+          student: { studentId: student.studentId },
+          attendance: { attendanceId: attendanceResponse.data[0].attendanceId },
+          attendanceSecured: this.studentAttendance[student.studentId] || false,
+        }));
+
+        // console.log(attendanceRecords);
+
+        this.attendanceService
+          .saveAttendanceForStudents(attendanceRecords)
+          .subscribe({
+            next: () => {
+              this.snackBar.open('Attendance saved successfully', 'Close', {
+                duration: 3000,
+              });
+              this.isMarkAttendanceOpen = false;
+            },
+            error: (error) => {
+              console.error('Error saving attendance:', error);
+              this.snackBar.open('Error saving attendance', 'Close', {
+                duration: 3000,
+              });
+            },
+          });
+      },
+      error: (error) => {
+        console.error('Error creating/getting attendance:', error);
+        this.snackBar.open('Error saving attendance', 'Close', {
+          duration: 3000,
+        });
       },
     });
   }
@@ -222,10 +327,20 @@ export class AttendanceTableComponent implements OnInit, OnDestroy {
 
   fetchStudents() {
     if (this.filterPayload.batchId && this.filterPayload.programId) {
-      this.getStudentsByBatchIdAndProgramId(
-        this.filterPayload.batchId,
-        this.filterPayload.programId
-      );
+      this.studentService
+        .getStudentsByBatchAndProgram(
+          this.filterPayload.batchId,
+          this.filterPayload.programId
+        )
+        .subscribe({
+          next: (data) => {
+            this.students = data;
+            // console.log('Fetched students:', this.students);
+          },
+          error: (error) => {
+            console.error('Error fetching students:', error);
+          },
+        });
     }
   }
 
@@ -252,7 +367,7 @@ export class AttendanceTableComponent implements OnInit, OnDestroy {
           next: (data) => {
             this.editingRowID = -1;
             this.attendanceReactiveForm.reset();
-            this.getAttendance();
+            this.getAttendance(); // Refresh the table data
           },
           error: (error) => {
             console.error('Error updating attendance:', error);
@@ -260,10 +375,6 @@ export class AttendanceTableComponent implements OnInit, OnDestroy {
           },
         });
     }
-  }
-
-  saveStudentAttendance() {
-    this.isMarkAttendanceOpen = !this.isMarkAttendanceOpen;
   }
   deleteAttendance(row: any) {
     const dialogRef = this._dialog.open(DeleteDialogueComponent, {
@@ -305,7 +416,7 @@ export class AttendanceTableComponent implements OnInit, OnDestroy {
 
   editAttendance(row: any) {
     this.editingRowID = row.attendanceId;
-    this.getTopics().subscribe(() => {
+    this.getUniqueTopics(row.topicName).subscribe(() => {
       const selectedTopic = this.topics.find(
         (topic) => topic.topicName === row.topicName
       );

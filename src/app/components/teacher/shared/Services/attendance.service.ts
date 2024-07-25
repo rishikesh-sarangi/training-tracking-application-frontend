@@ -22,6 +22,10 @@ export class AttendanceService {
     return this._http.post(this.Index + '/filter', data);
   }
 
+  getAttendanceByCourseFilter(data: any): Observable<any> {
+    return this._http.post(this.Index + '/filterByCourse', data);
+  }
+
   deleteAttendance(attendanceId: any): Observable<boolean> {
     return this._http.delete<boolean>(this.Index + `/${attendanceId}`);
   }
@@ -34,6 +38,10 @@ export class AttendanceService {
     return this._http.post<any>(`${this.Index}/by-batch-program-teacher`, data);
   }
 
+  createOrGetAttendance(attendancePayload: any): Observable<any> {
+    return this._http.post(`${this.Index}/createOrGet`, attendancePayload);
+  }
+
   saveAttendanceForStudents(data: any): Observable<any> {
     return this._http.post<any>(
       `${this.endPointforAttendanceStudent}/saveAll`,
@@ -41,7 +49,14 @@ export class AttendanceService {
     );
   }
 
-  getAttendanceForStudents(): Observable<any> {
-    return this._http.get<any>(this.endPointforAttendanceStudent);
+  getAttendanceStudentsByFilter(data: any): Observable<any> {
+    return this._http.post(`${this.endPointforAttendanceStudent}/filter`, data);
+  }
+
+  updateAttendanceForStudents(data: any): Observable<any> {
+    return this._http.post<any>(
+      `${this.endPointforAttendanceStudent}/update`,
+      data
+    );
   }
 }
