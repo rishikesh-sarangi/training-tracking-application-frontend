@@ -80,9 +80,7 @@
             <ng-container
               *ngIf="row.attendanceId !== editingRowID; else editMode"
             >
-              <div>
-                {{ row.topicPercentageCompleted }}
-              </div>
+              <div>{{ row.topicPercentageCompleted }}%</div>
             </ng-container>
             <ng-template #editMode>
               <mat-form-field appearance="outline" class="dense-form-field-5">

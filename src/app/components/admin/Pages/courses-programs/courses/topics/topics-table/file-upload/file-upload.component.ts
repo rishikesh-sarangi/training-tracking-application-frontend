@@ -2,7 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { EvaluationService } from 'src/app/components/teacher/shared/Services/evaluation.service';
 
@@ -15,7 +15,7 @@ import { EvaluationService } from 'src/app/components/teacher/shared/Services/ev
 })
 export class FileUploadComponent {
   files: File[] = [];
-  allowedFileTypes = ['.pdf', '.xls', '.ppt', '.mp3', 'mp4'];
+  allowedFileTypes = ['.pdf', '.xls', '.ppt', '.mp3', '.mp4'];
   maxFileSize = 2 * 1024 * 1024; // 2 MB in bytes
   maxFiles = 10;
 
@@ -23,7 +23,8 @@ export class FileUploadComponent {
     private snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private http: HttpClient,
-    private evaluationService: EvaluationService
+    private evaluationService: EvaluationService,
+    private dialogRef: MatDialogRef<FileUploadComponent>
   ) {}
 
   topicId: string = this.data.topicId;
@@ -51,7 +52,7 @@ export class FileUploadComponent {
       for (let i = 0; i < files.length; i++) {
         if (this.isValidFileType(files[i])) {
           if (files[i].size <= this.maxFileSize) {
-            this.checkFileExistenceAndAdd(files[i]);
+            this.files.push(files[i]);
           } else {
             this.snackBar.open(
               `File "${files[i].name}" exceeds the 2 MB size limit.`,
@@ -70,30 +71,6 @@ export class FileUploadComponent {
     }
   }
 
-  checkFileExistenceAndAdd(file: File) {
-    this.evaluationService.doesFileExist(file).subscribe(
-      (response: any) => {
-        if (response.exists) {
-          this.snackBar.open(
-            `File "${file.name}" already exists. Skipping upload.`,
-            'Close',
-            { duration: 3000 }
-          );
-        } else {
-          this.files.push(file);
-        }
-      },
-      (error) => {
-        console.error('Error checking file existence:', error);
-        this.snackBar.open(
-          `Error checking if file "${file.name}" exists. Skipping upload.`,
-          'Close',
-          { duration: 3000 }
-        );
-      }
-    );
-  }
-
   getFileNames(): string {
     return this.files.map((file) => file.name).join('\n');
   }
@@ -109,7 +86,6 @@ export class FileUploadComponent {
   }
 
   uploadFiles() {
-    console.log(this.topicId);
     if (this.files.length === 0) {
       this.snackBar.open('No files to upload', 'Close', { duration: 3000 });
       return;
@@ -131,13 +107,19 @@ export class FileUploadComponent {
             duration: 3000,
           });
           this.files = []; // clear array
+          this.dialogRef.close(true); // Close dialog and indicate success
         },
         (error) => {
-          this.snackBar.open(
-            'Error uploading files: ' + error.message,
-            'Close',
-            { duration: 3000 }
-          );
+          if (error.status === 409) {
+            // Conflict status
+            this.snackBar.open(error.error, 'Close', { duration: 5000 });
+          } else {
+            this.snackBar.open(
+              'Error uploading files: ' + error.message,
+              'Close',
+              { duration: 3000 }
+            );
+          }
         }
       );
   }

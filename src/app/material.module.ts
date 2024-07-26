@@ -55,7 +55,6 @@ import { MatMenuModule } from '@angular/material/menu';
     MatMenuModule,
     MatPaginatorModule,
     MatTableModule,
-    MatSortModule,
     MatNativeDateModule,
     MatDatepickerModule,
     OverlayModule,
@@ -66,6 +65,7 @@ import { MatMenuModule } from '@angular/material/menu';
     MatListModule,
     MatProgressSpinnerModule,
     MatProgressBarModule,
+    MatSortModule,
   ],
 })
 export class MaterialModule {}

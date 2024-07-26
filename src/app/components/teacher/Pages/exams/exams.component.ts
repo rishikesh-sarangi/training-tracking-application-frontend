@@ -4,6 +4,7 @@ import {
   OnChanges,
   OnInit,
   SimpleChanges,
+  ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
@@ -48,6 +49,20 @@ export class ExamsComponent implements OnInit, OnChanges {
   selectedBatchId: number = -1;
 
   @Input() isAssignments: boolean = false;
+  @ViewChild(ExamsTableComponent) examsTableComponent!: ExamsTableComponent;
+
+  onExamAdded() {
+    if (this.examsTableComponent) {
+      this.examsTableComponent.getSharedDetails();
+    }
+  }
+
+  onFileUploaded(updatedRow: any) {
+    if (this.examsTableComponent) {
+      this.examsTableComponent.getSharedDetails();
+      this.examsTableComponent.updateTableRow(updatedRow);
+    }
+  }
 
   constructor(private batchService: BatchServiceService) {}
 

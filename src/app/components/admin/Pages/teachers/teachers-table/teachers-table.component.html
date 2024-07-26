@@ -60,7 +60,7 @@
                   formControlName="teacherName"
                   placeholder="Enter Teacher Name"
                 />
-                <mat-error>Field must not be empty</mat-error>
+                <mat-error>Invalid Input</mat-error>
               </mat-form-field>
             </ng-template>
           </td>
@@ -81,7 +81,7 @@
               <ng-container *ngIf="row.courses.length > 2">
                 <span
                   [matTooltip]="getRemainingCoursesWithNumbers(row.courses)"
-                  matTooltipClass="tooltip-custom"
+                  matTooltipClass="tooltip-custom-dark"
                   style="
                     color: rgb(70, 140, 201);
                     cursor: pointer;

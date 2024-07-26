@@ -63,6 +63,7 @@ export class TeachersTableComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.getCourses();
+    this.getTeachers();
 
     this.editTeachersReactiveForm = new FormGroup({
       teacherName: new FormControl(null, [

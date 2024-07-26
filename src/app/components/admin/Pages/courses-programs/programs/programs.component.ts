@@ -57,10 +57,12 @@ export class ProgramsComponent implements OnInit {
       programCode: new FormControl(null, [
         Validators.required,
         noWhitespaceValidator(),
+        Validators.maxLength(10),
       ]),
       programName: new FormControl(null, [
         Validators.required,
         noWhitespaceValidator(),
+        Validators.maxLength(10),
       ]),
       theoryTime: new FormControl(null, [
         Validators.required,

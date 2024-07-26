@@ -214,7 +214,7 @@ export class BatchesAndProgramsComponent implements OnInit {
     courses: CourseWithTopics[],
     attendanceRecords: AttendanceRecord[]
   ): CourseProgress[] {
-    // First, filter out invalid attendance records
+    // Filter out invalid attendance records
     const validAttendanceRecords = attendanceRecords.filter(
       (a: AttendanceRecord) =>
         a.topic &&
@@ -233,40 +233,36 @@ export class BatchesAndProgramsComponent implements OnInit {
           a.course && a.course.courseId === course.courseId
       );
 
+      // Create a map to store the highest completion percentage for each topic
+      const topicCompletionMap = new Map<number, number>();
+
+      // Populate the map with the highest completion percentage for each topic
+      courseAttendance.forEach((a: AttendanceRecord) => {
+        const currentMax = topicCompletionMap.get(a.topic.topicId) || 0;
+        topicCompletionMap.set(
+          a.topic.topicId,
+          Math.max(currentMax, a.topicPercentageCompleted)
+        );
+      });
+
       const topicsCompletedNames = courseTopics
-        .filter((topic: TopicDTO) =>
-          courseAttendance.some(
-            (a: AttendanceRecord) =>
-              a.topic.topicId === topic.topicId &&
-              a.topicPercentageCompleted === 100
-          )
+        .filter(
+          (topic: TopicDTO) => topicCompletionMap.get(topic.topicId) === 100
         )
         .map((topic: TopicDTO) => topic.topicName);
 
       const topicsInProgress = courseTopics
-        .filter((topic: TopicDTO) =>
-          courseAttendance.some(
-            (a: AttendanceRecord) =>
-              a.topic.topicId === topic.topicId &&
-              a.topicPercentageCompleted > 0 &&
-              a.topicPercentageCompleted < 100
-          )
-        )
+        .filter((topic: TopicDTO) => {
+          const completion = topicCompletionMap.get(topic.topicId);
+          return completion !== undefined && completion > 0 && completion < 100;
+        })
         .map((topic: TopicDTO) => topic.topicName);
 
       const courseCompletionPercentage =
         courseTopics.length > 0
           ? (
               courseTopics.reduce((sum: number, topic: TopicDTO) => {
-                const topicAttendance = courseAttendance.find(
-                  (a: AttendanceRecord) => a.topic.topicId === topic.topicId
-                );
-                return (
-                  sum +
-                  (topicAttendance
-                    ? topicAttendance.topicPercentageCompleted
-                    : 0)
-                );
+                return sum + (topicCompletionMap.get(topic.topicId) || 0);
               }, 0) / courseTopics.length
             ).toFixed(2) + '%'
           : '0.00%';
@@ -319,5 +315,8 @@ export class BatchesAndProgramsComponent implements OnInit {
     } else {
       console.log('No teacher details found in localStorage');
     }
+  }
+  getNumberedTooltip(topics: string[]): string {
+    return topics.map((topic, index) => `${index + 1}. ${topic}`).join('\n');
   }
 }

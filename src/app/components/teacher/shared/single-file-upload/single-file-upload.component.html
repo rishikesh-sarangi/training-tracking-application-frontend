@@ -38,7 +38,7 @@
 
 <div
   fxLayout="row"
-  fxLayoutAlign="space-between end"
+  fxLayoutAlign="end center"
   fxLayoutGap="10px"
   class="action-buttons"
 >
@@ -60,17 +60,15 @@
       file selected
     </div>
   </div>
-  <div>
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="uploadFile()"
-      [disabled]="!file"
-    >
-      Upload
-    </button>
-    <button mat-raised-button [mat-dialog-close]="false">Cancel</button>
-  </div>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="uploadFile()"
+    [mat-dialog-close]="true"
+  >
+    Upload
+  </button>
+  <button mat-raised-button [mat-dialog-close]="false">Cancel</button>
 </div>
 
 <mat-progress-bar

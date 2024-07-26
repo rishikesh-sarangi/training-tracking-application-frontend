@@ -79,12 +79,10 @@ export class ProgramsTableComponent {
       theoryTime: new FormControl(null, [
         Validators.required,
         Validators.pattern('[0-9]*'),
-        Validators.maxLength(10),
       ]),
       practiceTime: new FormControl(null, [
         Validators.required,
         Validators.pattern('[0-9]*'),
-        Validators.maxLength(10),
       ]),
       description: new FormControl(null, [
         Validators.required,
@@ -173,6 +171,11 @@ export class ProgramsTableComponent {
       if (result) {
         this.programService.deleteProgram(id).subscribe({
           next: (data) => {
+            this.snackBar.open('Program deleted successfully', 'Close', {
+              duration: 3000,
+              horizontalPosition: 'right',
+              verticalPosition: 'top',
+            });
             this.getProgramsList();
           },
           error: (error) => {

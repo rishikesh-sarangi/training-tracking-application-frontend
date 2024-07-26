@@ -9,16 +9,21 @@
               class="action-buttons"
               *ngIf="i != editingRowID; else editMode"
             >
-              <mat-icon (click)="editBatchProgramCourse(i, row)">
+              <mat-icon
+                (click)="editBatchProgramCourse(i, row)"
+                style="cursor: pointer"
+              >
                 <span class="material-icons-outlined"> edit </span>
               </mat-icon>
-              <mat-icon (click)="deleteBatchProgramCourse(row)"
+              <mat-icon
+                (click)="deleteBatchProgramCourse(row)"
+                style="cursor: pointer"
                 ><span class="material-icons-outlined"> delete </span></mat-icon
               >
             </div>
             <ng-template #editMode>
-              <div class="action-buttons-edit">
-                <mat-icon
+              <div class="action-buttons">
+                <mat-icon style="cursor: pointer"
                   ><span
                     class="material-icons-outlined"
                     (click)="saveBatchProgramCourse(row)"
@@ -26,7 +31,7 @@
                     done
                   </span></mat-icon
                 >
-                <mat-icon (click)="cancelEditing()">
+                <mat-icon (click)="cancelEditing()" style="cursor: pointer">
                   <span class="material-icons-outlined"> close </span>
                 </mat-icon>
               </div></ng-template
@@ -124,7 +129,7 @@
       <tr
         mat-row
         *matRowDef="let row; columns: displayedColumns"
-        style="background-color: #f0f6ff"
+        style="background-color: #f9fafb"
       ></tr>
     </table>
   </div>

@@ -84,10 +84,12 @@
             </ng-container>
             <ng-template #editMode>
               <input
-                type="text"
+                type="number"
                 formControlName="theoryTime"
                 placeholder="0 hr"
                 class="input-fields theory-time"
+                min="0"
+                max="100"
             /></ng-template>
           </td>
         </ng-container>
@@ -102,22 +104,21 @@
             </ng-container>
             <ng-template #editMode>
               <input
-                type="text"
+                type="number"
                 formControlName="practiceTime"
                 placeholder="0 hr"
                 class="input-fields theory-time"
+                min="0"
+                max="100"
               />
             </ng-template>
           </td>
         </ng-container>
 
+        <!-- Summary Column -->
         <ng-container matColumnDef="summary">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Summary</th>
           <td mat-cell *matCellDef="let row; let i = index">
-            <!-- <ng-container *ngIf="i != editingRowID; else editMode"
-              >{{ row.summary }}
-            </ng-container> -->
-
             <ng-container *ngIf="i != editingRowID; else editMode">
               <span
                 [matTooltip]="row.summary"
@@ -127,16 +128,86 @@
               >
             </ng-container>
             <ng-template #editMode>
-              <input
-                type="text"
-                formControlName="summary"
-                placeholder="Add Summary"
-                class="input-fields theory-time"
-              />
+              <p
+                (click)="isSummaryOpen = !isSummaryOpen"
+                type="button"
+                cdkOverlayOrigin
+                #summaryTrigger="cdkOverlayOrigin"
+                class="input-text"
+              >
+                {{
+                  editTopicsReactiveForm.get("summary")?.value | slice : 0 : 25
+                }}{{
+                  editTopicsReactiveForm.get("summary")?.value.length > 25
+                    ? "..."
+                    : ""
+                }}
+              </p>
+              <ng-template
+                cdkConnectedOverlay
+                [cdkConnectedOverlayOrigin]="summaryTrigger"
+                [cdkConnectedOverlayOpen]="isSummaryOpen"
+                (overlayOutsideClick)="isSummaryOpen = !isSummaryOpen"
+                [cdkConnectedOverlayPositions]="[
+                  {
+                    originX: 'start',
+                    originY: 'bottom',
+                    overlayX: 'end',
+                    overlayY: 'top',
+                    offsetX: 120
+                  }
+                ]"
+              >
+                <div class="overlay">
+                  <div class="overlay-first-row">
+                    <p>Summary</p>
+                    <mat-icon
+                      (click)="isSummaryOpen = !isSummaryOpen"
+                      style="cursor: pointer"
+                      ><span class="material-symbols-outlined"
+                        >close</span
+                      ></mat-icon
+                    >
+                  </div>
+                  <div class="overlay-second-row">
+                    <mat-form-field style="width: 100%">
+                      <textarea
+                        matInput
+                        formControlName="summary"
+                        (input)="onSummaryInputChange($event)"
+                      ></textarea>
+                      <mat-error
+                        >Field can't be empty or have more than 40
+                        characters</mat-error
+                      >
+                    </mat-form-field>
+                  </div>
+                  <div class="overlay-third-row">
+                    <p>{{ lettersTypedSummary }}/40</p>
+                    <div class="save-close">
+                      <button
+                        mat-raised-button
+                        color="primary"
+                        (click)="isSummaryOpen = !isSummaryOpen"
+                        [disabled]="lettersTypedSummary > 40"
+                      >
+                        Save
+                      </button>
+                      <button
+                        (click)="isSummaryOpen = !isSummaryOpen"
+                        mat-stroked-button
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
             </ng-template>
           </td>
         </ng-container>
 
+        <!-- Content Column -->
         <ng-container matColumnDef="content">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Content</th>
           <td mat-cell *matCellDef="let row; let i = index">
@@ -149,17 +220,86 @@
               >
             </ng-container>
             <ng-template #editMode>
-              <input
-                type="text"
-                formControlName="content"
-                placeholder="Add Content"
-                class="input-fields theory-time"
-              />
+              <p
+                (click)="isContentOpen = !isContentOpen"
+                type="button"
+                cdkOverlayOrigin
+                #contentTrigger="cdkOverlayOrigin"
+                class="input-text"
+              >
+                {{
+                  editTopicsReactiveForm.get("content")?.value | slice : 0 : 25
+                }}{{
+                  editTopicsReactiveForm.get("content")?.value.length > 25
+                    ? "..."
+                    : ""
+                }}
+              </p>
+              <ng-template
+                cdkConnectedOverlay
+                [cdkConnectedOverlayOrigin]="contentTrigger"
+                [cdkConnectedOverlayOpen]="isContentOpen"
+                (overlayOutsideClick)="isContentOpen = !isContentOpen"
+                [cdkConnectedOverlayPositions]="[
+                  {
+                    originX: 'start',
+                    originY: 'bottom',
+                    overlayX: 'end',
+                    overlayY: 'top',
+                    offsetX: 120
+                  }
+                ]"
+              >
+                <div class="overlay">
+                  <div class="overlay-first-row">
+                    <p>Content</p>
+                    <mat-icon
+                      (click)="isContentOpen = !isContentOpen"
+                      style="cursor: pointer"
+                      ><span class="material-symbols-outlined"
+                        >close</span
+                      ></mat-icon
+                    >
+                  </div>
+                  <div class="overlay-second-row">
+                    <mat-form-field style="width: 100%">
+                      <textarea
+                        matInput
+                        formControlName="content"
+                        (input)="onContentInputChange($event)"
+                      ></textarea>
+                      <mat-error
+                        >Field can't be empty or have more than 40
+                        characters</mat-error
+                      >
+                    </mat-form-field>
+                  </div>
+                  <div class="overlay-third-row">
+                    <p>{{ lettersTypedContent }}/40</p>
+                    <div class="save-close">
+                      <button
+                        mat-raised-button
+                        color="primary"
+                        (click)="isContentOpen = !isContentOpen"
+                        [disabled]="lettersTypedContent > 40"
+                      >
+                        Save
+                      </button>
+                      <button
+                        (click)="isContentOpen = !isContentOpen"
+                        mat-stroked-button
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
             </ng-template>
           </td>
         </ng-container>
 
-        <!-- files-upload -->
+        <!-- Files Column -->
         <ng-container matColumnDef="files">
           <th mat-header-cell *matHeaderCellDef>
             <span class="mat-subtitle-1" style="font-weight: 500">Files</span>
@@ -167,12 +307,14 @@
           <td mat-cell *matCellDef="let row; let i = index">
             <div fxLayout="row" fxLayoutAlign=" center">
               <mat-icon
-                ><span
-                  class="material-symbols-outlined"
-                  (click)="onFilesUploadClick(row.topicId)"
-                >
-                  upload
-                </span>
+                [ngStyle]="{
+                  color: i == editingRowID ? 'grey' : 'inherit',
+                  cursor: i == editingRowID ? 'not-allowed' : 'pointer'
+                }"
+                [ngClass]="{ disabled: i == editingRowID }"
+                (click)="i != editingRowID && onFilesUploadClick(row.topicId)"
+              >
+                <span class="material-symbols-outlined"> upload </span>
               </mat-icon>
               <mat-icon
                 style="transform: rotate(90deg)"
@@ -183,8 +325,9 @@
               >
               <span
                 *ngIf="row.files.length > 0"
+                (click)="openFileListDialog(row.files)"
                 [matTooltip]="getFileNames(row.files)"
-                matTooltipClass="tooltip-custom"
+                matTooltipClass="tooltip-custom-dark"
                 style="color: rgb(70, 140, 201); cursor: pointer"
                 >+{{ row.files.length }} files</span
               >

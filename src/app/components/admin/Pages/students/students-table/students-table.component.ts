@@ -10,7 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
+import { MatSort, MatSortModule } from '@angular/material/sort';
 import { StudentTableService } from '../../../../shared/Services/student-table.service';
 import { MatDialog } from '@angular/material/dialog';
 import { StudentTableData } from '../../../shared/models/StudentTableData';
@@ -23,7 +23,7 @@ import {
   Validators,
   NgForm,
 } from '@angular/forms';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
 import { LoginService } from 'src/app/components/shared/Services/login.service';
@@ -31,7 +31,13 @@ import { UserAddedComponent } from '../../../shared/user-added/user-added.compon
 @Component({
   selector: 'app-students-table',
   standalone: true,
-  imports: [CommonModule, MaterialModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    MaterialModule,
+    ReactiveFormsModule,
+    MatSortModule,
+    MatTableModule,
+  ],
   templateUrl: './students-table.component.html',
   styleUrls: ['./students-table.component.scss'],
 })
@@ -59,6 +65,7 @@ export class StudentsTableComponent implements OnInit, OnChanges {
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit(): void {
+    this.getStudents();
     this.editStudentReactiveForm = new FormGroup({
       studentCode: new FormControl(null, [
         Validators.required,

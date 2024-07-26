@@ -41,3 +41,10 @@ body {
   width: 0; /* Remove scrollbar space */
   background: transparent; /* Optional: just make scrollbar invisible */
 }
+
+.table-responsive {
+  overflow-x: auto;
+  max-height: calc(
+    100vh - 200px
+  ); // Adjust based on your header and footer height
+}

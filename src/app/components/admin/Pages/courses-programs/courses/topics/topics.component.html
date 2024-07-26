@@ -80,7 +80,7 @@
                   <input
                     type="text"
                     formControlName="topicName"
-                    placeholder="Enter Topic Name"
+                    placeholder="Enter Topic Name *"
                     class="input-fields course-name"
                   />
                 </td>
@@ -95,11 +95,13 @@
                 </th>
                 <td mat-cell *matCellDef="let element">
                   <input
-                    type="text"
+                    type="number"
                     name="theoryTime"
                     formControlName="theoryTime"
-                    placeholder="0 hr"
+                    placeholder="0 hr *"
                     class="input-fields theory-time"
+                    min="0"
+                    max="100"
                   />
                 </td>
               </ng-container>
@@ -113,11 +115,13 @@
                 </th>
                 <td mat-cell *matCellDef="let element">
                   <input
-                    type="text"
+                    type="number"
                     name="practiceTime"
                     formControlName="practiceTime"
-                    placeholder="0 hr"
+                    placeholder="0 hr *"
                     class="input-fields theory-time"
+                    min="0"
+                    max="100"
                   />
                 </td>
               </ng-container>
@@ -171,6 +175,7 @@
                             matInput
                             formControlName="summary"
                             (input)="onSummaryInputChange($event)"
+                            placeholder="Add Summary *"
                           ></textarea>
                           <mat-error
                             >Field can't be empty or have more than 40
@@ -250,6 +255,7 @@
                             matInput
                             formControlName="content"
                             (input)="onContentInputChange($event)"
+                            placeholder="Add Content *"
                           ></textarea>
                           <mat-error
                             >Field can't be empty or have more than 40

@@ -81,7 +81,7 @@
                     type="text"
                     name="code"
                     formControlName="code"
-                    placeholder="Enter Code"
+                    placeholder="Enter Code *"
                     class="input-fields enter-code"
                   />
                 </td>
@@ -98,7 +98,7 @@
                   <input
                     type="text"
                     formControlName="courseName"
-                    placeholder="Enter Course Name"
+                    placeholder="Enter Course Name *"
                     class="input-fields course-name"
                   />
                 </td>
@@ -113,11 +113,12 @@
                 </th>
                 <td mat-cell *matCellDef="let element">
                   <input
-                    type="text"
-                    name="theoryTime"
+                    type="number"
                     formControlName="theoryTime"
-                    placeholder="0 hr"
+                    placeholder="0 hr *"
                     class="input-fields theory-time"
+                    min="0"
+                    max="100"
                   />
                 </td>
               </ng-container>
@@ -131,11 +132,13 @@
                 </th>
                 <td mat-cell *matCellDef="let element">
                   <input
-                    type="text"
+                    type="number"
                     name="practiceTime"
                     formControlName="practiceTime"
-                    placeholder="0 hr"
+                    placeholder="0 hr *"
                     class="input-fields theory-time"
+                    min="0"
+                    max="100"
                   />
                 </td>
               </ng-container>
@@ -188,6 +191,7 @@
                           <textarea
                             matInput
                             formControlName="description"
+                            placeholder="Enter Description *"
                             (input)="onInputChange($event)"
                           ></textarea>
                           <mat-error
@@ -201,9 +205,10 @@
                         <div class="save-close">
                           <button
                             mat-raised-button
-                            color="primary"
                             (click)="isDescOpen = !isDescOpen"
-                            [disabled]="lettersTypedDesc > 40"
+                            [disabled]="
+                              lettersTypedDesc > 40 || lettersTypedDesc === 0
+                            "
                           >
                             Save</button
                           ><button

@@ -14,6 +14,7 @@
           <td mat-cell *matCellDef="let row; let i = dataIndex">
             <div class="action-buttons">
               <mat-icon
+                style="cursor: pointer"
                 (click)="toggleTable(row)"
                 [ngClass]="{ 'disabled-icon': isAddClicked }"
                 ><span class="material-symbols-outlined">
@@ -24,10 +25,15 @@
                 *ngIf="i != editingRowID; else editMode"
                 class="action-buttons"
               >
-                <mat-icon (click)="editBatchProgram(i, row)">
+                <mat-icon
+                  (click)="editBatchProgram(i, row)"
+                  style="cursor: pointer"
+                >
                   <span class="material-icons-outlined"> edit </span>
                 </mat-icon>
-                <mat-icon (click)="deleteBatchProgram(row)"
+                <mat-icon
+                  (click)="deleteBatchProgram(row)"
+                  style="cursor: pointer"
                   ><span class="material-icons-outlined">
                     delete
                   </span></mat-icon
@@ -35,7 +41,7 @@
               </span>
               <ng-template #editMode>
                 <span class="action-buttons">
-                  <mat-icon
+                  <mat-icon style="cursor: pointer"
                     ><span
                       class="material-icons-outlined"
                       (click)="saveBatchProgram(row)"
@@ -43,20 +49,18 @@
                       done
                     </span></mat-icon
                   >
-                  <mat-icon (click)="cancelEditing()">
+                  <mat-icon (click)="cancelEditing()" style="cursor: pointer">
                     <span class="material-icons-outlined"> close </span>
                   </mat-icon>
                 </span></ng-template
               >
-              <mat-icon style="transform: rotate(90deg)"
-                ><span class="material-symbols-outlined">
-                  horizontal_rule
-                </span></mat-icon
-              >
+              <span style="font-size: 25px; color: rgb(169, 165, 165)">|</span>
               <mat-icon style="cursor: pointer"
                 ><span
                   class="material-symbols-outlined"
                   matTooltip="Click to add Course"
+                  matTooltipClass="tooltip-custom-dark"
+                  [matTooltipPosition]="'above'"
                   (click)="toggleAdd(row, i)"
                   [ngClass]="{ 'disabled-icon': isTableClicked }"
                 >
@@ -137,7 +141,7 @@
                   [matTooltip]="
                     getRemainingStudentsWithNumbers(getStudentsForRow(row))
                   "
-                  matTooltipClass="tooltip-custom"
+                  matTooltipClass="tooltip-custom-dark"
                   style="
                     text-decoration: underline;
                     color: rgb(70, 140, 201);

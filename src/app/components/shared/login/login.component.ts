@@ -61,16 +61,30 @@ export class LoginComponent implements OnInit {
         Validators.required,
         Validators.minLength(3),
       ]),
+      keepSignedIn: new FormControl(false),
     });
   }
 
   protected onSubmit() {
+    // const loginData = {
+    //   ...this.loginForm.value,
+    //   keepSignedIn: this.loginForm.get('keepSignedIn')?.value,
+    // };
+
     this.loginService.login(this.loginForm.value).subscribe({
       next: (response: any) => {
+        const storage = this.loginForm.value.keepSignedIn
+          ? localStorage
+          : sessionStorage;
+
+        storage.setItem('token', response.token);
+        storage.setItem('userRole', response.userRole);
+        storage.setItem('username', response.username);
         // console.log(response);
         if (response.userRole === 'ROLE_ADMIN') {
           localStorage.setItem('loggedInSaveAdmin', 'true');
-          localStorage.setItem('username', response.username);
+          // localStorage.setItem('username', response.username);
+          localStorage.setItem('username', 'admin');
           this.router.navigate(['admin/home/', 'courses']);
         } else if (response.userRole === 'ROLE_TEACHER') {
           console.log('inside teacher');

@@ -24,6 +24,7 @@ import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWh
 import { TimeFormatPipe } from '../../../shared/pipes/TimeFormatPipe';
 import { StudentTableService } from 'src/app/components/shared/Services/student-table.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { FileListDialogComponent } from 'src/app/components/admin/shared/file-list-dialog/file-list-dialog.component';
 @Component({
   selector: 'app-exams-table',
   standalone: true,
@@ -65,7 +66,8 @@ export class ExamsTableComponent implements OnInit {
     private _dialog: MatDialog,
     private evaluationService: EvaluationService,
     private studentService: StudentTableService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
 
   displayedColumns: string[] = [];
@@ -104,7 +106,10 @@ export class ExamsTableComponent implements OnInit {
 
   ngOnInit(): void {
     this.setUpColumns();
-    this.getSharedDetails();
+
+    setTimeout(() => {
+      this.getSharedDetails();
+    }, 100);
 
     // console.log(this.filterPayload);
 
@@ -309,6 +314,19 @@ export class ExamsTableComponent implements OnInit {
     }
   }
 
+  updateTableRow(updatedRow: any) {
+    const index = this.dataSource.data.findIndex(
+      (row) => row.evaluationId === updatedRow.evaluationId
+    );
+    if (index > -1) {
+      this.dataSource.data[index] = {
+        ...this.dataSource.data[index],
+        ...updatedRow,
+      };
+      this.dataSource._updateChangeSubscription();
+    }
+  }
+
   cancelEditing() {
     this.editingRowID = -1;
     this.sharedReactiveForm.reset();
@@ -337,8 +355,49 @@ export class ExamsTableComponent implements OnInit {
     }
   }
 
-  onFileSelected(event: any) {
+  openFileListDialog(row: any) {
+    const dialogRef = this.dialog.open(FileListDialogComponent, {
+      data: { files: row.files, targetEvaluationId: row.evaluationId },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.getSharedDetails();
+      }
+    });
+  }
+
+  onFileSelected(event: any, row: any) {
     const file = event.target.files[0];
-    // console.log(file);
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      this.evaluationService.uploadFile(row.evaluationId, formData).subscribe(
+        (response: any) => {
+          if (response && response.files) {
+            // Update the row data with the new file information
+            row.files = response.files;
+            // Update the data source
+            this.updateTableRow(row);
+            this.snackBar.open('File uploaded successfully', 'Close', {
+              duration: 3000,
+            });
+          }
+        },
+        (error) => {
+          console.error('Error uploading file:', error);
+          if (error.status === 400) {
+            this.snackBar.open(error.error, 'Close', { duration: 5000 });
+          } else {
+            this.snackBar.open(
+              'Error uploading file. Please try again.',
+              'Close',
+              { duration: 3000 }
+            );
+          }
+        }
+      );
+    }
   }
 }

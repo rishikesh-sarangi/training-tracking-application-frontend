@@ -41,7 +41,7 @@
             <mat-select
               formControlName="topic"
               [placeholder]="
-                topics.length > 0 ? 'Select Topic' : 'No Topics Available'
+                topics.length > 0 ? 'Select Topic *' : 'No Topics Available'
               "
             >
               <mat-option *ngFor="let topic of topics" [value]="topic">
@@ -69,7 +69,7 @@
             <input
               matInput
               formControlName="topicPercentageCompleted"
-              placeholder="Enter % completed"
+              placeholder="Enter % completed *"
               type="number"
               min="0"
               max="100"

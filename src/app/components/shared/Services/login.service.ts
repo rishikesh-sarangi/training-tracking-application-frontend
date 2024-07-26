@@ -48,6 +48,7 @@ export class LoginService {
     // localStorage.removeItem('username');
     // localStorage.removeItem('teacherDetails');
     localStorage.clear();
+    sessionStorage.clear();
     this.router.navigate(['']);
     this.dialog.closeAll();
   }

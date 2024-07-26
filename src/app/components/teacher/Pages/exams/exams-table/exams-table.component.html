@@ -32,8 +32,9 @@
                   ><span class="material-icons-outlined">
                     delete
                   </span></mat-icon
-                > </span
-              ><span style="font-size: 25px">|</span>
+                >
+              </span>
+              <span style="font-size: 25px; color: rgb(169, 165, 165)">|</span>
               <span
                 (click)="toggleTable(row)"
                 class="mark-students"
@@ -93,7 +94,11 @@
               </div>
             </ng-container>
             <ng-template #editMode>
-              <mat-form-field appearance="outline" class="dense-form-field-5">
+              <mat-form-field
+                appearance="outline"
+                class="dense-form-field-5"
+                style="width: 125px"
+              >
                 <input matInput formControlName="totalMarks" />
                 <mat-error>Field must not be empty</mat-error>
               </mat-form-field>
@@ -149,15 +154,17 @@
               </div>
             </ng-container>
             <ng-template #editMode>
-              <mat-form-field appearance="outline" class="dense-form-field-5">
+              <mat-form-field
+                appearance="outline"
+                class="dense-form-field-5"
+                style="width: 100px"
+              >
                 <input matInput type="time" formControlName="evaluationTime" />
                 <mat-error>Field must not be empty</mat-error>
               </mat-form-field>
             </ng-template>
           </td>
         </ng-container>
-
-        <!-- files -->
         <!-- files -->
         <ng-container matColumnDef="uploadFile">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>
@@ -166,57 +173,72 @@
           </th>
           <td mat-cell *matCellDef="let row; let i = dataIndex">
             <ng-container *ngIf="i != editingRowID; else editMode">
-              <div fxLayout="row" fxLayoutAlign=" center">
+              <div
+                fxLayout="row"
+                fxLayoutAlign=" start center"
+                fxLayoutGap="5px"
+              >
                 <mat-icon style="opacity: 0.4"
                   ><span class="material-symbols-outlined"> upload </span>
                 </mat-icon>
-                <mat-icon
-                  style="transform: rotate(90deg)"
-                  *ngIf="row.files.length > 0"
-                  ><span class="material-symbols-outlined">
-                    horizontal_rule
-                  </span></mat-icon
-                >
-
-                <span
-                  *ngIf="row.files[0]?.fileName.length > 10; else shortName"
-                  class="file-name"
-                  matTooltip="{{ row.files[0]?.fileName }}"
-                  style="
-                    text-decoration: underline;
-                    color: rgb(70, 140, 201);
-                    cursor: pointer;
-                  "
-                >
-                  {{ row.files[0]?.fileName | slice : 0 : 10 }}........
-                </span>
-                <ng-template #shortName>
-                  <span class="file-name">{{ row.files[0]?.fileName }}</span>
-                </ng-template>
+                <ng-container *ngIf="row.files && row.files.length > 0">
+                  <span style="font-size: 25px; color: rgb(169, 165, 165)"
+                    >|</span
+                  >
+                  <span
+                    *ngIf="row.files[0]?.fileName.length > 25; else shortName"
+                    class="file-name"
+                    matTooltip="{{ row.files[0]?.fileName }}"
+                    style="color: rgb(70, 140, 201); cursor: pointer"
+                  >
+                    {{ row.files[0]?.fileName | slice : 0 : 25 }}......
+                  </span>
+                  <ng-template #shortName>
+                    <span
+                      class="file-name"
+                      style="color: rgb(70, 140, 201); cursor: pointer"
+                      >{{ row.files[0]?.fileName }}</span
+                    >
+                  </ng-template>
+                </ng-container>
               </div>
             </ng-container>
             <ng-template #editMode>
-              <div class="upload-form-fields">
-                <input
-                  type="file"
-                  (change)="onFileSelected($event)"
-                  style="display: none"
-                  #fileInput
-                  matFileInput
-                  formControlName="uploadFile"
-                />
-                <mat-icon (click)="fileInput.click()"
-                  ><span class="material-icons-outlined">
-                    file_upload
-                  </span></mat-icon
+              <div fxLayout="row" fxLayoutAlign=" center" fxLayoutGap="10px">
+                <mat-icon style="opacity: 0.4"
+                  ><span class="material-symbols-outlined"> upload </span>
+                </mat-icon>
+                <span style="font-size: 25px; color: rgb(169, 165, 165)"
+                  >|</span
                 >
+                <span
+                  *ngIf="row.files[0]?.fileName.length > 25; else shortName"
+                  class="file-name"
+                  matTooltip="{{ row.files[0]?.fileName }}"
+                  style="color: rgb(70, 140, 201); cursor: pointer"
+                >
+                  {{ row.files[0]?.fileName | slice : 0 : 25 }}......
+                </span>
+                <ng-template #shortName>
+                  <span
+                    class="file-name"
+                    style="color: rgb(70, 140, 201); cursor: pointer"
+                    >{{ row.files[0]?.fileName }}</span
+                  >
+                </ng-template>
+                <mat-icon>
+                  <span
+                    class="material-icons-outlined"
+                    (click)="openFileListDialog(row)"
+                    >delete</span
+                  >
+                </mat-icon>
               </div>
             </ng-template>
           </td>
         </ng-container>
 
         <!-- expansion Table -->
-        <!-- Inside the expansion Table -->
         <ng-container matColumnDef="markStudentsTable">
           <td
             mat-cell

@@ -75,19 +75,23 @@
         <ng-container matColumnDef="topicsCompletedNames">
           <th mat-header-cell *matHeaderCellDef>Topics Completed</th>
           <td mat-cell *matCellDef="let element">
-            <span>{{ element.topicsCompletedNames[0] }}</span>
+            <span>{{ element.topicsCompletedNames[0] }} </span>
             <ng-container *ngIf="element.topicsCompletedNames.length > 1">
               <span
                 *ngFor="
                   let topic of element.topicsCompletedNames.slice(1, 2);
                   let i = index
                 "
-                matTooltip="{{
-                  element.topicsCompletedNames.slice(1).join(', ')
-                }}"
-                style="color: rgb(70, 140, 201); cursor: pointer"
-              >
-                +{{ element.topicsCompletedNames.length - 1 }}
+                [matTooltip]="
+                  getNumberedTooltip(element.topicsCompletedNames.slice(1))
+                "
+                matTooltipClass="tooltip-custom-dark"
+                style="
+                  color: rgb(70, 140, 201);
+                  cursor: pointer;
+                  text-decoration: underline;
+                "
+                >+{{ element.topicsCompletedNames.length - 1 }} more
               </span>
             </ng-container>
           </td>
@@ -96,17 +100,23 @@
         <ng-container matColumnDef="topicsInProgress">
           <th mat-header-cell *matHeaderCellDef>Topics In Progress</th>
           <td mat-cell *matCellDef="let element">
-            <span>{{ element.topicsInProgress[0] }}</span>
+            <span>{{ element.topicsInProgress[0] }} </span>
             <ng-container *ngIf="element.topicsInProgress.length > 1">
               <span
                 *ngFor="
                   let topic of element.topicsInProgress.slice(1, 2);
                   let i = index
                 "
-                matTooltip="{{ element.topicsInProgress.slice(1).join(', ') }}"
-                style="color: rgb(70, 140, 201); cursor: pointer"
-              >
-                +{{ element.topicsInProgress.length - 1 }}
+                [matTooltip]="
+                  getNumberedTooltip(element.topicsInProgress.slice(1))
+                "
+                matTooltipClass="tooltip-custom-dark"
+                style="
+                  color: rgb(70, 140, 201);
+                  cursor: pointer;
+                  text-decoration: underline;
+                "
+                >+{{ element.topicsInProgress.length - 1 }} more
               </span>
             </ng-container>
           </td>

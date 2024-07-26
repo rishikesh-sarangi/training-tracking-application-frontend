@@ -56,11 +56,32 @@ input:-webkit-autofill:focus {
   border: none !important;
 }
 
-.mat-mdc-tooltip {
-  &.tooltip-custom {
-    white-space: pre-wrap;
-    text-wrap: nowrap;
-  }
+.mat-mdc-tooltip.tooltip-custom .mdc-tooltip__surface {
+  background-color: #fff !important; /* White background */
+  color: black !important; /* Black text color */
+  padding: 10px 15px; /* Maintain padding */
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  white-space: pre-wrap; /* Allow text to wrap */
+  overflow-wrap: break-word; /* Break long words */
+  text-align: left; /* Align text to the left */
+  box-sizing: border-box; /* Include padding in width/height */
+  width: auto; /* Allow width to adjust based on content */
+  max-width: 100%; /* Prevent the tooltip from expanding beyond its container */
+}
+
+.mat-mdc-tooltip.tooltip-custom-dark .mdc-tooltip__surface {
+  background-color: #333 !important; /* Greyish black background */
+  color: #fff !important; /* White text color */
+  padding: 10px 15px; /* Maintain padding */
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  white-space: pre-wrap; /* Allow wrapping */
+  overflow-wrap: break-word; /* Break long words */
+  text-align: left; /* Align text to the left */
+  box-sizing: border-box; /* Include padding in width/height */
+  width: auto; /* Allow width to adjust based on content */
+  max-width: 100%; /* Prevent the tooltip from expanding beyond its container */
 }
 
 .mdc-tooltip__surface {

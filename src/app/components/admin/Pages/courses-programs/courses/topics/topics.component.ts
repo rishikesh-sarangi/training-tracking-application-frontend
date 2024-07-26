@@ -81,6 +81,7 @@ export class TopicsComponent implements OnInit {
       topicName: new FormControl(null, [
         Validators.required,
         noWhitespaceValidator(),
+        Validators.maxLength(10),
       ]),
       theoryTime: new FormControl(null, [
         Validators.required,

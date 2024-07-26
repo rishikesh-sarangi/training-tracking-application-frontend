@@ -67,10 +67,12 @@ export class CoursesComponent {
       code: new FormControl(null, [
         Validators.required,
         noWhitespaceValidator(),
+        Validators.maxLength(10),
       ]),
       courseName: new FormControl(null, [
         Validators.required,
         noWhitespaceValidator(),
+        Validators.maxLength(10),
       ]),
       theoryTime: new FormControl(null, [
         Validators.required,

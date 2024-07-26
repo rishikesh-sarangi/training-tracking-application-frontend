@@ -33,10 +33,12 @@ export class ExamsAddComponent {
   @Input() isAssignments: boolean = false;
 
   @Output() closeExamForm = new EventEmitter<boolean>();
+  @Output() examAdded = new EventEmitter<void>();
 
   displayedColumns: string[] = [];
 
   temporaryFile: File | null = null;
+  fileName: string = '';
 
   setUpColumns() {
     if (this.isAssignments) {
@@ -69,11 +71,7 @@ export class ExamsAddComponent {
     this.sharedReactiveForm = new FormGroup({
       [this.isAssignments ? 'assignmentName' : 'examName']: new FormControl(
         null,
-        [
-          Validators.required,
-          Validators.pattern(/^[\S]+(\s+[\S]+)*$/), // regex for no whitespace
-          noWhitespaceValidator(),
-        ]
+        [Validators.required, noWhitespaceValidator()]
       ),
       totalMarks: new FormControl(null, [
         Validators.required,
@@ -82,11 +80,11 @@ export class ExamsAddComponent {
       ]),
       [this.isAssignments ? 'assignmentDate' : 'examDate']: new FormControl(
         null,
-        [Validators.required, Validators.pattern(/^[\S]+(\s+[\S]+)*$/)]
+        [Validators.required]
       ),
       [this.isAssignments ? 'assignmentTime' : 'examTime']: new FormControl(
         null,
-        [Validators.required, Validators.pattern(/^[\S]+(\s+[\S]+)*$/)]
+        [Validators.required]
       ),
       uploadFile: new FormControl(null),
     });
@@ -117,6 +115,7 @@ export class ExamsAddComponent {
             this.uploadFile(evaluationId);
           }
           this.closeForm();
+          this.examAdded.emit();
         },
         (err) => {
           console.log(err);
@@ -134,6 +133,7 @@ export class ExamsAddComponent {
   onFilesUploadClick() {
     const dialogRef = this.dialog.open(SingleFileUploadComponent, {
       data: {
+        parentPayload: this.parentPayload,
         isTemporary: true,
       },
     });
@@ -141,9 +141,12 @@ export class ExamsAddComponent {
     dialogRef.afterClosed().subscribe((result: File | undefined) => {
       if (result) {
         this.temporaryFile = result;
+        this.fileName = result.name;
       }
     });
   }
+
+  @Output() fileUploaded = new EventEmitter<any>();
 
   uploadFile(evaluationId: string) {
     if (this.temporaryFile) {
@@ -154,11 +157,17 @@ export class ExamsAddComponent {
         (res) => {
           console.log('File uploaded successfully');
           this.temporaryFile = null;
+          this.fileName = '';
           this.sharedReactiveForm.reset();
           this.closeForm();
+          this.examAdded.emit();
+          this.fileUploaded.emit(res); // Emit the updated row data
+          this.snackBar.open('File uploaded successfully', 'Close', {
+            duration: 3000,
+          });
         },
         (err) => {
-          this.snackBar.open(err.error.message, 'Close', { duration: 3000 });
+          console.log(err);
         }
       );
     }

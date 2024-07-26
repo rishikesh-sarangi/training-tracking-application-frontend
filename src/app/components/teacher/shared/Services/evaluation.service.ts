@@ -52,9 +52,7 @@ export class EvaluationService {
     );
   }
 
-  doesFileExist(file: File): Observable<any> {
-    // Use the file name as the query parameter
-    const params = new HttpParams().set('fileName', file.name);
-    return this._http.get(`${this.endPoint}/file`, { params });
+  doesFileExist(file: any): Observable<any> {
+    return this._http.post(`${this.endPoint}/file`, file);
   }
 }

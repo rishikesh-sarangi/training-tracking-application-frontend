@@ -26,6 +26,7 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
 import { MaterialModule } from 'src/app/material.module';
 import { noWhitespaceValidator } from 'src/app/components/shared/Validators/NoWhiteSpaceValidator';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { FileListDialogComponent } from 'src/app/components/admin/shared/file-list-dialog/file-list-dialog.component';
 @Component({
   selector: 'app-topics-table',
   standalone: true,
@@ -81,7 +82,10 @@ export class TopicsTableComponent implements OnInit {
         Validators.required,
         Validators.pattern('[0-9]*'),
       ]),
-      topicName: new FormControl(null, Validators.required),
+      topicName: new FormControl(null, [
+        Validators.required,
+        Validators.maxLength(10),
+      ]),
       theoryTime: new FormControl(null, [
         Validators.required,
         Validators.pattern('[0-9]*'),
@@ -184,9 +188,10 @@ export class TopicsTableComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        // console.log(result);
-        this.getTopicsList(this.selectedCourse.courseId);
+      if (result === true) {
+        setTimeout(() => {
+          this.getTopicsList(this.selectedCourse.courseId);
+        }, 100);
       }
     });
   }
@@ -239,5 +244,18 @@ export class TopicsTableComponent implements OnInit {
   protected onSummaryInputChange(event: any) {
     this.lettersTypedSummary = event.target.value.length;
     return;
+  }
+
+  openFileListDialog(files: any[]) {
+    const dialogRef = this.dialog.open(FileListDialogComponent, {
+      data: { files: files, targetCourseId: this.selectedCourse.courseId },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Handle file deletion if needed
+        this.getTopicsList(this.selectedCourse.courseId);
+      }
+    });
   }
 }

@@ -1,9 +1,9 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'src/app/material.module';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { HttpClient, HttpEventType } from '@angular/common/http';
+import { HttpEventType } from '@angular/common/http';
 import { EvaluationService } from '../Services/evaluation.service';
 
 @Component({
@@ -17,13 +17,13 @@ export class SingleFileUploadComponent {
   file: File | null = null;
   allowedFileTypes = ['.pdf', '.xls', '.xlsx', '.ppt', '.pptx', '.mp3', '.mp4'];
   uploadProgress = 0;
+  maxFileSize = 2 * 1024 * 1024; // 2MB in bytes
 
   constructor(
     private snackBar: MatSnackBar,
     @Inject(MAT_DIALOG_DATA)
-    public data: { evaluationId?: string; isTemporary?: boolean; file?: File },
+    public data: any,
     private dialogRef: MatDialogRef<SingleFileUploadComponent>,
-    private http: HttpClient,
     private evaluationService: EvaluationService
   ) {
     if (this.data.file) {
@@ -45,8 +45,7 @@ export class SingleFileUploadComponent {
     if (files && files.length > 0) {
       const file = files[0];
       if (this.isValidFile(file)) {
-        this.file = file;
-        this.checkFileExistence(file);
+        this.checkFileExistenceAndUpload(file);
       } else {
         this.showErrorMessage(
           'Invalid file. Please check the file type and size.'
@@ -55,24 +54,32 @@ export class SingleFileUploadComponent {
     }
   }
 
+  checkFileExistenceAndUpload(file: File) {
+    const fileDTO: any = {
+      batchId: this.data.parentPayload.batch.batchId,
+      courseId: this.data.parentPayload.course.courseId,
+      teacherId: this.data.parentPayload.teacher.teacherId,
+      programId: this.data.parentPayload.program.programId,
+      fileName: file.name,
+    };
+
+    this.evaluationService.doesFileExist(fileDTO).subscribe(
+      (response: any) => {
+        this.file = file;
+        this.uploadFile();
+      },
+      (error) => {
+        this.showErrorMessage(error.error.message);
+      }
+    );
+  }
+
   isValidFile(file: File): boolean {
     const isValidType = this.allowedFileTypes.some((ext) =>
       file.name.toLowerCase().endsWith(ext)
     );
-
-    return isValidType;
-  }
-
-  checkFileExistence(file: File) {
-    this.evaluationService.doesFileExist(file).subscribe(
-      (res) => {
-        this.uploadFile();
-      },
-      (err) => {
-        this.showErrorMessage(err.error.message);
-        this.file = null;
-      }
-    );
+    const isValidSize = file.size <= this.maxFileSize;
+    return isValidType && isValidSize;
   }
 
   deleteFile() {
@@ -99,15 +106,8 @@ export class SingleFileUploadComponent {
     const formData = new FormData();
     formData.append('file', this.file, this.file.name);
 
-    this.http
-      .post(
-        `http://localhost:5050/evaluations/${this.data.evaluationId}/upload`,
-        formData,
-        {
-          reportProgress: true,
-          observe: 'events',
-        }
-      )
+    this.evaluationService
+      .uploadFile(this.data.evaluationId, formData)
       .subscribe(
         (event: any) => {
           if (event.type === HttpEventType.UploadProgress) {
@@ -120,7 +120,11 @@ export class SingleFileUploadComponent {
           }
         },
         (err) => {
-          this.showErrorMessage('Error uploading file. Please try again.');
+          if (err.error && typeof err.error === 'string') {
+            this.showErrorMessage(err.error);
+          } else {
+            this.showErrorMessage('Error uploading file. Please try again.');
+          }
           this.uploadProgress = 0;
         }
       );

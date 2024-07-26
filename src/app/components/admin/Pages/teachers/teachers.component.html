@@ -89,9 +89,9 @@
                     <input
                       matInput
                       formControlName="teacherName"
-                      placeholder="Enter Teacher Name"
+                      placeholder="Enter Teacher Name *"
                     />
-                    <mat-error>Field must not be empty</mat-error>
+                    <mat-error>Invalid Input</mat-error>
                   </mat-form-field>
                 </td>
               </ng-container>
@@ -111,7 +111,7 @@
                     <mat-select
                       formControlName="courses"
                       multiple
-                      placeholder="Select Course"
+                      placeholder="Select Course *"
                     >
                       <mat-option
                         *ngFor="let course of courses"
@@ -140,7 +140,7 @@
                     <input
                       matInput
                       formControlName="teacherEmail"
-                      placeholder="Enter Email ID"
+                      placeholder="Enter Email ID *"
                     />
                     <mat-error>Must be a valid email</mat-error>
                   </mat-form-field>

@@ -118,16 +118,17 @@
               [parentPayload]="parentPayload"
               [isAssignments]="isAssignments"
               (closeExamForm)="closeForm()"
-            ></app-exams-add
-          ></ng-container>
+              (examAdded)="onExamAdded()"
+              (fileUploaded)="onFileUploaded($event)"
+            ></app-exams-add>
+          </ng-container>
 
           <ng-container *ngIf="!openExamForm && showTableBasedOnFilter">
-            <ng-container *ngIf="showTableBasedOnFilter">
-              <app-exams-table
-                [isAssignments]="isAssignments"
-                [filterPayload]="filterPayload"
-              ></app-exams-table> </ng-container
-          ></ng-container>
+            <app-exams-table
+              [isAssignments]="isAssignments"
+              [filterPayload]="filterPayload"
+            ></app-exams-table>
+          </ng-container>
         </div>
       </div>
     </div>

@@ -69,7 +69,6 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class CoursesTableComponent implements OnInit {
   constructor(
     private courseTableData: CourseTableDataService,
-    private addTopicsData: TopicsTableDataService,
     public _deleteDialog: MatDialog,
     private router: Router,
     private snackBar: MatSnackBar
@@ -142,12 +141,10 @@ export class CoursesTableComponent implements OnInit {
       theoryTime: new FormControl(null, [
         Validators.required,
         Validators.pattern('[0-9]*'),
-        Validators.maxLength(10),
       ]),
       practiceTime: new FormControl(null, [
         Validators.required,
         Validators.pattern('[0-9]*'),
-        Validators.maxLength(10),
       ]),
       description: new FormControl(null, [
         Validators.required,
@@ -237,15 +234,35 @@ export class CoursesTableComponent implements OnInit {
   }
 
   // overlay stuff
-  protected isDescOpen = false;
 
-  // logic for letters / 40 in desc
-  protected lettersTypedDesc: number = 0;
+  isDescOpen = false;
+  lettersTypedDesc = 0;
+  originalDescription = '';
+  openDescriptionOverlay() {
+    this.isDescOpen = true;
+    this.originalDescription =
+      this.editCourseReactiveForm.get('description')?.value;
+    this.lettersTypedDesc = this.originalDescription.length;
+  }
 
-  protected onInputChange(event: any, type: string) {
-    if (type == 'description') {
-      this.lettersTypedDesc = event.target.value.length;
-      return;
+  closeDescriptionOverlay() {
+    this.isDescOpen = false;
+    this.editCourseReactiveForm.patchValue({
+      description: this.originalDescription,
+    });
+    this.lettersTypedDesc = this.originalDescription.length;
+  }
+
+  onDescriptionInputChange(event: Event) {
+    const input = event.target as HTMLTextAreaElement;
+    this.lettersTypedDesc = input.value.length;
+  }
+
+  saveDescription() {
+    if (this.lettersTypedDesc <= 40 && this.lettersTypedDesc > 0) {
+      this.originalDescription =
+        this.editCourseReactiveForm.get('description')?.value;
+      this.isDescOpen = false;
     }
   }
 

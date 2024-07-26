@@ -106,10 +106,13 @@
                 appearance="outline"
               >
                 <input
+                  type="number"
                   matInput
                   name="theoryTime"
                   formControlName="theoryTime"
                   placeholder="0 hr"
+                  min="0"
+                  max="100"
                 /> </mat-form-field
             ></ng-template>
           </td>
@@ -131,9 +134,12 @@
               >
                 <input
                   matInput
+                  type="number"
                   name="practiceTime"
                   formControlName="practiceTime"
                   placeholder="0 hr"
+                  min="0"
+                  max="100"
                 />
               </mat-form-field>
             </ng-template>
@@ -159,12 +165,14 @@
                 #trigger="cdkOverlayOrigin"
                 class="input-text"
               >
-                <span
-                  [matTooltip]="row.description"
-                  style="color: rgb(70, 140, 201)"
-                  >{{ row.description | slice : 0 : 25
-                  }}{{ row.description.length > 25 ? "..." : "" }}</span
-                >
+                {{
+                  editProgramsReactiveForm.get("description")?.value
+                    | slice : 0 : 25
+                }}{{
+                  editProgramsReactiveForm.get("description")?.value.length > 25
+                    ? "..."
+                    : ""
+                }}
               </p>
               <ng-template
                 cdkConnectedOverlay
@@ -240,7 +248,7 @@
               <ng-container *ngIf="row.courses.length > 2">
                 <span
                   [matTooltip]="getRemainingCoursesWithNumbers(row.courses)"
-                  matTooltipClass="tooltip-custom"
+                  matTooltipClass="tooltip-custom-dark"
                   style="
                     text-decoration: underline;
                     color: rgb(70, 140, 201);

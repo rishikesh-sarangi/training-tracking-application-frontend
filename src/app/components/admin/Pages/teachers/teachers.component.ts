@@ -72,6 +72,7 @@ export class TeachersComponent implements OnInit {
       teacherName: new FormControl(null, [
         Validators.required,
         noWhitespaceValidator(),
+        Validators.maxLength(20),
       ]),
       courses: new FormControl(null, [Validators.required]),
       teacherEmail: new FormControl(null, [

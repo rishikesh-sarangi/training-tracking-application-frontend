@@ -86,7 +86,7 @@
                     <input
                       matInput
                       formControlName="programCode"
-                      placeholder="Enter Code"
+                      placeholder="Enter Code *"
                     />
                   </mat-form-field>
                 </td>
@@ -108,7 +108,7 @@
                       matInput
                       name="course"
                       formControlName="programName"
-                      placeholder="Enter Program Name"
+                      placeholder="Enter Program Name *"
                     />
                   </mat-form-field>
                 </td>
@@ -129,9 +129,12 @@
                   >
                     <input
                       matInput
+                      type="number"
                       name="theoryTime"
                       formControlName="theoryTime"
-                      placeholder="0 hr"
+                      placeholder="0 hr *"
+                      min="0"
+                      max="100"
                     />
                   </mat-form-field>
                 </td>
@@ -141,7 +144,7 @@
               <ng-container matColumnDef="practiceTime">
                 <th mat-header-cell *matHeaderCellDef>
                   <span class="mat-subtitle-1" style="font-weight: 500"
-                    >Practice Time</span
+                    >Practice Time*</span
                   >
                 </th>
                 <td mat-cell *matCellDef="let element">
@@ -152,9 +155,12 @@
                   >
                     <input
                       matInput
+                      type="number"
                       name="practiceTime"
                       formControlName="practiceTime"
-                      placeholder="0 hr"
+                      placeholder="0 hr *"
+                      min="0"
+                      max="100"
                     />
                   </mat-form-field>
                 </td>
@@ -212,6 +218,7 @@
                             matInput
                             formControlName="description"
                             (input)="onInputChange($event)"
+                            placeholder="Enter Description *"
                           ></textarea>
                           <mat-error
                             >Field can't be empty or have more than 40
@@ -256,7 +263,7 @@
                     <mat-select
                       formControlName="courses"
                       multiple
-                      placeholder="Select Course"
+                      placeholder="Select Course *"
                     >
                       <mat-option
                         *ngFor="let course of courses"

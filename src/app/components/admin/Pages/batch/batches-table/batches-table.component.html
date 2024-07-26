@@ -20,6 +20,7 @@
           <td mat-cell *matCellDef="let row; let i = dataIndex">
             <div class="action-buttons">
               <mat-icon
+                style="cursor: pointer"
                 (click)="toggleTable(row)"
                 [ngClass]="{ 'disabled-icon': isAddClicked }"
                 ><span class="material-symbols-outlined">
@@ -30,10 +31,10 @@
                 class="action-buttons"
                 *ngIf="i != editingRowID; else editMode"
               >
-                <mat-icon (click)="editBatch(i, row)">
+                <mat-icon (click)="editBatch(i, row)" style="cursor: pointer">
                   <span class="material-icons-outlined"> edit </span>
                 </mat-icon>
-                <mat-icon (click)="deleteBatch(row)"
+                <mat-icon (click)="deleteBatch(row)" style="cursor: pointer"
                   ><span class="material-icons-outlined">
                     delete
                   </span></mat-icon
@@ -54,16 +55,14 @@
                   </mat-icon>
                 </span></ng-template
               >
-              <mat-icon style="transform: rotate(90deg)"
-                ><span class="material-symbols-outlined">
-                  horizontal_rule
-                </span></mat-icon
-              >
+              <span style="font-size: 25px; color: rgb(169, 165, 165)">|</span>
 
               <mat-icon style="cursor: pointer"
                 ><span
                   class="material-symbols-outlined"
                   matTooltip="Click to add Program"
+                  matTooltipClass="tooltip-custom-dark"
+                  [matTooltipPosition]="'above'"
                   (click)="toggleAdd(row)"
                   [ngClass]="{ 'disabled-icon': isTableClicked }"
                 >

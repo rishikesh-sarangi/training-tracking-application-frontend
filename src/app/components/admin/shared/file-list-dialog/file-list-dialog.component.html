@@ -1,0 +1,44 @@
+<div
+  fxLayout="row"
+  fxLayoutAlign="space-between center"
+  style="margin-right: 20px"
+>
+  <h2 mat-dialog-title>File List</h2>
+  <mat-icon style="font-size: 20px" [mat-dialog-close]="false">close</mat-icon>
+</div>
+
+<mat-divider></mat-divider>
+<mat-dialog-content>
+  <ng-container *ngIf="data.files && data.files.length > 0; else noFiles">
+    <mat-list>
+      <mat-list-item
+        *ngFor="let file of data.files"
+        fxLayout="row"
+        fxLayoutAlign="space-between center"
+        [ngClass]="{ 'marked-for-deletion': isFileMarkedForDeletion(file) }"
+      >
+        <div fxFlex fxLayoutAlign="start center">{{ file.fileName }}</div>
+        <button mat-icon-button (click)="toggleFileDeletion(file)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-list-item>
+    </mat-list>
+  </ng-container>
+  <ng-template #noFiles>
+    <p fxLayoutAlign="center center" style="padding: 20px">
+      No files available
+    </p>
+  </ng-template>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button
+    mat-button
+    [mat-dialog-close]="false"
+    style="text-align: end"
+    mat-flat-button
+    color="primary"
+    (click)="onSave()"
+  >
+    Save
+  </button>
+</mat-dialog-actions>
